@@ -60,6 +60,12 @@ export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'refresh') 
     console.log("✅ [REFRESH-STRATEGY] Token in DB (stored):", user.refreshToken ? user.refreshToken.substring(0, 20) + "..." : "EMPTY");
 
     // ✅ Compare tokens
+    console.log("🔍 [DEBUG] Sent token length:", refreshToken.length);
+    console.log("🔍 [DEBUG] Stored token length:", user.refreshToken?.length);
+    console.log("🔍 [DEBUG] Tokens equal:", user.refreshToken === refreshToken);
+    console.log("🔍 [DEBUG] Sent token (full):", refreshToken);
+    console.log("🔍 [DEBUG] Stored token (full):", user.refreshToken);
+
     if (user.refreshToken !== refreshToken) {
       console.error("❌ [REFRESH-STRATEGY] Token mismatch!");
       console.error("   Sent:  ", refreshToken.substring(0, 50) + "...");

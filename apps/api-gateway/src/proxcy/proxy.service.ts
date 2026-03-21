@@ -28,19 +28,28 @@ export class ProxyService {
     console.log("📍 Target:", target);
     console.log("📍 Full URL:", fullUrl);
     console.log("📍 Method:", req.method);
+    console.log("📍 Request headers x-user-id:", req.headers['x-user-id']);
+    console.log("📍 Request headers x-user-role:", req.headers['x-user-role']);
+    console.log("📍 ALL request headers keys:", Object.keys(req.headers).filter(k => k.includes('user') || k.includes('x-')));
     
     try {
+      const headersToForward = {
+        ...req.headers,
+        host: undefined,
+      };
+      
+      console.log("✅ About to forward with headers:");
+      console.log("   x-user-id:", headersToForward['x-user-id']);
+      console.log("   x-user-role:", headersToForward['x-user-role']);
+      
       const response: any = await this.http.request({
         method: req.method,
         url: fullUrl,
         data: req.body,
-        headers: {
-          ...req.headers,
-          host: undefined,
-        },
+        headers: headersToForward,
       }).toPromise();
 
-      console.log("✅ Response from LMS:", response.status);
+      console.log("✅ Response from", target, ":", response.status);
       res.status(response.status).json(response.data);
     } catch (error) {
       console.error("❌ Proxy error:", error.message);

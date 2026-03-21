@@ -17,4 +17,10 @@ import { JwtMiddleware } from './middleware/jwt.middleware';
   controllers: [ProxyController],
   providers: [ProxyService, JwtMiddleware],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(cookieParser(), JwtMiddleware)
+      .forRoutes('*');  // Apply to all routes
+  }
+}

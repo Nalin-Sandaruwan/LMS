@@ -11,13 +11,18 @@ import { Request, Response, NextFunction } from 'express';
 export class JwtMiddleware implements NestMiddleware {
   private readonly logger = new Logger(JwtMiddleware.name);
   private readonly AUTH_BASE = 'http://localhost:3001';
-  private readonly PUBLIC_PATHS = ['/auth/login', '/auth/signup', '/auth/refresh'];
+  private readonly PUBLIC_PATHS = ['http://localhost:3000/auth/login', 'http://localhost:3000/auth/signup', 'http://localhost:3000/auth/refresh'];
 
   constructor(private readonly httpService: HttpService) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
+    console.log("=====================================");
+    console.log("🚀 [MIDDLEWARE-START] URL:", req.url, "Method:", req.method);
+    console.log("🍪 Cookies available:", Object.keys(req.cookies));
+    console.log("=====================================");
+    
     // ✅ ONLY skip these public paths - NO middleware
-    const publicPaths = ['/auth/login', '/auth/signup', '/auth/refresh'];
+    const publicPaths = ['http://localhost:3000/auth/login', 'http://localhost:3000/auth/signup', 'http://localhost:3000/auth/refresh'];
     if (publicPaths.includes(req.url)) {
       console.log("✅ [GATEWAY-AUTH] Public route - skipping middleware");
       return next();
@@ -41,15 +46,25 @@ export class JwtMiddleware implements NestMiddleware {
       }
 
       console.log("✅ [GATEWAY-AUTH] Refreshed successfully");
+      console.log("📊 [REFRESH-DATA] accessToken:", refreshed.data?.accessToken?.substring(0, 20), "result:", refreshed.data?.result);
+      
       this.forwardSetCookies(refreshed.headers['set-cookie'], res);
       this.patchRequestCookie(req, refreshed.data.accessToken);
       
-      // ✅ Attach user info to headers
-      if (refreshed.data?.result?.id) {
-        req.headers['x-user-id'] = String(refreshed.data.result.id);
-        req.headers['x-user-role'] = refreshed.data.result.role || 'user';
-        console.log(`✅ [GATEWAY-AUTH] User info attached - ID: ${refreshed.data.result.id}, Role: ${refreshed.data.result.role}`);
-      }
+      // ✅ NEW: After refresh, call verify to get user data
+      const newCookieHeader = this.serializeCookies({
+        ...req.cookies,
+        accessToken: refreshed.data.accessToken
+      });
+      
+      const verifyResult = await this.verifyWithUserData(newCookieHeader);
+      console.log("📊 [POST-REFRESH-VERIFY] userData:", verifyResult.userData);
+      this.attachUserHeaders(req, verifyResult.userData);
+      
+      console.log("🎯 [BEFORE-NEXT-TOKEN-REFRESH] Headers:", {
+        'x-user-id': req.headers['x-user-id'],
+        'x-user-role': req.headers['x-user-role'],
+      });
       
       return next();
     }
@@ -62,17 +77,26 @@ export class JwtMiddleware implements NestMiddleware {
 
     // ✅ Verify current access token and get user data
     const verifyResult = await this.verifyWithUserData(cookieHeader);
+    console.log("📊 [VERIFY-RESULT] isValid:", verifyResult.isValid, "userData:", verifyResult.userData);
 
     if (verifyResult.isValid) {
       console.log("✅ [GATEWAY-AUTH] Token valid - proceeding");
       
       // ✅ Attach user info to headers
+      console.log("🔍 [ATTACH] userData?.id:", verifyResult.userData?.id);
       if (verifyResult.userData?.id) {
         req.headers['x-user-id'] = String(verifyResult.userData.id);
         req.headers['x-user-role'] = verifyResult.userData.role || 'user';
         console.log(`✅ [GATEWAY-AUTH] User info attached - ID: ${verifyResult.userData.id}, Role: ${verifyResult.userData.role}`);
+        console.log("📍 [HEADERS-SET] x-user-id:", req.headers['x-user-id'], "x-user-role:", req.headers['x-user-role']);
+      } else {
+        console.warn("⚠️ [ATTACH] userData is missing id:", verifyResult.userData);
       }
       
+      console.log("🎯 [BEFORE-NEXT] Calling next() - Headers now are:", {
+        'x-user-id': req.headers['x-user-id'],
+        'x-user-role': req.headers['x-user-role'],
+      });
       return next();
     }
 
@@ -97,13 +121,17 @@ export class JwtMiddleware implements NestMiddleware {
       console.log(`✅ [GATEWAY-AUTH] User info attached - ID: ${refreshed.data.result.id}, Role: ${refreshed.data.result.role}`);
     }
     
+    console.log("🎯 [BEFORE-NEXT-REFRESH] Calling next() - Headers now are:", {
+      'x-user-id': req.headers['x-user-id'],
+      'x-user-role': req.headers['x-user-role'],
+    });
     return next();
   }
 
   // ✅ New method: verify AND return user data
   private async verifyWithUserData(cookieHeader: string): Promise<{ isValid: boolean; userData?: any }> {
     try {
-      console.log("📤 [VERIFY] Calling /auth/verify...");
+      console.log("📤 [VERIFY] Calling /verify...");
       
       const response = await this.httpService
         .get(`${this.AUTH_BASE}/verify`, {
@@ -120,6 +148,8 @@ export class JwtMiddleware implements NestMiddleware {
 
       if (response?.status === 200) {
         console.log("✅ [VERIFY] Token valid");
+        console.log("📊 [VERIFY-RESPONSE] Full response data:", JSON.stringify(response?.data));
+        console.log("📊 [VERIFY-RESPONSE] result:", response?.data?.result);
         return { isValid: true, userData: response?.data?.result };
       }
 
@@ -141,7 +171,7 @@ export class JwtMiddleware implements NestMiddleware {
     cookieHeader: string,
   ): Promise<{ headers: Record<string, any>; data: any } | null> {
     try {
-      console.log("📤 [REFRESH] Calling /auth/refresh...");
+      console.log("📤 [REFRESH] Calling /refresh...");
 
       const refreshTokenMatch = cookieHeader.match(/refreshToken=([^;]+)/);
       if (!refreshTokenMatch) {
@@ -239,5 +269,13 @@ export class JwtMiddleware implements NestMiddleware {
     return Object.entries(cookies)
       .map(([k, v]) => `${k}=${v}`)
       .join('; ');
+  }
+
+  private attachUserHeaders(req: Request, userData: any): void {
+    if (userData?.id) {
+      req.headers['x-user-id'] = String(userData.id);
+      req.headers['x-user-role'] = userData.role || 'user';
+      console.log(`✅ [GATEWAY-AUTH] User info attached - ID: ${userData.id}, Role: ${userData.role}`);
+    }
   }
 }
