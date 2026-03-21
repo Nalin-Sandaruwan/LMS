@@ -179,10 +179,13 @@ export class JwtMiddleware implements NestMiddleware {
         return null;
       }
       
+      const refreshTokenValue = refreshTokenMatch[1];
+      console.log("📦 [REFRESH] Extracted refreshToken from cookie header");
+      
       const response = await this.httpService
         .post(
           `${this.AUTH_BASE}/refresh`,
-          {},
+          { refreshToken: refreshTokenValue }, // ✅ Send token in body as fallback
           {
             headers: {  
               Cookie: cookieHeader,

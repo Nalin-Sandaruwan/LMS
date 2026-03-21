@@ -133,42 +133,33 @@ export class AuthController {
 
     console.log("✅ [AUTH-REFRESH] New tokens generated");
     console.log("✅ [AUTH-REFRESH] accessToken:", user.accessToken.substring(0, 30) + "...");
-    console.log("✅ [AUTH-REFRESH] refreshToken:", user.refreshToken.substring(0, 30) + "...");
+    console.log("✅ [AUTH-REFRESH] refreshToken: (kept as is)");
 
-    // ✅ Clear old cookies
+    // ✅ Only clear and set accessToken
     res.clearCookie('accessToken');
-    res.clearCookie('refreshToken');
-    res.clearCookie('refresh_token');
 
-    // ✅ Set new cookies
+    // ✅ Set new accessToken cookie
     res.cookie('accessToken', user.accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // Set to true in production
-      sameSite: 'lax', // Adjust based on your requirements
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
       path: '/',
       maxAge: 60 * 1000, // 60 seconds
     });
 
-    res.cookie('refreshToken', user.refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // Set to true in production
-      sameSite: 'lax', // Adjust based on your requirements
-      path: '/',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
+    // ✅ NO NEED to update refreshToken cookie - it's still valid!
+    // The browser already has it, and we didn't regenerate it
 
-    res.cookie('refreshed_at', new Date().toISOString(), {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // Set to true in production
-      sameSite: 'lax', // Adjust based on your requirements
-      path: '/',
-    });
+    console.log("✅ [AUTH-REFRESH] Response sent");
 
-    // ✅ Return 200 OK
-    return res.status(200).json({
-      message: 'Token refreshed successfully',
+    return res.status(HttpStatus.OK).json({
+      message: 'Token refreshed',
       accessToken: user.accessToken,
       refreshToken: user.refreshToken,
+      result: {
+        id: req.user.id,
+        email: req.user.email,
+      },
     });
   }
 }

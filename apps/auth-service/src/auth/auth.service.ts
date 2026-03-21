@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
   UnauthorizedException,
+  Inject,
 } from '@nestjs/common';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
@@ -22,6 +23,7 @@ export class AuthService {
     @InjectRepository(User) private UserRepository: Repository<User>,
     private readonly UserService: UsersService,
     private readonly jwtService: JwtService,
+    @Inject('REFRESH_JWT_SERVICE') private readonly refreshJwtService: any, // ✅ Inject custom refresh JWT service
   ) {}
 
   //that mainly for local strategy
@@ -100,7 +102,7 @@ export class AuthService {
   }
 
   async refreshToken(id: number) {
-    console.log("🔄 [AUTH-SERVICE-REFRESH] Generating tokens for user:", id);
+    console.log("🔄 [AUTH-SERVICE-REFRESH] Refreshing tokens for user:", id);
 
     const user = await this.UserRepository.findOne({ where: { id } });
 
@@ -108,32 +110,34 @@ export class AuthService {
       throw new NotFoundException('User not found');
     }
 
-    const { accessToken, refreshToken } = await this.generateAccessToken(
-      user.id,
-      String(user.role), // ✓ Converts to string
-    );
+    // ✅ ONLY generate a NEW accessToken - keep the existing refreshToken
+    const payload = { sub: user.id, role: String(user.role) };
+    const accessToken = await this.jwtService.signAsync(payload, { expiresIn: '15m' });
 
-    console.log("🔄 [AUTH-SERVICE-REFRESH] Saving refreshToken to DB");
-    console.log("🔄 [AUTH-SERVICE-REFRESH] refreshToken (being saved):", refreshToken.substring(0, 30) + "...");
+    console.log("✅ [AUTH-SERVICE-REFRESH] New accessToken generated");
+    console.log("✅ [AUTH-SERVICE-REFRESH] accessToken:", accessToken.substring(0, 30) + "...");
+    console.log("✅ [AUTH-SERVICE-REFRESH] Keeping existing refreshToken (no update to DB)");
 
-    // ✅ CRITICAL: Save the token to DB
-    await this.UserRepository.update(user.id, { refreshToken });
-
-    console.log("✅ [AUTH-SERVICE-REFRESH] Tokens saved successfully");
-
+    // ✅ Return the NEW accessToken with the SAME refreshToken
     return {
       accessToken,
-      refreshToken,
+      refreshToken: user.refreshToken, // Keep the existing one
     };
   }
 
   //That was the main function for generating access and refresh token
   async generateAccessToken(id: number, role: string) {
     const payload = { sub: id, role };
-    const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.signAsync(payload, { expiresIn: '15m' }),
-      this.jwtService.signAsync(payload, { expiresIn: '7d' }),
-    ]);
+    
+    // ✅ Access token signed with JWT_SECRET (short-lived)
+    const accessToken = await this.jwtService.signAsync(payload, { expiresIn: '15m' });
+    
+    // ✅ Refresh token signed with REFRESH_JWT_SECRET (long-lived)
+    const refreshToken = await this.refreshJwtService.signAsync(payload, { expiresIn: '7d' });
+    
+    console.log("🔑 [TOKEN-GENERATION] Access token created with JWT_SECRET ✓");
+    console.log("🔑 [TOKEN-GENERATION] Refresh token created with REFRESH_JWT_SECRET ✓");
+    
     return { accessToken, refreshToken };
   }
 
