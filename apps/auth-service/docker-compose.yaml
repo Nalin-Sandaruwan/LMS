@@ -1,0 +1,47 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: pg_postgres
+    environment:
+      POSTGRES_USER: authuser
+      POSTGRES_PASSWORD: authpassword
+      POSTGRES_DB: authdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+    configs:
+      - source: postgres_config
+        target: /etc/postgresql/postgresql.conf
+
+volumes:
+  postgres_data:
+    driver: local
+
+configs:
+  postgres_config:
+    content: |
+      # Memory Configuration
+      shared_buffers = '128MB'
+      work_mem = '4MB'
+      maintenance_work_mem = '64MB'
+
+      # Write-Ahead Logging
+      wal_level = logical
+      max_wal_size = '1GB'
+      min_wal_size = '80MB'
+
+      # Query Planning
+      random_page_cost = 1.1
+      effective_cache_size = '512MB'
+
+      # Connection Settings
+      max_connections = 100
+      listen_addresses = '*'
+
+      # Replication
+      max_replication_slots = 5
+      max_wal_senders = 10

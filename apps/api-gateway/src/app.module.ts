@@ -1,25 +1,20 @@
-import { Module } from '@nestjs/common';
-import { ClientsModule, Transport } from '@nestjs/microservices';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import { HttpModule } from '@nestjs/axios';
+import { ConfigModule } from '@nestjs/config';
+import cookieParser from 'cookie-parser';
+import { ProxyService } from './proxcy/proxy.service';
+import { ProxyController } from './proxcy/proxy.controller';
+import { JwtMiddleware } from './middleware/jwt.middleware';
 
 @Module({
   imports: [
-    ClientsModule.register([
-      {
-        name: 'AUTH_SERVICE',
-        transport: Transport.TCP,
-        options: { host: 'localhost', port: 3001 },
-      },
-      {
-        name: 'USER_SERVICE',
-        transport: Transport.TCP,
-        options: { host: 'localhost', port: 3002 },
-      },
-      {
-        name: 'ORDER_SERVICE',
-        transport: Transport.TCP,
-        options: { host: 'localhost', port: 3003 },
-      },
-    ]),
+    HttpModule.register({
+      timeout: 5000,
+      maxRedirects: 3,
+    }),
+    ConfigModule.forRoot(),
   ],
+  controllers: [ProxyController],
+  providers: [ProxyService, JwtMiddleware],
 })
 export class AppModule {}
