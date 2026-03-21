@@ -11,7 +11,7 @@ import { Request, Response, NextFunction } from 'express';
 export class JwtMiddleware implements NestMiddleware {
   private readonly logger = new Logger(JwtMiddleware.name);
   private readonly AUTH_BASE = 'http://localhost:3001';
-  private readonly PUBLIC_PATHS = ['http://localhost:3000/auth/login', 'http://localhost:3000/auth/signup', 'http://localhost:3000/auth/refresh'];
+
 
   constructor(private readonly httpService: HttpService) {}
 
@@ -22,7 +22,7 @@ export class JwtMiddleware implements NestMiddleware {
     console.log("=====================================");
     
     // ✅ ONLY skip these public paths - NO middleware
-    const publicPaths = ['http://localhost:3000/auth/login', 'http://localhost:3000/auth/signup', 'http://localhost:3000/auth/refresh'];
+    const publicPaths = ['/auth/login', '/auth/signup', '/auth/refresh'];
     if (publicPaths.includes(req.url)) {
       console.log("✅ [GATEWAY-AUTH] Public route - skipping middleware");
       return next();
@@ -171,7 +171,7 @@ export class JwtMiddleware implements NestMiddleware {
     cookieHeader: string,
   ): Promise<{ headers: Record<string, any>; data: any } | null> {
     try {
-      console.log("📤 [REFRESH] Calling /refresh...");
+      console.log("📤 [REFRESH] Calling /auth/refresh...");
 
       const refreshTokenMatch = cookieHeader.match(/refreshToken=([^;]+)/);
       if (!refreshTokenMatch) {
@@ -184,7 +184,7 @@ export class JwtMiddleware implements NestMiddleware {
           `${this.AUTH_BASE}/refresh`,
           {},
           {
-            headers: { 
+            headers: {  
               Cookie: cookieHeader,
               'Content-Type': 'application/json',
             },
