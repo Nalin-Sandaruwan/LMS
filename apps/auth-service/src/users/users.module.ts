@@ -3,9 +3,13 @@ import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User])], // Provide the User repository here
+  imports: [
+    TypeOrmModule.forFeature([User]),
+    HttpModule,
+  ], // Provide the User repository here
   controllers: [UsersController],
   providers: [UsersService],
   exports: [UsersService],

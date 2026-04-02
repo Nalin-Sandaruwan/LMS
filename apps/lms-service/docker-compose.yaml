@@ -3,22 +3,22 @@ version: "3.8"
 services:
   postgres:
     image: postgres:latest
-    container_name: auth_postgres
+    container_name: lms_postgres
     environment:
-      POSTGRES_USER: authuser
-      POSTGRES_PASSWORD: authpassword
-      POSTGRES_DB: authdb
+      POSTGRES_USER: lmsuser
+      POSTGRES_PASSWORD: lmspassword
+      POSTGRES_DB: lmsdb
     ports:
-      - "5435:5432"
+      - "5436:5432"
     volumes:
-      - auth_postgres_data:/var/lib/postgresql
+      - lms_postgres_data:/var/lib/postgresql
     command: postgres -c config_file=/etc/postgresql/postgresql.conf
     configs:
       - source: postgres_config
         target: /etc/postgresql/postgresql.conf
 
 volumes:
-  auth_postgres_data:
+  lms_postgres_data:
     driver: local
 
 configs:
