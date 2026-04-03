@@ -5,6 +5,9 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TeacherModule } from './teacher/teacher.module';
 import { StudentModule } from './student/student.module';
+import { CourseModule } from './course/course.module';
+import { SectionModule } from './section/section.module';
+import { LessonsModule } from './lessons/lessons.module';
 import ormConfig from './config/orm.config';
 
 @Module({
@@ -15,7 +18,10 @@ import ormConfig from './config/orm.config';
     }),
     TypeOrmModule.forRoot(ormConfig()),
     TeacherModule,
-    StudentModule
+    StudentModule,
+    CourseModule,
+    SectionModule,
+    LessonsModule
   ],
   controllers: [AppController],
   providers: [AppService],
