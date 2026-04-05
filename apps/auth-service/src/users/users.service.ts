@@ -87,7 +87,8 @@ export class UsersService {
       );
       this.logger.log(`LMS Service response: ${JSON.stringify(lmsResponse.data)}`);
     } catch (err) {
-      this.logger.error(`Error during LMS Service sync: ${err.message}`);
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      this.logger.error(`Error during LMS Service sync: ${errorMessage}`);
       // Depending on requirements, you might want to rollback the user creation or just log it
     }
 
@@ -131,7 +132,8 @@ export class UsersService {
       );
       this.logger.log(`LMS Service response: ${JSON.stringify(lmsResponse.data)}`);
     } catch (err) {
-      this.logger.error(`Error during LMS Service sync: ${err.message}`);
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      this.logger.error(`Error during LMS Service sync: ${errorMessage}`);
       // Depending on requirements, you might want to rollback the user creation or just log it
     }
     return savedStudent;
@@ -145,8 +147,22 @@ export class UsersService {
     return `This action returns a #${id} user`;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async updateRestricted(id: number, updateUserDto: UpdateUserDto) {
+    return await this.userRepository.update(id, { isActive: false }); 
+  }
+
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    const user = await this.userRepository.findOne({ where: { id } });  
+    if (!user) {
+      this.logger.warn(`User with ID ${id} not found for update`);
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+
+    // Update only allowed fields (e.g., fullName, mobileNumber, etc.)
+    // Assuming UpdateUserDto has optional fields for updating
+     
+    return await this.userRepository.update(id, { ...updateUserDto });
+
   }
 
   remove(id: number) {

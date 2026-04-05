@@ -1,21 +1,17 @@
 import { IsString, IsNotEmpty, IsNumber, IsOptional, Min } from 'class-validator';
-
 export class CreateCourseDto {
-  @IsNumber()
-  @IsNotEmpty()
-  id: number;
 
   @IsString()
   @IsNotEmpty()
-  title: string;
+  title!: string;
 
   @IsString()
   @IsNotEmpty()
-  description: string;
+  description!: string;
 
   @IsNumber()
-  @IsNotEmpty()
-  teacherId: number;
+  @IsOptional()
+  teacherId?: number;
 
   @IsString()
   @IsOptional()

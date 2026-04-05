@@ -11,6 +11,9 @@ import { StepPassword } from "@/components/auth/StepPassword";
 import { SignupSuccess } from "@/components/auth/SignupSuccess";
 import { BrandPanel } from "@/components/auth/BrandPanel";
 import { SignupStep } from "@/components/auth/authTypes";
+import { useTeacherSignup } from "@/hooks/useAuth";
+import { toast } from "sonner";
+import { AxiosError } from "axios";
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
@@ -28,14 +31,49 @@ export default function TeacherSignupPage() {
     const [showPw, setShowPw] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
     const [agreed, setAgreed] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
 
-    const simulateSubmit = () => {
-        setIsLoading(true);
-        setTimeout(() => {
-            setIsLoading(false);
+    // Retrieve mutate and loading states from our new custom React Query hook
+    const { mutateAsync: signupTeacher, isPending: isLoading } = useTeacherSignup();
+
+    const simulateSubmit = async () => {
+        try {
+            await signupTeacher({
+                name: fullName,
+                email,
+                phone,
+                expertise,
+                bio,
+                password,
+            });
+            // If the mutation succeeds:
+            toast.success("Account created successfully!");
             setStep("SUCCESS");
-        }, 1600);
+        } catch (error) {
+            console.error("Signup failed:", error);
+            
+            // Extract the error message specifically if it comes from the NestJS backend
+            let errorMessage = "An unexpected error occurred. Please try again.";
+            
+            if (error instanceof AxiosError && error.response?.data) {
+                const backendData = error.response.data;
+                // NestJS typically wraps errors in a message array or string
+                if (Array.isArray(backendData.message)) {
+                    errorMessage = backendData.message[0]; // Take the first validation error
+                } else if (typeof backendData.message === 'string') {
+                    errorMessage = backendData.message; // Extracts "User with email teachers@example.com already exists"
+                } else if (backendData.error) {
+                    errorMessage = backendData.error;
+                }
+            } else if (error instanceof Error) {
+                errorMessage = error.message;
+            }
+
+            // Show a robust toast notification 
+            toast.error("Registration Failed", {
+                description: errorMessage,
+                duration: 5000 // 5 seconds
+            });
+        }
     };
 
     return (

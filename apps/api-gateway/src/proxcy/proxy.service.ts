@@ -50,9 +50,21 @@ export class ProxyService {
       }).toPromise();
 
       console.log("✅ Response from", target, ":", response.status);
+      
+      // Forward the Set-Cookie headers if any
+      if (response.headers['set-cookie']) {
+        res.setHeader('set-cookie', response.headers['set-cookie']);
+      }
+
       res.status(response.status).json(response.data);
     } catch (error) {
       console.error("❌ Proxy error:", error.message);
+      
+      // Forward error response cookies as well, crucial for logout
+      if (error.response?.headers?.['set-cookie']) {
+        res.setHeader('set-cookie', error.response.headers['set-cookie']);
+      }
+
       res.status(error.response?.status || 500).json(error.response?.data || { error: error.message });
     }
   }

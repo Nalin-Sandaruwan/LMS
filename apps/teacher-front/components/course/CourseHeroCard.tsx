@@ -2,7 +2,9 @@
 
 import { motion } from "framer-motion";
 import { BookOpen, Clock, Award, Zap } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { EditCourseDialog } from "@/components/course/EditCourseDialog";
+import { DeleteCourseDialog } from "@/components/course/DeleteCourseDialog";
 import type { CourseDetail } from "@/components/course/courseTypes";
 
 interface CourseHeroCardProps {
@@ -38,12 +40,14 @@ export function CourseHeroCard({
                 />
                 <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
                 <div className="absolute bottom-4 left-5 right-5 flex items-end justify-between">
-                    <span className="text-xs font-bold text-white bg-green-600 px-2.5 py-1 rounded-full">
-                        {course.status}
+                    <span 
+                        className={`text-xs font-bold text-white px-2.5 py-1 rounded-full ${
+                            course.isActive ? "bg-green-600" : "bg-gray-600"
+                        }`}
+                    >
+                        {course.isActive ? "Published" : "Not Published"}
                     </span>
-                    <span className="text-xs font-semibold text-white/80 bg-black/40 backdrop-blur-sm px-2.5 py-1 rounded-full">
-                        {course.category}
-                    </span>
+                   
                 </div>
             </div>
 
@@ -66,13 +70,14 @@ export function CourseHeroCard({
                         <BookOpen className="w-3.5 h-3.5" /> {totalLessons} lessons
                     </span>
                     <span className="flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5" /> {course.duration}
+                        <Clock className="w-3.5 h-3.5" /> {course.duration || 0 } mins
                     </span>
-                    <span className="flex items-center gap-1">
+                    {/* <span className="flex items-center gap-1">
                         <Award className="w-3.5 h-3.5" /> {course.level}
-                    </span>
+                    </span> */}
                     <span className="flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5" /> Updated {course.lastUpdated}
+                        <Clock className="w-3.5 h-3.5" /> 
+                        Updated {course.updatedAt ? new Date(course.updatedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : "Unknown"}
                     </span>
                 </div>
 
@@ -82,6 +87,11 @@ export function CourseHeroCard({
                         initialTitle={title}
                         initialDescription={description}
                         onSave={onInfoSave}
+                    />
+                    <DeleteCourseDialog
+                        courseId={course.id}
+                        courseTitle={title}
+                        onDelete={() => console.log("Deleted course:", course.id)}
                     />
                 </div>
             </div>
