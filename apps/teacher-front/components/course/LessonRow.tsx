@@ -20,6 +20,9 @@ import {
     LESSON_TYPE_COLOR,
     fadeUp,
 } from "@/components/course/courseTypes";
+import { EditLessonDialog } from "@/components/course/EditLessonDialog";
+import { ReplaceVideoDialog } from "@/components/course/ReplaceVideoDialog";
+import { DeleteLessonDialog } from "@/components/course/DeleteLessonDialog";
 
 interface LessonRowProps {
     lesson: Lesson;
@@ -130,28 +133,23 @@ export function LessonRow({ lesson, index }: LessonRowProps) {
 
                             {/* Action buttons */}
                             <div className="flex items-center gap-2 pt-1 flex-wrap">
-                                <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="h-7 px-3 text-xs rounded-xl gap-1 border-green-300 dark:border-green-800 text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20"
-                                >
-                                    <Edit3 className="w-3 h-3" /> Edit Lesson
-                                </Button>
+                                <EditLessonDialog 
+                                    lesson={lesson} 
+                                    onSave={(updated) => console.log("Edit Lesson saved:", lesson.id, updated)} 
+                                />
                                 {lesson.type === "video" && (
-                                    <Button size="sm" variant="outline" className="h-7 px-3 text-xs rounded-xl gap-1">
-                                        <Video className="w-3 h-3" /> Replace Video
-                                    </Button>
+                                    <ReplaceVideoDialog 
+                                        lesson={lesson} 
+                                        onSave={(file) => console.log("New video uploaded for lesson", lesson.id, file.name)} 
+                                    />
                                 )}
                                 <Button size="sm" variant="outline" className="h-7 px-3 text-xs rounded-xl gap-1">
                                     <Eye className="w-3 h-3" /> Preview
                                 </Button>
-                                <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="h-7 px-3 text-xs rounded-xl gap-1 text-red-600 dark:text-red-400 border-red-200 dark:border-red-900 hover:bg-red-50 dark:hover:bg-red-900/20"
-                                >
-                                    <Trash2 className="w-3 h-3" /> Delete
-                                </Button>
+                                <DeleteLessonDialog 
+                                    lesson={lesson} 
+                                    onDelete={() => console.log("Deleting lesson:", lesson.id)} 
+                                />
                             </div>
                         </div>
                     </motion.div>

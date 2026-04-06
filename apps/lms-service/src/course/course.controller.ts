@@ -2,9 +2,9 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Headers, UseGuards }
 import { CourseService } from './course.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
-import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { Roles } from 'src/auth/decorators/roles.decorator';
-import { Role } from 'src/auth/enums/roles.enum';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '../auth/enums/roles.enum';
 
 @Controller('course')
 export class CourseController {
@@ -27,6 +27,12 @@ export class CourseController {
   findAll() {
     return this.courseService.findAll();
   }
+
+  @Get('teacher-created')
+  findAllTeacherCreated(@Headers('x-user-id') teacherId: string, @Headers('x-user-role') userRole: string) {
+    return this.courseService.findAllTeacherCreated(parseInt(teacherId, 10));
+  }
+
 
   @Get(':id')
   findOne(@Param('id') id: string) {

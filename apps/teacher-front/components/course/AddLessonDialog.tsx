@@ -34,10 +34,10 @@ const TYPE_OPTIONS: {
     activeColor: string;
     iconColor: string;
 }[] = [
-    { type: "video",   label: "Video",   icon: Video,      activeColor: "border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400",   iconColor: "text-blue-500" },
-    { type: "article", label: "Article", icon: FileText,   activeColor: "border-violet-500 bg-violet-50 dark:bg-violet-900/20 text-violet-700 dark:text-violet-400", iconColor: "text-violet-500" },
-    { type: "quiz",    label: "Quiz",    icon: BadgeCheck, activeColor: "border-amber-500 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400",   iconColor: "text-amber-500" },
-];
+        { type: "video", label: "Video", icon: Video, activeColor: "border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400", iconColor: "text-blue-500" },
+        { type: "article", label: "Article", icon: FileText, activeColor: "border-violet-500 bg-violet-50 dark:bg-violet-900/20 text-violet-700 dark:text-violet-400", iconColor: "text-violet-500" },
+        { type: "quiz", label: "Quiz", icon: BadgeCheck, activeColor: "border-amber-500 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400", iconColor: "text-amber-500" },
+    ];
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -54,22 +54,24 @@ export function AddLessonDialog({ onAdd, trigger }: AddLessonDialogProps) {
     const [open, setOpen] = useState(false);
 
     // Form fields
-    const [title, setTitle]       = useState("");
-    const [type, setType]         = useState<LessonType>("video");
+    const [title, setTitle] = useState("");
+    const [type, setType] = useState<LessonType>("video");
     const [duration, setDuration] = useState("");
-    const [status, setStatus]     = useState<LessonStatus>("draft");
-    const [preview, setPreview]   = useState(false);
+    const [status, setStatus] = useState<LessonStatus>("draft");
+    const [preview, setPreview] = useState(false);
     const [description, setDescription] = useState("");
+    const [videoFile, setVideoFile] = useState<File | null>(null);
 
     // UI state
     const [saving, setSaving] = useState(false);
-    const [saved, setSaved]   = useState(false);
+    const [saved, setSaved] = useState(false);
 
     // Reset on open
     useEffect(() => {
         if (open) {
             setTitle(""); setType("video"); setDuration("");
             setStatus("draft"); setPreview(false); setDescription("");
+            setVideoFile(null);
             setSaved(false); setSaving(false);
         }
     }, [open]);
@@ -79,12 +81,13 @@ export function AddLessonDialog({ onAdd, trigger }: AddLessonDialogProps) {
         setSaving(true);
         await new Promise((r) => setTimeout(r, 500)); // replace with real API call
         onAdd({
-            title:       title.trim(),
+            title: title.trim(),
             type,
-            duration:    duration.trim() || "—",
+            duration: duration.trim() || "—",
             status,
             preview,
             description: description.trim(),
+            file: type === "video" && videoFile ? videoFile : undefined,
         });
         setSaving(false);
         setSaved(true);
@@ -158,11 +161,10 @@ export function AddLessonDialog({ onAdd, trigger }: AddLessonDialogProps) {
                                 <button
                                     key={t}
                                     onClick={() => setType(t)}
-                                    className={`flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 text-xs font-bold transition-all ${
-                                        type === t
-                                            ? activeColor
-                                            : "border-gray-200 dark:border-gray-700 text-gray-400 hover:border-gray-300 dark:hover:border-gray-600"
-                                    }`}
+                                    className={`flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 text-xs font-bold transition-all ${type === t
+                                        ? activeColor
+                                        : "border-gray-200 dark:border-gray-700 text-gray-400 hover:border-gray-300 dark:hover:border-gray-600"
+                                        }`}
                                 >
                                     <Icon className={`w-4 h-4 ${type === t ? "" : iconColor}`} />
                                     {label}
@@ -172,7 +174,7 @@ export function AddLessonDialog({ onAdd, trigger }: AddLessonDialogProps) {
                     </div>
 
                     {/* Duration + Status */}
-                    <div className="grid grid-cols-2 gap-3">
+                    {/* <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-1.5">
                             <label
                                 htmlFor="lesson-duration"
@@ -206,16 +208,15 @@ export function AddLessonDialog({ onAdd, trigger }: AddLessonDialogProps) {
                                 <option value="published">Published</option>
                             </select>
                         </div>
-                    </div>
+                    </div> */}
 
                     {/* Free preview toggle */}
-                    <button
+                    {/* <button
                         onClick={() => setPreview(!preview)}
-                        className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border-2 text-sm font-semibold transition-all ${
-                            preview
+                        className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border-2 text-sm font-semibold transition-all ${preview
                                 ? "border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400"
                                 : "border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-gray-300"
-                        }`}
+                            }`}
                     >
                         <span className="flex items-center gap-2">
                             {preview ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
@@ -224,10 +225,10 @@ export function AddLessonDialog({ onAdd, trigger }: AddLessonDialogProps) {
                         <span className="text-xs">
                             {preview ? "Students can watch for free" : "Enrolled students only"}
                         </span>
-                    </button>
+                    </button> */}
 
                     {/* Description */}
-                    <div className="space-y-1.5">
+                    {/* <div className="space-y-1.5">
                         <label
                             htmlFor="lesson-description"
                             className="block text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wide"
@@ -244,7 +245,52 @@ export function AddLessonDialog({ onAdd, trigger }: AddLessonDialogProps) {
                             className="w-full px-3 py-2.5 rounded-xl text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500 transition-colors resize-none"
                         />
                         <p className="text-xs text-gray-400 text-right">{description.length}/500</p>
-                    </div>
+                    </div> */}
+
+                    {/* Video file uplode section */}
+                    {type === "video" && (
+                        <div className="space-y-1.5 pt-2">
+                            <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+                                Upload Video File (MP4)
+                            </label>
+
+                            <label className={`flex flex-col items-center justify-center w-full h-36 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${videoFile
+                                    ? "border-green-500 bg-green-50 dark:bg-green-900/20"
+                                    : "border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                                }`}>
+                                <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center px-4">
+                                    {videoFile ? (
+                                        <>
+                                            <CheckCircle2 className="w-8 h-8 mb-2 text-green-500" />
+                                            <p className="text-sm font-bold text-green-700 dark:text-green-400 line-clamp-1">
+                                                {videoFile.name}
+                                            </p>
+                                            <p className="text-xs text-green-600/80 dark:text-green-500/80 mt-1">
+                                                {(videoFile.size / (1024 * 1024)).toFixed(2)} MB • Click to replace
+                                            </p>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Video className="w-8 h-8 mb-2 text-gray-400" />
+                                            <p className="text-sm font-bold text-gray-700 dark:text-gray-300">Click to attach MP4 video</p>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-1">MP4 format only (max. 2GB)</p>
+                                        </>
+                                    )}
+                                </div>
+                                <input
+                                    type="file"
+                                    className="hidden"
+                                    accept="video/mp4"
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            setVideoFile(file);
+                                        }
+                                    }}
+                                />
+                            </label>
+                        </div>
+                    )}
                 </div>
 
                 {/* ── Footer ── */}

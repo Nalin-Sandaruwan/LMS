@@ -21,6 +21,14 @@ export class SectionService {
     return await this.sectionRepository.find({ relations: ['course'] });
   }
 
+  //Teacher Creaated cources showcase
+  async findAllTeacherCreated(teacherId: number) {
+    return await this.sectionRepository.find({
+      where: { course: { teacherId } },
+      relations: ['course'],
+    });
+  }
+
   async findOne(id: number) {
     return await this.sectionRepository.findOne({
       where: { id },
