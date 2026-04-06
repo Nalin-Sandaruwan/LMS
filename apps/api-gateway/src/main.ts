@@ -13,7 +13,11 @@ async function bootstrap() {
 
   // Enable CORS
   app.enableCors({
-    origin: ['http://localhost:5174', 'http://localhost:5173', 'http://localhost:3000'], // Keep aligned with your front-end ports
+    origin: [
+      'http://localhost:5174',
+      'http://localhost:5173',
+      'http://localhost:3000',
+    ], // Keep aligned with your front-end ports
     credentials: true,
   });
 
@@ -28,17 +32,23 @@ async function bootstrap() {
   app.use((req, res, next) => jwtMiddleware.use(req, res, next));
 
   // ✅ Step 3: Auth proxy
-  app.use('/auth/', createProxyMiddleware({
-    target: 'http://localhost:3001',
-    changeOrigin: true,
-    pathRewrite: { '^/auth': '' },
-  }));
+  app.use(
+    '/auth/',
+    createProxyMiddleware({
+      target: 'http://localhost:3001',
+      changeOrigin: true,
+      pathRewrite: { '^/auth': '' },
+    }),
+  );
 
   // ✅ Step 4: API proxy
-  app.use('/api/', createProxyMiddleware({
-    target: 'http://localhost:3002',
-    changeOrigin: true,
-  }));
+  app.use(
+    '/api/',
+    createProxyMiddleware({
+      target: 'http://localhost:3002',
+      changeOrigin: true,
+    }),
+  );
 
   await app.listen(3000);
   console.log('API Gateway running on http://localhost:3000');

@@ -19,8 +19,6 @@ import { JwtMiddleware } from './middleware/jwt.middleware';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(cookieParser(), JwtMiddleware)
-      .forRoutes('*');  // Apply to all routes
+    consumer.apply(cookieParser(), JwtMiddleware).forRoutes('*'); // Apply to all routes
   }
 }

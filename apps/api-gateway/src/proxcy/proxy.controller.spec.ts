@@ -6,7 +6,7 @@ describe('ProxyController', () => {
   let controller: ProxyController;
   let proxyService: ProxyService;
 
-  // 1. Setup a "Mock" Service. We don't want to actually forward 
+  // 1. Setup a "Mock" Service. We don't want to actually forward
   // real network requests during a unit test.
   const mockProxyService = {
     forward: jest.fn(),
@@ -39,14 +39,18 @@ describe('ProxyController', () => {
     it('should forward requests starting with /auth/* to the AUTH service', async () => {
       // Arrange (Setup mock request and response objects)
       const mockReq = { url: '/auth/login' };
-      const mockRes = { status: jest.fn() }; 
+      const mockRes = { status: jest.fn() };
 
       // Act (Call the actual method on your controller)
       await controller.proxyToAuth(mockReq, mockRes);
 
       // Assert (Verify that your controller called the mock service correctly)
       expect(proxyService.forward).toHaveBeenCalledTimes(1);
-      expect(proxyService.forward).toHaveBeenCalledWith(mockReq, mockRes, 'AUTH');
+      expect(proxyService.forward).toHaveBeenCalledWith(
+        mockReq,
+        mockRes,
+        'AUTH',
+      );
     });
   });
 
@@ -58,7 +62,11 @@ describe('ProxyController', () => {
       await controller.proxyToLms(mockReq, mockRes);
 
       expect(proxyService.forward).toHaveBeenCalledTimes(1);
-      expect(proxyService.forward).toHaveBeenCalledWith(mockReq, mockRes, 'LMS');
+      expect(proxyService.forward).toHaveBeenCalledWith(
+        mockReq,
+        mockRes,
+        'LMS',
+      );
     });
   });
 });
