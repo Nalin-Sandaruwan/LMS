@@ -22,7 +22,7 @@ export class JwtMiddleware implements NestMiddleware {
     console.log("=====================================");
     
     // ✅ ONLY skip these public paths - NO middleware
-    const publicPaths = ['/auth/login', '/auth/signup', '/auth/refresh'];
+    const publicPaths = ['/auth/login', '/auth/signup', '/auth/refresh','/auth/signup/teacher','/auth/users','/auth/signup/student'];
     if (publicPaths.includes(req.url)) {
       console.log("✅ [GATEWAY-AUTH] Public route - skipping middleware");
       return next();

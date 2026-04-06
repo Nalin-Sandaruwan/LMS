@@ -36,10 +36,10 @@ export function CourseSidebar({ course, totalLessons, publishedLessons }: Course
                 </h3>
 
                 {[
-                    { label: "Enrolled Students", value: course.students.toLocaleString(), icon: Users,         color: "text-blue-500" },
-                    { label: "Average Rating",    value: `${course.rating} ★`,            icon: Star,           color: "text-amber-500" },
-                    { label: "Total Reviews",     value: course.reviews.toLocaleString(),  icon: CheckCircle2,   color: "text-green-500" },
-                    { label: "Total Revenue",     value: `$${(course.revenue / 1000).toFixed(1)}k`, icon: ChevronRight, color: "text-violet-500" },
+                    { label: "Enrolled Students", value: (course.students || 0).toLocaleString(), icon: Users,         color: "text-blue-500" },
+                    { label: "Average Rating",    value: `${course.rating || 0} ★`,            icon: Star,           color: "text-amber-500" },
+                    { label: "Total Reviews",     value: (course.reviews || 0).toLocaleString(),  icon: CheckCircle2,   color: "text-green-500" },
+                    { label: "Total Revenue",     value: `$${((course.revenue || 0) / 1000).toFixed(1)}k`, icon: ChevronRight, color: "text-violet-500" },
                 ].map(({ label, value, icon: Icon, color }) => (
                     <div key={label} className="flex items-center justify-between">
                         <span className={`flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 font-medium`}>
@@ -53,14 +53,14 @@ export function CourseSidebar({ course, totalLessons, publishedLessons }: Course
                 <div className="pt-2 border-t border-gray-100 dark:border-gray-800 space-y-1.5">
                     <div className="flex justify-between text-xs font-medium">
                         <span className="text-gray-400 dark:text-gray-500">Avg Completion</span>
-                        <span className="text-green-600 dark:text-green-400">{course.completionRate}%</span>
+                        <span className="text-green-600 dark:text-green-400">{course.completionRate || 0}%</span>
                     </div>
                     <div className="h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
                         <motion.div
                             className="h-full rounded-full"
                             style={{ background: "linear-gradient(to right, #074C00, #42A341, #B8E2A3)" }}
                             initial={{ width: 0 }}
-                            animate={{ width: `${course.completionRate}%` }}
+                            animate={{ width: `${course.completionRate || 0}%` }}    
                             transition={{ duration: 1.2, delay: 0.5, ease: "easeOut" }}
                         />
                     </div>
@@ -77,7 +77,7 @@ export function CourseSidebar({ course, totalLessons, publishedLessons }: Course
                     { label: "Total Lessons", value: totalLessons,                   icon: BookOpen,     color: "bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400" },
                     { label: "Published",     value: publishedLessons,               icon: CheckCircle2, color: "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400" },
                     { label: "Draft",         value: totalLessons - publishedLessons, icon: Lock,        color: "bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400" },
-                    { label: "Sections",      value: course.sections.length,         icon: PlayCircle,   color: "bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400" },
+                    { label: "Sections",      value: (course.sections || []).length,         icon: PlayCircle,   color: "bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400" },
                 ].map(({ label, value, icon: Icon, color }) => (
                     <div key={label} className="flex items-center gap-3">
                         <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${color}`}>
@@ -90,7 +90,7 @@ export function CourseSidebar({ course, totalLessons, publishedLessons }: Course
             </div>
 
             {/* ── Quick Actions card ── */}
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-5 space-y-2">
+            {/* <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-5 space-y-2">
                 <h3 className="font-bold text-gray-900 dark:text-white text-sm mb-3">Quick Actions</h3>
                 {[
                     { label: "Publish All Draft Lessons", icon: CheckCircle2, variant: "default"  as const },
@@ -107,7 +107,7 @@ export function CourseSidebar({ course, totalLessons, publishedLessons }: Course
                         <Icon className="w-3.5 h-3.5 mr-2" /> {label}
                     </Button>
                 ))}
-            </div>
+            </div> */}
         </motion.div>
     );
 }

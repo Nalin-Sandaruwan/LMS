@@ -9,11 +9,17 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth, useLogout } from "@/hooks/useAuth";
+import { apiClient } from "@/lib/api/axios";
+import { toast } from "sonner";
 
 export interface IAppProps { }
 
-const navItems = [
+const publicNavItems = [
     { name: "Home", href: "/" },
+];
+
+const privateNavItems = [
     { name: "Your Courses", href: "/your-courses" },
     { name: "Profile", href: "/profile" },
 ];
@@ -21,6 +27,14 @@ const navItems = [
 export function Navigation() {
     const pathname = usePathname();
     const [isOpen, setIsOpen] = React.useState(false);
+    const { isAuthenticated, user, isLoading } = useAuth();
+    const { mutate: performLogout, isPending: isLoggingOut } = useLogout();
+
+    const handleLogout = () => {
+        performLogout();
+    };
+
+    const currentNavItems = [...publicNavItems, ...privateNavItems];
 
     return (
         <div className='absolute top-0 w-full z-50 page-margin'>
@@ -40,7 +54,7 @@ export function Navigation() {
 
                 {/* Desktop Navigation Links */}
                 <div className='hidden md:flex flex-1 justify-center gap-8 lg:gap-12 flex-row text-gray-900 dark:text-white font-medium'>
-                    {navItems.map((item) => {
+                    {!isLoading && currentNavItems.map((item) => {
                         const isActive = pathname === item.href;
 
                         return (
@@ -73,30 +87,34 @@ export function Navigation() {
 
                     {/* Desktop Only Actions */}
                     <div className="hidden md:flex gap-4 items-center">
-                        <Link href="/login">
-                            <Button variant="default" size="lg"> Login </Button>
-                        </Link>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Avatar className="cursor-pointer border-2 border-transparent hover:border-green-500 transition-colors">
-                                    <AvatarFallback className='bg-green-300 border border-green-700 text-green-700 font-bold'>CN</AvatarFallback>
-                                </Avatar>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-56 p-2 rounded-xl border border-gray-200 dark:border-gray-800 shadow-xl bg-white/95 dark:bg-gray-950/95 backdrop-blur-xl mt-2 z-50">
-                                <div className="flex flex-col p-2 border-b border-gray-100 dark:border-gray-800 mb-2">
-                                    <span className="font-bold text-sm text-gray-900 dark:text-white">Guest User</span>
-                                    <span className="text-xs text-gray-500">guest@example.com</span>
-                                </div>
-                                <div className="flex flex-col space-y-1">
-                                    <Button asChild variant="ghost" className="w-full justify-start h-9 text-sm focus:ring-0">
-                                        <Link href="/profile/your-profile">Profile</Link>
+                        {!isLoading ? (
+                            !isAuthenticated ? (
+                                <Link href="/login">
+                                    <Button variant="default" size="lg"> Login </Button>
+                                </Link>
+                            ) : (
+                                <div className="flex items-center gap-4">
+                                    <Link href="/profile">
+                                        <Avatar className="cursor-pointer border-2 border-transparent hover:border-green-500 transition-colors">
+                                            <AvatarFallback className='bg-green-300 border border-green-700 text-green-700 font-bold'>
+                                                {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                    </Link>
+                                    <Button 
+                                        variant="outline" 
+                                        size="sm" 
+                                        onClick={handleLogout} 
+                                        disabled={isLoggingOut}
+                                        className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 dark:border-red-900/30 dark:hover:bg-red-900/20 disabled:opacity-50"
+                                    > 
+                                        {isLoggingOut ? "Logging out..." : "Logout"}
                                     </Button>
-
-                                    <div className="h-px bg-gray-100 dark:bg-gray-800 my-1" />
-                                    <Button variant="ghost" className="w-full justify-start h-9 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 focus:ring-0">Logout</Button>
                                 </div>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                            )
+                        ) : (
+                            <div className="w-[80px] h-[40px] animate-pulse bg-gray-200 dark:bg-gray-800 rounded-lg"></div>
+                        )}
                     </div>
 
                     {/* Mobile Hamburger Button */}
@@ -128,7 +146,7 @@ export function Navigation() {
                     >
                         <div className="bg-white/95 dark:bg-gray-950/95 backdrop-blur-3xl border border-gray-200 dark:border-gray-800 rounded-3xl p-6 shadow-2xl flex flex-col gap-6">
                             <div className="flex flex-col gap-2">
-                                {navItems.map((item, idx) => {
+                                {currentNavItems.map((item, idx) => {
                                     const isActive = pathname === item.href;
                                     return (
                                         <Link key={item.name} href={item.href} onClick={() => setIsOpen(false)}>
@@ -156,29 +174,35 @@ export function Navigation() {
                                 transition={{ delay: 0.3 }}
                                 className="flex items-center gap-4 px-4"
                             >
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Avatar className="h-12 w-12 cursor-pointer border-2 border-white dark:border-gray-800 shadow-sm hover:border-green-500 transition-colors">
-                                            <AvatarFallback className='bg-green-300 border border-green-700 text-green-700 font-bold'>CN</AvatarFallback>
-                                        </Avatar>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent side="top" align="start" className="w-56 p-2 rounded-xl border border-gray-200 dark:border-gray-800 shadow-2xl bg-white/95 dark:bg-gray-950/95 backdrop-blur-xl mb-4 z-50">
-                                        <div className="flex flex-col space-y-1">
-                                            <Button asChild variant="ghost" className="w-full justify-start h-9 text-sm focus:ring-0">
-                                                <Link href="/profile/your-profile" onClick={() => setIsOpen(false)}>Profile</Link>
-                                            </Button>
-                                            <div className="h-px bg-gray-100 dark:bg-gray-800 my-1" />
-                                            <Button variant="ghost" className="w-full justify-start h-9 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 focus:ring-0">Logout</Button>
-                                        </div>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                                <div className="flex flex-col">
-                                    <span className="text-sm font-bold text-gray-900 dark:text-white">Guest User</span>
-                                    <span className="text-xs text-green-600 dark:text-green-400 font-medium">Click to login</span>
-                                </div>
-                                <Link href="/login" onClick={() => setIsOpen(false)} className="ml-auto">
-                                    <Button variant="default" className="px-6 shadow-md shadow-green-500/20"> Login </Button>
+                                <Link href={isAuthenticated ? "/profile" : "#"} onClick={() => setIsOpen(false)}>
+                                    <Avatar className="h-12 w-12 cursor-pointer border-2 border-white dark:border-gray-800 shadow-sm hover:border-green-500 transition-colors">
+                                        <AvatarFallback className='bg-green-300 border border-green-700 text-green-700 font-bold'>
+                                            {isAuthenticated ? (user?.name?.charAt(0)?.toUpperCase() || 'U') : 'G'}
+                                        </AvatarFallback>
+                                    </Avatar>
                                 </Link>
+                                <div className="flex flex-col overflow-hidden">
+                                    <span className="text-sm font-bold text-gray-900 dark:text-white truncate">
+                                        {isAuthenticated ? (user?.name || "User") : "Guest User"}
+                                    </span>
+                                    <span className="text-xs text-green-600 dark:text-green-400 font-medium truncate">
+                                        {isAuthenticated ? (user?.email || "Authenticated") : "Click to login"}
+                                    </span>
+                                </div>
+                                {!isAuthenticated ? (
+                                    <Link href="/login" onClick={() => setIsOpen(false)} className="ml-auto shrink-0">
+                                        <Button variant="default" className="px-5 shadow-md shadow-green-500/20"> Login </Button>
+                                    </Link>
+                                ) : (
+                                    <Button 
+                                        variant="outline" 
+                                        onClick={handleLogout} 
+                                        disabled={isLoggingOut}
+                                        className="ml-auto shrink-0 px-5 text-red-600 border-red-200 hover:bg-red-50 dark:border-red-900/30 dark:hover:bg-red-950/30 disabled:opacity-50"
+                                    > 
+                                        {isLoggingOut ? "..." : "Logout"}
+                                    </Button>
+                                )}
                             </motion.div>
                         </div>
                     </motion.div>

@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { LessonRow } from "@/components/course/LessonRow";
 import { AddLessonDialog } from "@/components/course/AddLessonDialog";
+import { DeleteSectionDialog } from "@/components/course/DeleteSectionDialog";
 import { type Section, type Lesson, fadeUp, stagger } from "@/components/course/courseTypes";
 
 interface SectionCardProps {
@@ -54,14 +55,21 @@ export function SectionCard({ section, sectionIndex }: SectionCardProps) {
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
+                    <span onClick={(e) => e.stopPropagation()}>
+                        <DeleteSectionDialog
+                            sectionId={section.id}
+                            sectionTitle={section.title}
+                            onDelete={() => console.log("Deleted section:", section.id)}
+                        />
+                    </span>
                     {/* Stop propagation so clicking AddLessonDialog doesn't toggle collapse */}
+
                     <span onClick={(e) => e.stopPropagation()}>
                         <AddLessonDialog onAdd={addLesson} />
                     </span>
                     <ChevronDown
-                        className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
-                            collapsed ? "-rotate-90" : ""
-                        }`}
+                        className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${collapsed ? "-rotate-90" : ""
+                            }`}
                     />
                 </div>
             </div>

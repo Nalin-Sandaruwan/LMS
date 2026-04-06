@@ -18,8 +18,8 @@ import {
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface AddSectionDialogProps {
-    /** Called when the teacher saves a new section title */
-    onAdd: (title: string) => void;
+    /** Called when the teacher saves a new section title and description */
+    onAdd: (title: string, description: string) => void;
     /** Optional custom trigger — defaults to the green "Add Section" button */
     trigger?: React.ReactNode;
 }
@@ -29,6 +29,7 @@ interface AddSectionDialogProps {
 export function AddSectionDialog({ onAdd, trigger }: AddSectionDialogProps) {
     const [open, setOpen] = useState(false);
     const [title, setTitle] = useState("");
+    const [description, setDescription] = useState("");
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
 
@@ -36,20 +37,22 @@ export function AddSectionDialog({ onAdd, trigger }: AddSectionDialogProps) {
     useEffect(() => {
         if (open) {
             setTitle("");
+            setDescription("");
             setSaved(false);
             setSaving(false);
         }
     }, [open]);
 
     const handleAdd = async () => {
-        const trimmed = title.trim();
-        if (!trimmed) return;
+        const trimmedTitle = title.trim();
+        const trimmedDescription = description.trim();
+        if (!trimmedTitle) return;
 
         setSaving(true);
         // Simulate async — swap for real API call
         await new Promise((r) => setTimeout(r, 500));
 
-        onAdd(trimmed);
+        onAdd(trimmedTitle, trimmedDescription);
         setSaving(false);
         setSaved(true);
         setTimeout(() => setOpen(false), 700);
@@ -89,27 +92,49 @@ export function AddSectionDialog({ onAdd, trigger }: AddSectionDialogProps) {
                 </DialogHeader>
 
                 {/* ── Form ── */}
-                <div className="px-6 py-5">
-                    <label
-                        htmlFor="section-title"
-                        className="flex items-center gap-1.5 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-1.5"
-                    >
-                        <LayoutList className="w-3 h-3" /> Section Title
-                        <span className="text-red-500 normal-case font-normal">*</span>
-                    </label>
-                    <Input
-                        id="section-title"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        placeholder="e.g. Getting Started, Advanced Concepts…"
-                        maxLength={80}
-                        autoFocus
-                        className="h-11 rounded-xl bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-sm focus:border-green-500 focus:ring-green-500/30"
-                    />
-                    <p className="text-xs text-gray-400 dark:text-gray-500 text-right mt-1">
-                        {title.length}/80
-                    </p>
+                <div className="px-6 py-5 space-y-4">
+                    <div>
+                        <label
+                            htmlFor="section-title"
+                            className="flex items-center gap-1.5 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-1.5"
+                        >
+                            <LayoutList className="w-3 h-3" /> Section Title
+                            <span className="text-red-500 normal-case font-normal">*</span>
+                        </label>
+                        <Input
+                            id="section-title"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                            placeholder="e.g. Getting Started, Advanced Concepts…"
+                            maxLength={80}
+                            autoFocus
+                            className="h-11 rounded-xl bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-sm focus:border-green-500 focus:ring-green-500/30"
+                        />
+                        <p className="text-xs text-gray-400 dark:text-gray-500 text-right mt-1">
+                            {title.length}/80
+                        </p>
+                    </div>
+
+                    <div>
+                        <label
+                            htmlFor="section-desc"
+                            className="flex items-center gap-1.5 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wide mb-1.5"
+                        >
+                            Section Description
+                        </label>
+                        <textarea
+                            id="section-desc"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            placeholder="A brief overview of what students will learn in this section…"
+                            maxLength={250}
+                            className="flex w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500/30 min-h-[80px]"
+                        />
+                        <p className="text-xs text-gray-400 dark:text-gray-500 text-right mt-1">
+                            {description.length}/250
+                        </p>
+                    </div>
                 </div>
 
                 {/* ── Footer ── */}

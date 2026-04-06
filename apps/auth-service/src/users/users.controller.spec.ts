@@ -3,6 +3,7 @@ import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
+import { HttpService } from '@nestjs/axios';
 
 describe('UsersController', () => {
   let controller: UsersController;
@@ -19,6 +20,13 @@ describe('UsersController', () => {
             find: jest.fn(),
             save: jest.fn(),
             delete: jest.fn(),
+          },
+        },
+        {
+          provide: HttpService,
+          useValue: {
+            post: jest.fn(),
+            get: jest.fn(),
           },
         },
       ],

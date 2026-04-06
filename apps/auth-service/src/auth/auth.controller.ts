@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { response, type Request, type Response } from 'express';
 import { AuthService } from './auth.service';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { CreateStudentDto, CreateTeacherDto, CreateUserDto } from 'src/users/dto/create-user.dto';
 import { loginDto } from './dto/login.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { JwtAuthGuard } from './guard/jwt.auth.guard';
@@ -23,14 +23,19 @@ import { Role } from './enums/roles.enum';
 import { Roles } from './decorators/roles.decorator';
 import { RolesGuard } from './guard/role/roles.guard';
 import { get } from 'http';
+import { UsersService } from 'src/users/users.service';
+import { patch } from 'axios';
 
 @Controller()
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly userService: UsersService
+  ) { }
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Body() loginDto: loginDto, @Res() response: Response) {
+  async login(@Body() loginDto: loginDto, @Res({ passthrough: true }) response: Response) {
     console.log("🔑 [AUTH-LOGIN] Logging in user:", loginDto.email);
 
     const result = await this.authService.login(
@@ -65,10 +70,8 @@ export class AuthController {
     console.log("✅ [AUTH-LOGIN] accessToken set:", result.accessToken.substring(0, 30) + "...");
     console.log("✅ [AUTH-LOGIN] refreshToken set:", result.refreshToken.substring(0, 30) + "...");
 
-    return response.status(HttpStatus.OK).json({
-      message: 'Login successful',
-      user: result.user,
-    });
+    // Now standard 'return' works again!
+    return result;
   }
 
   @Post('signup')
@@ -80,6 +83,49 @@ export class AuthController {
       role: user.role,
     };
   }
+
+  // student signupendpoint
+
+
+
+  // teacher signup endpoint
+  @Post('signup/teacher')
+  async signUpTeacher(@Body() createTeacherDto: CreateTeacherDto) {
+    createTeacherDto.role = Role.TEACHER; // Set role to 'teacher' for teacher signup
+    const teacher = await this.userService.TeacherSignUp(createTeacherDto);
+    return teacher;
+  }
+
+  // student signup endpoint
+  @Post('signup/student')
+  async signUpStudent(@Body() createStudentDto: CreateStudentDto) {
+    createStudentDto.role = Role.USER;
+    const student = await this.userService.StudentSignUp(createStudentDto);
+    return student;
+  }
+
+
+  //I need to make the user delete endpoint
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.USER, Role.TEACHER)
+  @Patch('users/:id')
+  async deleteUser(@Param('id') id: number) {
+    return await this.userService.update(id, { isActive: false }); // Soft delete by setting isActive to false
+  }
+
+  //I need add editprofile endpoint
+  @UseGuards(JwtAuthGuard)
+  @Patch('users/edit/:id')
+
+
+  //getall  users // testing 
+  @Get('users')
+  async getAllUsers() {
+    const users = await this.userService.findAll();
+    return users;
+  }
+
+
   //virefy the user endpoint
   @UseGuards(JwtAuthGuard)
   @Get('verify')
@@ -91,8 +137,8 @@ export class AuthController {
   }
 
   // <-- Add this guard to protect the route
-  @UseGuards( JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.TEACHER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.USER, Role.TEACHER)
   @Get('profile')
   async getProfile(@Req() req) {
     const user = req.user;
@@ -111,16 +157,16 @@ export class AuthController {
       userId,
       req.cookies.refreshToken,
     ); // Invalidate refresh token
-    res.clearCookie('accessToken');
-    res.clearCookie('refreshToken');
-    res.status(HttpStatus.OK).json({ message: 'Logout successful' });
+    res.clearCookie('accessToken', { path: '/' });
+    res.clearCookie('refreshToken', { path: '/' });
+    res.status(200).json({ message: 'Logout successful' });
   }
 
   //I need testing route for the acess Token remove on cookiees
   @UseGuards(JwtAuthGuard)
   @Get('test')
   async test(@Req() req, @Res() res: Response) {
-    res.clearCookie('accessToken');
+    res.clearCookie('accessToken', { path: '/' });
     res.status(HttpStatus.OK).json({ message: 'Access token cleared' });
   }
 
@@ -163,4 +209,3 @@ export class AuthController {
     });
   }
 }
- 

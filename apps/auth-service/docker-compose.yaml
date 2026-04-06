@@ -3,22 +3,22 @@ version: "3.8"
 services:
   postgres:
     image: postgres:latest
-    container_name: pg_postgres
+    container_name: auth_postgres
     environment:
       POSTGRES_USER: authuser
       POSTGRES_PASSWORD: authpassword
       POSTGRES_DB: authdb
     ports:
-      - "5432:5432"
+      - "5435:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql
+      - auth_postgres_data:/var/lib/postgresql
     command: postgres -c config_file=/etc/postgresql/postgresql.conf
     configs:
       - source: postgres_config
         target: /etc/postgresql/postgresql.conf
 
 volumes:
-  postgres_data:
+  auth_postgres_data:
     driver: local
 
 configs:
