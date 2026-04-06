@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { Course } from '../../course/entities/course.entity';
 
 @Entity('teachers')
 export class Teacher {
@@ -25,6 +26,10 @@ export class Teacher {
 
   @Column({ nullable: true })
   profilePicture: string;
+
+  //relationship with the course entity
+  @OneToMany(() => Course, (course) => course.teacher)
+  courses: Course[];
 
   @CreateDateColumn()
   createdAt: Date;

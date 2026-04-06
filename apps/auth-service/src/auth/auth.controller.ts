@@ -24,13 +24,14 @@ import { Roles } from './decorators/roles.decorator';
 import { RolesGuard } from './guard/role/roles.guard';
 import { get } from 'http';
 import { UsersService } from 'src/users/users.service';
+import { patch } from 'axios';
 
 @Controller()
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UsersService
-  ) {}
+  ) { }
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
@@ -85,7 +86,7 @@ export class AuthController {
 
   // student signupendpoint
 
-  
+
 
   // teacher signup endpoint
   @Post('signup/teacher')
@@ -95,12 +96,27 @@ export class AuthController {
     return teacher;
   }
 
+  // student signup endpoint
   @Post('signup/student')
   async signUpStudent(@Body() createStudentDto: CreateStudentDto) {
     createStudentDto.role = Role.USER;
     const student = await this.userService.StudentSignUp(createStudentDto);
     return student;
   }
+
+
+  //I need to make the user delete endpoint
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.USER, Role.TEACHER)
+  @Patch('users/:id')
+  async deleteUser(@Param('id') id: number) {
+    return await this.userService.update(id, { isActive: false }); // Soft delete by setting isActive to false
+  }
+
+  //I need add editprofile endpoint
+  @UseGuards(JwtAuthGuard)
+  @Patch('users/edit/:id')
+
 
   //getall  users // testing 
   @Get('users')
@@ -121,8 +137,8 @@ export class AuthController {
   }
 
   // <-- Add this guard to protect the route
-  @UseGuards( JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.TEACHER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.USER, Role.TEACHER)
   @Get('profile')
   async getProfile(@Req() req) {
     const user = req.user;
@@ -141,16 +157,16 @@ export class AuthController {
       userId,
       req.cookies.refreshToken,
     ); // Invalidate refresh token
-    res.clearCookie('accessToken');
-    res.clearCookie('refreshToken');
-    res.status(HttpStatus.OK).json({ message: 'Logout successful' });
+    res.clearCookie('accessToken', { path: '/' });
+    res.clearCookie('refreshToken', { path: '/' });
+    res.status(200).json({ message: 'Logout successful' });
   }
 
   //I need testing route for the acess Token remove on cookiees
   @UseGuards(JwtAuthGuard)
   @Get('test')
   async test(@Req() req, @Res() res: Response) {
-    res.clearCookie('accessToken');
+    res.clearCookie('accessToken', { path: '/' });
     res.status(HttpStatus.OK).json({ message: 'Access token cleared' });
   }
 

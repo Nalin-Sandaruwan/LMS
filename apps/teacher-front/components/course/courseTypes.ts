@@ -13,6 +13,7 @@ export interface Lesson {
     duration: string;
     status: LessonStatus;
     videoUrl?: string;
+    file?: File;
     preview: boolean;
     description: string;
 }
@@ -20,6 +21,7 @@ export interface Lesson {
 export interface Section {
     id: number;
     title: string;
+    description?: string;
     lessons: Lesson[];
 }
 
@@ -30,13 +32,15 @@ export interface CourseDetail {
     category: string;
     level: string;
     status: string;
+    isActive?: boolean;
     students: number;
     rating: number;
     reviews: number;
     duration: string;
     revenue: number;
     thumbnail: string;
-    lastUpdated: string;
+    lastUpdated?: string;
+    updatedAt?: string;
     completionRate: number;
     sections: Section[];
 }

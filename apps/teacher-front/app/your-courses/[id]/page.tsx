@@ -1,50 +1,87 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Navigation } from "@/components/baseComponets/navBar";
 
 // ─── Feature components ───────────────────────────────────────────────────────
-import { CourseHeroCard }    from "@/components/course/CourseHeroCard";
-import { SectionCard }       from "@/components/course/SectionCard";
-import { CourseSidebar }     from "@/components/course/CourseSidebar";
-import { AddSectionDialog }  from "@/components/course/AddSectionDialog";
-import type { Section }      from "@/components/course/courseTypes";
+import { CourseHeroCard } from "@/components/course/CourseHeroCard";
+import { SectionCard } from "@/components/course/SectionCard";
+import { CourseSidebar } from "@/components/course/CourseSidebar";
+import { AddSectionDialog } from "@/components/course/AddSectionDialog";
+import type { Section } from "@/components/course/courseTypes";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
-import { COURSE_DATA, FALLBACK_COURSE } from "@/app/your-courses/[id]/data";
+import { useCourse } from "@/hooks/useCourses";
 
 // ─── Page ──────────────────────────────────────────────────────────────────────
 
 export default function CourseDetailPage() {
     const params = useParams();
     const id = String(params?.id ?? "1");
-    const course = COURSE_DATA[id] ?? FALLBACK_COURSE;
+    
+    const { data: course, isLoading, isError } = useCourse(id);
 
     // Live-editable title + description
     const [courseInfo, setCourseInfo] = useState({
-        title: course.title,
-        description: course.description,
+        title: "",
+        description: "",
     });
 
     // Local sections state so additions reflect instantly
-    const [sections, setSections] = useState<Section[]>(course.sections);
+    const [sections, setSections] = useState<Section[]>([]);
 
-    const addSection = (title: string) => {
+    useEffect(() => {
+        if (course) {
+            setCourseInfo({
+                title: course.title || "",
+                description: course.description || "",
+            });
+            setSections(course.sections || []);
+        }
+    }, [course]);
+
+    const addSection = (title: string, description: string) => {
         const newSection: Section = {
             id: Date.now(),   // temp ID; replace with server ID after API call
             title,
+            description,
             lessons: [],
         };
         setSections((prev) => [...prev, newSection]);
     };
 
-    const totalLessons     = sections.reduce((a, s) => a + s.lessons.length, 0);
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-gray-50 dark:bg-black font-sans flex flex-col">
+                <Navigation />
+                <div className="flex-1 flex items-center justify-center">
+                    <Loader2 className="w-10 h-10 animate-spin text-green-500" />
+                </div>
+            </div>
+        );
+    }
+
+    if (isError || !course) {
+        return (
+            <div className="min-h-screen bg-gray-50 dark:bg-black font-sans flex flex-col">
+                <Navigation />
+                <div className="flex-1 flex flex-col items-center justify-center gap-4">
+                    <p className="text-xl font-bold text-gray-500">Course not found</p>
+                    <Link href="/your-courses">
+                        <span className="text-green-500 hover:text-green-600 underline">Go back to your courses</span>
+                    </Link>
+                </div>
+            </div>
+        );
+    }
+
+    const totalLessons = sections.reduce((a, s) => a + (s.lessons?.length || 0), 0);
     const publishedLessons = sections.reduce(
-        (a, s) => a + s.lessons.filter((l) => l.status === "published").length,
+        (a, s) => a + (s.lessons?.filter((l) => l.status === "published").length || 0),
         0
     );
 

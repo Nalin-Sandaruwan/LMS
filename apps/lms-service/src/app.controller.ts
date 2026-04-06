@@ -1,5 +1,8 @@
-import { Controller, Get, Headers } from '@nestjs/common';
+import { Controller, Get, Headers, UseGuards } from '@nestjs/common';
 import { AppService } from './app.service';
+import { RolesGuard } from './auth/guards/roles.guard';
+import { Roles } from './auth/decorators/roles.decorator';
+import { Role } from './auth/enums/roles.enum';
 
 @Controller('lms')
 export class AppController {
@@ -11,6 +14,8 @@ export class AppController {
   }
 
   @Get('/lms')
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN, Role.TEACHER)
   getLms(@Headers('x-user-id') userId: string, @Headers('x-user-role') userRole: string) {
     console.log('✅ [LMS] Request from user:', userId, 'Role:', userRole);
     return {

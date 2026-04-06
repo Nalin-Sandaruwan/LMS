@@ -1,4 +1,5 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { Course } from 'src/course/entities/course.entity';
 import { Teacher } from 'src/teacher/entities/teacher.entity';
 
 
@@ -11,7 +12,7 @@ export default (): TypeOrmModuleOptions => {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     autoLoadEntities: true,
-    entities:[Teacher],
+    entities:[Teacher,Course],
     synchronize: process.env.DB_SYNCHRONIZE === 'true',
   };
 };
