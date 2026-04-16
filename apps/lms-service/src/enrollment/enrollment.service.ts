@@ -29,8 +29,17 @@ export class EnrollmentService {
       throw new BadRequestException('You are already enrolled in this course');
     }
 
-    const enrollment = this.enrollmentRepository.create(createEnrollmentDto);
-    return await this.enrollmentRepository.save(enrollment);
+    try {
+      const enrollment = this.enrollmentRepository.create(createEnrollmentDto);
+      return await this.enrollmentRepository.save(enrollment);
+    } catch (error: any) {
+      if (error?.code === '23503') {
+        throw new BadRequestException(
+          'Cannot create enrollment: The specified student or course does not exist.',
+        );
+      }
+      throw error;
+    }
   }
 
   async findAll() {

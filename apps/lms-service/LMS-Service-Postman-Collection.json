@@ -1,16 +1,16 @@
 {
 	"info": {
 		"_postman_id": "8a2f1b4c-9d6e-4f3a-b2c5-8e9d0f1a2b3c",
-		"name": "🎓 LMS Service API",
-		"description": "Comprehensive collection for testing all LMS Service endpoints, including Course, Section, Lesson, and Enrollment management.",
+		"name": "LMS Service API",
+		"description": "Comprehensive collection for testing all LMS Service endpoints, including Course, Section, Lesson, and Enrollment management. Includes full CRUD capabilities for all entities. Access roles are explicitly documented on each route based on backend Guards.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "🏥 Health Check",
+			"name": "Health Check",
 			"item": [
 				{
-					"name": "GET Health Check",
+					"name": "[Public] GET Health Check",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -27,7 +27,7 @@
 					"response": []
 				},
 				{
-					"name": "GET Secure Health Check",
+					"name": "[Admin, Teacher] GET Secure Health Check",
 					"request": {
 						"method": "GET",
 						"header": [
@@ -58,10 +58,10 @@
 			]
 		},
 		{
-			"name": "👩‍🏫 Teacher",
+			"name": "Teacher",
 			"item": [
 				{
-					"name": "POST Create Teacher",
+					"name": "[Public] POST Create Teacher",
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -88,7 +88,7 @@
 					"response": []
 				},
 				{
-					"name": "GET All Teachers",
+					"name": "[Public] GET All Teachers",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -105,9 +105,54 @@
 					"response": []
 				},
 				{
-					"name": "GET Teacher By ID",
+					"name": "[Public] GET Teacher By ID",
 					"request": {
 						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/teacher/{{teacherUserId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teacher",
+								"{{teacherUserId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[Public] PATCH Update Teacher",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fullName\": \"Dr. John Doe Jr.\",\n  \"shortBio\": \"Updated bio details\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/teacher/{{teacherUserId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teacher",
+								"{{teacherUserId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[Public] DELETE Teacher",
+					"request": {
+						"method": "DELETE",
 						"header": [],
 						"url": {
 							"raw": "{{baseUrl}}/teacher/{{teacherUserId}}",
@@ -125,10 +170,10 @@
 			]
 		},
 		{
-			"name": "👨‍🎓 Student",
+			"name": "Student",
 			"item": [
 				{
-					"name": "POST Create Student",
+					"name": "[Public] POST Create Student",
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -155,7 +200,7 @@
 					"response": []
 				},
 				{
-					"name": "GET All Students",
+					"name": "[Public] GET All Students",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -170,14 +215,77 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "[Public] GET Student By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/student/{{studentUserId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"student",
+								"{{studentUserId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[Public] PATCH Update Student",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fullName\": \"Jane Doe\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/student/{{studentUserId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"student",
+								"{{studentUserId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[Public] DELETE Student",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/student/{{studentUserId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"student",
+								"{{studentUserId}}"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
 		{
-			"name": "📚 Course",
+			"name": "Course",
 			"item": [
 				{
-					"name": "POST Create Course",
+					"name": "[Teacher] POST Create Course",
 					"event": [
 						{
 							"listen": "test",
@@ -208,7 +316,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"title\": \"Advanced NestJS Development\",\n  \"description\": \"Learn how to build scalable microservices with NestJS.\",\n  \"thumbnail\": \"https://example.com/nestjs.png\"\n}",
+							"raw": "{\n  \"title\": \"Advanced NestJS Development\",\n  \"description\": \"Learn how to build scalable microservices with NestJS.\",\n  \"thumbnail\": \"https://example.com/nestjs.png\",\n  \"price\": 49.99,\n  \"category\": \"Development\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -228,7 +336,7 @@
 					"response": []
 				},
 				{
-					"name": "GET All Courses",
+					"name": "[Public] GET All Courses",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -245,7 +353,7 @@
 					"response": []
 				},
 				{
-					"name": "GET Teacher Created Courses",
+					"name": "[Public] GET Teacher Created Courses",
 					"request": {
 						"method": "GET",
 						"header": [
@@ -267,14 +375,89 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "[Public] GET Course By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/course/{{courseId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"course",
+								"{{courseId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[Public] PATCH Update Course",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "{{teacherUserId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Advanced NestJS Development (Updated)\",\n  \"price\": 59.99\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/course/{{courseId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"course",
+								"{{courseId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[Public] DELETE Course",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "{{teacherUserId}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/course/{{courseId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"course",
+								"{{courseId}}"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
 		{
-			"name": "📂 Section",
+			"name": "Section",
 			"item": [
 				{
-					"name": "POST Create Section",
+					"name": "[Public] POST Create Section",
 					"event": [
 						{
 							"listen": "test",
@@ -291,10 +474,16 @@
 					],
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "{{teacherUserId}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"courseId\": {{courseId}},\n  \"title\": \"Getting Started\",\n  \"description\": \"Environment setup and first project.\",\n  \"duration\": 60\n}",
+							"raw": "{\n  \"courseId\": {{courseId}},\n  \"title\": \"Getting Started\",\n  \"description\": \"Environment setup and first project.\",\n  \"position\": 1\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -312,14 +501,130 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "[Public] GET All Sections",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/section",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"section"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[Public] GET Teacher Created Sections",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "{{teacherUserId}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/section/teacher-created",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"section",
+								"teacher-created"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[Public] GET Section By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/section/{{sectionId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"section",
+								"{{sectionId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[Public] PATCH Update Section",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "{{teacherUserId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Getting Started (Updated)\",\n  \"position\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/section/{{sectionId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"section",
+								"{{sectionId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[Public] DELETE Section",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "{{teacherUserId}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/section/{{sectionId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"section",
+								"{{sectionId}}"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
 		{
-			"name": "🎬 Lesson",
+			"name": "Lesson",
 			"item": [
 				{
-					"name": "POST Create Article Lesson",
+					"name": "[Teacher] POST Create Article Lesson",
 					"event": [
 						{
 							"listen": "test",
@@ -336,10 +641,21 @@
 					],
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "{{teacherUserId}}",
+								"type": "text"
+							},
+							{
+								"key": "x-user-role",
+								"value": "{{teacherRole}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"sectionId\": {{sectionId}},\n  \"title\": \"NestJS Architecture Overview\",\n  \"type\": \"article\",\n  \"status\": \"published\"\n}",
+							"raw": "{\n  \"sectionId\": {{sectionId}},\n  \"title\": \"NestJS Architecture Overview\",\n  \"type\": \"article\",\n  \"status\": \"published\",\n  \"position\": 1\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -359,10 +675,21 @@
 					"response": []
 				},
 				{
-					"name": "POST Start Bunny Upload Session",
+					"name": "[Teacher] POST Start Bunny Upload Session",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "{{teacherUserId}}",
+								"type": "text"
+							},
+							{
+								"key": "x-user-role",
+								"value": "{{teacherRole}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n  \"sectionId\": {{sectionId}},\n  \"title\": \"First Video Lesson\",\n  \"fileName\": \"intro.mp4\"\n}",
@@ -384,14 +711,194 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "[Teacher] POST Replace Video",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "{{teacherUserId}}",
+								"type": "text"
+							},
+							{
+								"key": "x-user-role",
+								"value": "{{teacherRole}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fileName\": \"updated-intro.mp4\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/lessons/{{lessonId}}/replace-video",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lessons",
+								"{{lessonId}}",
+								"replace-video"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[Public] POST Bunny Webhook",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"VideoLibraryId\": 123456,\n  \"VideoGuid\": \"some-guid-string\",\n  \"Status\": 3\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/lessons/bunny-webhook",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lessons",
+								"bunny-webhook"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[Teacher] GET All Lessons",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-user-role",
+								"value": "{{teacherRole}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/lessons",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lessons"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[Teacher] GET Lesson By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-user-role",
+								"value": "{{teacherRole}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/lessons/{{lessonId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lessons",
+								"{{lessonId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[Teacher] PATCH Update Lesson",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "{{teacherUserId}}",
+								"type": "text"
+							},
+							{
+								"key": "x-user-role",
+								"value": "{{teacherRole}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"NestJS Architecture Overview - Updated\",\n  \"status\": \"draft\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/lessons/{{lessonId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lessons",
+								"{{lessonId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[Teacher] DELETE Lesson",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "{{teacherUserId}}",
+								"type": "text"
+							},
+							{
+								"key": "x-user-role",
+								"value": "{{teacherRole}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/lessons/{{lessonId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lessons",
+								"{{lessonId}}"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
 		{
-			"name": "📝 Enrollment",
+			"name": "Enrollment",
 			"item": [
 				{
-					"name": "POST Create Enrollment",
+					"name": "[Public] POST Create Enrollment",
 					"event": [
 						{
 							"listen": "test",
@@ -408,7 +915,13 @@
 					],
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "{{studentUserId}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n  \"userId\": 101,\n  \"classId\": {{courseId}},\n  \"status\": \"active\",\n  \"progressCalculation\": 0\n}",
@@ -431,7 +944,31 @@
 					"response": []
 				},
 				{
-					"name": "GET All Enrollments",
+					"name": "[Public] GET User Enrolled Courses",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "{{studentUserId}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/enrollment/user-enrolled-courses",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"enrollment",
+								"user-enrolled-courses"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[Public] GET All Enrollments",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -448,7 +985,7 @@
 					"response": []
 				},
 				{
-					"name": "GET Enrollment By ID",
+					"name": "[Public] GET Enrollment By ID",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -466,7 +1003,7 @@
 					"response": []
 				},
 				{
-					"name": "PATCH Update Progress",
+					"name": "[Public] PATCH Update Progress",
 					"request": {
 						"method": "PATCH",
 						"header": [],
@@ -493,7 +1030,7 @@
 					"response": []
 				},
 				{
-					"name": "DELETE Enrollment",
+					"name": "[Public] DELETE Enrollment",
 					"request": {
 						"method": "DELETE",
 						"header": [],
