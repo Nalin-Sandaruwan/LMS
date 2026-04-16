@@ -23,6 +23,8 @@ export function MiniVideoPlayer({ url, title }: MiniVideoPlayerProps) {
         setPlaying(!playing);
     };
 
+    const isBunnyEmbed = url.includes("iframe.mediadelivery.net");
+
     return (
         <motion.div
             initial={{ opacity: 0, height: 0 }}
@@ -32,25 +34,37 @@ export function MiniVideoPlayer({ url, title }: MiniVideoPlayerProps) {
             className="overflow-hidden"
         >
             <div className="mt-3 rounded-2xl overflow-hidden bg-black border border-gray-800 relative group">
-                <video
-                    ref={videoRef}
-                    src={url}
-                    className="w-full aspect-video object-cover"
-                    onEnded={() => setPlaying(false)}
-                    onClick={toggle}
-                    title={title}
-                />
+                {isBunnyEmbed ? (
+                    <iframe
+                        src={url || undefined}
+                        loading="lazy"
+                        className="w-full aspect-video border-none"
+                        allow="accelerometer; gyroscope; autocomplete; encrypted-media; picture-in-picture;"
+                        allowFullScreen
+                    ></iframe>
+                ) : (
+                    <>
+                        <video
+                            ref={videoRef}
+                            src={url || undefined}
+                            className="w-full aspect-video object-cover"
+                            onEnded={() => setPlaying(false)}
+                            onClick={toggle}
+                            title={title}
+                        />
 
-                {/* Play overlay when paused */}
-                {!playing && (
-                    <div
-                        onClick={toggle}
-                        className="absolute inset-0 flex items-center justify-center bg-black/40 cursor-pointer group-hover:bg-black/30 transition-colors"
-                    >
-                        <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center shadow-xl">
-                            <PlayCircle className="w-7 h-7 text-green-700 fill-green-600" />
-                        </div>
-                    </div>
+                        {/* Play overlay when paused */}
+                        {!playing && (
+                            <div
+                                onClick={toggle}
+                                className="absolute inset-0 flex items-center justify-center bg-black/40 cursor-pointer group-hover:bg-black/30 transition-colors"
+                            >
+                                <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center shadow-xl">
+                                    <PlayCircle className="w-7 h-7 text-green-700 fill-green-600" />
+                                </div>
+                            </div>
+                        )}
+                    </>
                 )}
 
                 {/* Bottom label */}

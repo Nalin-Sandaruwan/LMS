@@ -32,17 +32,16 @@ interface LessonRowProps {
 export function LessonRow({ lesson, index }: LessonRowProps) {
     const [expanded, setExpanded] = useState(false);
     const [showVideo, setShowVideo] = useState(false);
-    const TypeIcon = LESSON_TYPE_ICON[lesson.type];
+    const TypeIcon = LESSON_TYPE_ICON[lesson?.type] || Video;
 
     return (
         <motion.div variants={fadeUp} className="group">
             {/* Main row */}
             <div
-                className={`flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-all duration-200 ${
-                    expanded
-                        ? "bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800"
-                        : "hover:bg-gray-50 dark:hover:bg-gray-800/60 border border-transparent"
-                }`}
+                className={`flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-all duration-200 ${expanded
+                    ? "bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800"
+                    : "hover:bg-gray-50 dark:hover:bg-gray-800/60 border border-transparent"
+                    }`}
                 onClick={() => setExpanded(!expanded)}
             >
                 {/* Drag handle */}
@@ -77,20 +76,18 @@ export function LessonRow({ lesson, index }: LessonRowProps) {
 
                 {/* Status badge */}
                 <span
-                    className={`text-xs font-bold px-2 py-0.5 rounded-full shrink-0 hidden sm:inline ${
-                        lesson.status === "published"
-                            ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800"
-                            : "bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700"
-                    }`}
+                    className={`text-xs font-bold px-2 py-0.5 rounded-full shrink-0 hidden sm:inline ${lesson.status === "published"
+                        ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800"
+                        : "bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700"
+                        }`}
                 >
                     {lesson.status === "published" ? "Live" : "Draft"}
                 </span>
 
                 {/* Chevron */}
                 <ChevronDown
-                    className={`w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200 ${
-                        expanded ? "rotate-180" : ""
-                    }`}
+                    className={`w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200 ${expanded ? "rotate-180" : ""
+                        }`}
                 />
             </div>
 
@@ -111,7 +108,7 @@ export function LessonRow({ lesson, index }: LessonRowProps) {
                             </p>
 
                             {/* Video preview toggle */}
-                            {lesson.type === "video" && lesson.videoUrl && (
+                            {lesson.type === "video" && (lesson.fileUrl || lesson.videoUrl) && (
                                 <div>
                                     <button
                                         onClick={() => setShowVideo(!showVideo)}
@@ -123,7 +120,7 @@ export function LessonRow({ lesson, index }: LessonRowProps) {
                                     <AnimatePresence>
                                         {showVideo && (
                                             <MiniVideoPlayer
-                                                url={lesson.videoUrl}
+                                                url={lesson.fileUrl || lesson.videoUrl || ""}
                                                 title={lesson.title}
                                             />
                                         )}
@@ -133,22 +130,20 @@ export function LessonRow({ lesson, index }: LessonRowProps) {
 
                             {/* Action buttons */}
                             <div className="flex items-center gap-2 pt-1 flex-wrap">
-                                <EditLessonDialog 
-                                    lesson={lesson} 
-                                    onSave={(updated) => console.log("Edit Lesson saved:", lesson.id, updated)} 
+                                <EditLessonDialog
+                                    lesson={lesson}
+                                    onSave={(updated) => console.log("Edit Lesson saved:", lesson.id, updated)}
                                 />
                                 {lesson.type === "video" && (
-                                    <ReplaceVideoDialog 
-                                        lesson={lesson} 
-                                        onSave={(file) => console.log("New video uploaded for lesson", lesson.id, file.name)} 
+                                    <ReplaceVideoDialog
+                                        lesson={lesson}
+                                        onSave={(file) => console.log("New video uploaded for lesson", lesson.id, file.name)}
                                     />
                                 )}
-                                <Button size="sm" variant="outline" className="h-7 px-3 text-xs rounded-xl gap-1">
-                                    <Eye className="w-3 h-3" /> Preview
-                                </Button>
-                                <DeleteLessonDialog 
-                                    lesson={lesson} 
-                                    onDelete={() => console.log("Deleting lesson:", lesson.id)} 
+
+                                <DeleteLessonDialog
+                                    lesson={lesson}
+                                    onDelete={() => console.log("Deleting lesson:", lesson.id)}
                                 />
                             </div>
                         </div>

@@ -22,6 +22,8 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import type { Lesson, LessonType } from "@/components/course/courseTypes";
+import { useLesson } from "@/hooks/useLesson";
+
 
 // ─── Type meta ────────────────────────────────────────────────────────────────
 
@@ -58,7 +60,7 @@ export function EditLessonDialog({ lesson, onSave, trigger }: EditLessonDialogPr
     const [videoFile, setVideoFile] = useState<File | null>(null);
 
     // UI state
-    const [saving, setSaving] = useState(false);
+    const { updateLesson, isUpdating } = useLesson();
     const [saved, setSaved] = useState(false);
 
     // Reset when opening dialog
@@ -68,25 +70,33 @@ export function EditLessonDialog({ lesson, onSave, trigger }: EditLessonDialogPr
             setType(lesson.type);
             setDescription(lesson.description);
             setVideoFile(null); // Keep null because we don't hold original File object, but we could fetch current url if we wanted
-            setSaved(false); setSaving(false);
+            setSaved(false);
         }
     }, [open, lesson]);
 
     const handleSave = async () => {
         if (!title.trim()) return;
-        setSaving(true);
-        await new Promise((r) => setTimeout(r, 600)); // Simulated API
 
-        onSave?.({
-            title: title.trim(),
-            type,
-            description: description.trim(),
-            file: type === "video" && videoFile ? videoFile : undefined,
-        });
+        try {
+            await updateLesson({
+                id: lesson.id,
+                title: title.trim(),
+                description: description?.trim(),
+                type,
+            });
 
-        setSaving(false);
-        setSaved(true);
-        setTimeout(() => setOpen(false), 700);
+            onSave?.({
+                title: title.trim(),
+                type,
+                description: description.trim(),
+                file: type === "video" && videoFile ? videoFile : undefined,
+            });
+
+            setSaved(true);
+            setTimeout(() => setOpen(false), 700);
+        } catch (error) {
+            // Error handling is managed by the hook (toast)
+        }
     };
 
     return (
@@ -144,28 +154,6 @@ export function EditLessonDialog({ lesson, onSave, trigger }: EditLessonDialogPr
                         <p className="text-xs text-gray-400 text-right">{title.length}/120</p>
                     </div>
 
-                    {/* Lesson type */}
-                    {/* <div className="space-y-2">
-                        <p className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
-                            Lesson Type
-                        </p>
-                        <div className="grid grid-cols-3 gap-2">
-                            {TYPE_OPTIONS.map(({ type: t, label, icon: Icon, activeColor, iconColor }) => (
-                                <button
-                                    key={t}
-                                    onClick={() => setType(t)}
-                                    className={`flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 text-xs font-bold transition-all ${type === t
-                                        ? activeColor
-                                        : "border-gray-200 dark:border-gray-700 text-gray-400 hover:border-gray-300 dark:hover:border-gray-600"
-                                        }`}
-                                >
-                                    <Icon className={`w-4 h-4 ${type === t ? "" : iconColor}`} />
-                                    {label}
-                                </button>
-                            ))}
-                        </div>
-                    </div> */}
-
                     {/* Description */}
                     {/* <div className="space-y-1.5">
                         <label
@@ -176,73 +164,22 @@ export function EditLessonDialog({ lesson, onSave, trigger }: EditLessonDialogPr
                         </label>
                         <textarea
                             id="edit-lesson-description"
-                            value={description}
+                            value={description || ""}
                             onChange={(e) => setDescription(e.target.value)}
                             rows={3}
                             maxLength={500}
                             placeholder="Briefly describe what students will learn in this lesson…"
                             className="w-full px-3 py-2.5 rounded-xl text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500 transition-colors resize-none"
                         />
-                        <p className="text-xs text-gray-400 text-right">{description.length}/500</p>
+                        <p className="text-xs text-gray-400 text-right">{(description || "").length}/500</p>
                     </div> */}
 
-                    {/* Re-upload Video */}
-                    {/* {type === "video" && (
-                        <div className="space-y-1.5 pt-2">
-                            <div className="flex items-center justify-between">
-                                <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
-                                    Replace Video File (Optional)
-                                </label>
-                                {lesson.videoUrl && !videoFile && (
-                                    <span className="text-[10px] bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 px-2 py-0.5 rounded-full font-bold">
-                                        Current Video Exists
-                                    </span>
-                                )}
-                            </div>
-
-                            <label className={`flex flex-col items-center justify-center w-full h-36 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${videoFile
-                                    ? "border-green-500 bg-green-50 dark:bg-green-900/20"
-                                    : "border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50"
-                                }`}>
-                                <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center px-4">
-                                    {videoFile ? (
-                                        <>
-                                            <CheckCircle2 className="w-8 h-8 mb-2 text-green-500" />
-                                            <p className="text-sm font-bold text-green-700 dark:text-green-400 line-clamp-1">
-                                                {videoFile.name}
-                                            </p>
-                                            <p className="text-xs text-green-600/80 dark:text-green-500/80 mt-1">
-                                                {(videoFile.size / (1024 * 1024)).toFixed(2)} MB • Click to replace
-                                            </p>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Video className="w-8 h-8 mb-2 text-gray-400" />
-                                            <p className="text-sm font-bold text-gray-700 dark:text-gray-300">Click to upload new video</p>
-                                            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-1">MP4 format only (max. 2GB)</p>
-                                        </>
-                                    )}
-                                </div>
-                                <input
-                                    type="file"
-                                    className="hidden"
-                                    accept="video/mp4"
-                                    onChange={(e) => {
-                                        const file = e.target.files?.[0];
-                                        if (file) {
-                                            setVideoFile(file);
-                                        }
-                                    }}
-                                />
-                            </label>
-                        </div>
-                    )} */}
                 </div>
 
                 {/* ── Footer ── */}
                 <DialogFooter className="px-6 pb-6 pt-3 border-t border-gray-100 dark:border-gray-800 gap-2">
                     <DialogClose asChild>
-                        <Button variant="outline" className="rounded-xl font-bold" disabled={saving}>
+                        <Button variant="outline" className="rounded-xl font-bold" disabled={isUpdating}>
                             Cancel
                         </Button>
                     </DialogClose>
@@ -250,11 +187,11 @@ export function EditLessonDialog({ lesson, onSave, trigger }: EditLessonDialogPr
                     <Button
                         className="rounded-xl font-bold min-w-[130px]"
                         onClick={handleSave}
-                        disabled={!title.trim() || saving}
+                        disabled={!title.trim() || isUpdating}
                     >
                         {saved ? (
                             <><CheckCircle2 className="w-4 h-4 mr-2" /> Saved!</>
-                        ) : saving ? (
+                        ) : isUpdating ? (
                             <><span className="w-4 h-4 mr-2 border-2 border-white/40 border-t-white rounded-full animate-spin inline-block" /> Saving…</>
                         ) : (
                             <><Save className="w-4 h-4 mr-2" /> Save Changes</>

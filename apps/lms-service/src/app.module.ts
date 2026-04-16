@@ -8,6 +8,7 @@ import { StudentModule } from './student/student.module';
 import { CourseModule } from './course/course.module';
 import { SectionModule } from './section/section.module';
 import { LessonsModule } from './lessons/lessons.module';
+import { EnrollmentModule } from './enrollment/enrollment.module';
 import ormConfig from './config/orm.config';
 
 @Module({
@@ -21,7 +22,8 @@ import ormConfig from './config/orm.config';
     StudentModule,
     CourseModule,
     SectionModule,
-    LessonsModule
+    LessonsModule,
+    EnrollmentModule
   ],
   controllers: [AppController],
   providers: [AppService],

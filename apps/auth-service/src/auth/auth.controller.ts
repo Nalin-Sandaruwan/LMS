@@ -10,10 +10,15 @@ import {
   Res,
   HttpStatus,
   Req,
+  BadRequestException,
 } from '@nestjs/common';
 import { response, type Request, type Response } from 'express';
 import { AuthService } from './auth.service';
-import { CreateStudentDto, CreateTeacherDto, CreateUserDto } from 'src/users/dto/create-user.dto';
+import {
+  CreateStudentDto,
+  CreateTeacherDto,
+  CreateUserDto,
+} from 'src/users/dto/create-user.dto';
 import { loginDto } from './dto/login.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { JwtAuthGuard } from './guard/jwt.auth.guard';
@@ -30,13 +35,16 @@ import { patch } from 'axios';
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly userService: UsersService
-  ) { }
+    private readonly userService: UsersService,
+  ) {}
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Body() loginDto: loginDto, @Res({ passthrough: true }) response: Response) {
-    console.log("🔑 [AUTH-LOGIN] Logging in user:", loginDto.email);
+  async login(
+    @Body() loginDto: loginDto,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    console.log('🔑 [AUTH-LOGIN] Logging in user:', loginDto.email);
 
     const result = await this.authService.login(
       loginDto.email,
@@ -66,9 +74,15 @@ export class AuthController {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    console.log("✅ [AUTH-LOGIN] Cookies set for user:", result.user.email);
-    console.log("✅ [AUTH-LOGIN] accessToken set:", result.accessToken.substring(0, 30) + "...");
-    console.log("✅ [AUTH-LOGIN] refreshToken set:", result.refreshToken.substring(0, 30) + "...");
+    console.log('✅ [AUTH-LOGIN] Cookies set for user:', result.user.email);
+    console.log(
+      '✅ [AUTH-LOGIN] accessToken set:',
+      result.accessToken.substring(0, 30) + '...',
+    );
+    console.log(
+      '✅ [AUTH-LOGIN] refreshToken set:',
+      result.refreshToken.substring(0, 30) + '...',
+    );
 
     // Now standard 'return' works again!
     return result;
@@ -86,8 +100,6 @@ export class AuthController {
 
   // student signupendpoint
 
-
-
   // teacher signup endpoint
   @Post('signup/teacher')
   async signUpTeacher(@Body() createTeacherDto: CreateTeacherDto) {
@@ -104,6 +116,56 @@ export class AuthController {
     return student;
   }
 
+  //login user
+  // @UseGuards(LocalAuthGuard)
+  // @Post('login/student')
+  // async loginStudent(
+  //   @Body() loginDto: loginDto,
+  //   @Res({ passthrough: true }) response: Response,
+  // ) {
+  //   console.log('🔑 [AUTH-LOGIN] Logging in user:', loginDto.email);
+
+  //   const result = await this.authService.login(
+  //     loginDto.email,
+  //     loginDto.password,
+  //   );
+
+  //   // ✅ Clear any old cookies first
+  //   response.clearCookie('accessToken');
+  //   response.clearCookie('refreshToken');
+  //   response.clearCookie('refresh_token'); // Clear duplicate
+  //   response.clearCookie('accessToken');
+
+  //   // ✅ Set FRESH cookies with consistent names
+  //   response.cookie('accessToken', result.accessToken, {
+  //     httpOnly: true,
+  //     secure: false,
+  //     sameSite: 'lax',
+  //     path: '/',
+  //     maxAge: 60 * 1000, // 60 seconds
+  //   });
+
+  //   response.cookie('refreshToken', result.refreshToken, {
+  //     httpOnly: true,
+  //     secure: false,
+  //     sameSite: 'lax',
+  //     path: '/',
+  //     maxAge: 7 * 24 * 60 * 60 * 1000,
+  //   });
+
+  //   console.log('✅ [AUTH-LOGIN] Cookies set for user:', result.user.email);
+  //   console.log(
+  //     '✅ [AUTH-LOGIN] accessToken set:',
+  //     result.accessToken.substring(0, 30) + '...',
+  //   );
+  //   console.log(
+  //     '✅ [AUTH-LOGIN] refreshToken set:',
+  //     result.refreshToken.substring(0, 30) + '...',
+  //   );
+
+  //   // Now standard 'return' works again!
+  //   return result;
+  // }
 
   //I need to make the user delete endpoint
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -116,15 +178,12 @@ export class AuthController {
   //I need add editprofile endpoint
   @UseGuards(JwtAuthGuard)
   @Patch('users/edit/:id')
-
-
-  //getall  users // testing 
+  //getall  users // testing /port
   @Get('users')
   async getAllUsers() {
     const users = await this.userService.findAll();
     return users;
   }
-
 
   //virefy the user endpoint
   @UseGuards(JwtAuthGuard)
@@ -138,12 +197,24 @@ export class AuthController {
 
   // <-- Add this guard to protect the route
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.USER, Role.TEACHER)
-  @Get('profile')
+  @Roles(Role.TEACHER)
+  @Get('profile/teacher')
   async getProfile(@Req() req) {
     const user = req.user;
     console.log('profile controller', user);
     const profile = await this.authService.getProfile(user.id);
+    // This is just a placeholder. You would typically extract the user ID from the JWT token and fetch the user profile.
+    return profile;
+  }
+
+  //get user profile endpoint
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.USER)
+  @Get('profile/user')
+  async getProfileUser(@Req() req) {
+    const user = req.user;
+    console.log('profile controller', user);
+    const profile = await this.authService.getProfileUser(user.id);
     // This is just a placeholder. You would typically extract the user ID from the JWT token and fetch the user profile.
     return profile;
   }
@@ -170,16 +241,52 @@ export class AuthController {
     res.status(HttpStatus.OK).json({ message: 'Access token cleared' });
   }
 
+  //virify email endpoint
+  @Post('verify-email')
+  async verifyEmail(@Body() body: { email: string }) {
+    if (!body || !body.email) {
+      throw new BadRequestException('Email is required');
+    }
+    const user = await this.authService.findByEmail(body.email);
+    return user;
+  }
+
+  //verify the otp
+  @Post('verify-otp')
+  async verifyOtp(@Body() body: { email: string; otp: string }) {
+    if (!body || !body.email || !body.otp) {
+      throw new BadRequestException('Email and OTP are required');
+    }
+    const user = await this.authService.verifyOtp(body.email, body.otp);
+    return user;
+  }
+
+  // create the endpoint in the make the new password
+  @Post('reset-password')
+  async resetPassword(@Body() body: { email: string; password: string }) {
+    if (!body || !body.email || !body.password) {
+      throw new BadRequestException('Email and password are required');
+    }
+    const user = await this.authService.resetPassword(
+      body.email,
+      body.password,
+    );
+    return user;
+  }
+
   @UseGuards(RefreshAuthGuard)
   @Post('refresh')
   async refreshToken(@Req() req, @Res() res: Response) {
-    console.log("🔄 [AUTH-REFRESH] Refreshing tokens for user:", req.user?.id);
+    console.log('🔄 [AUTH-REFRESH] Refreshing tokens for user:', req.user?.id);
 
     const user = await this.authService.refreshToken(req.user.id);
 
-    console.log("✅ [AUTH-REFRESH] New tokens generated");
-    console.log("✅ [AUTH-REFRESH] accessToken:", user.accessToken.substring(0, 30) + "...");
-    console.log("✅ [AUTH-REFRESH] refreshToken: (kept as is)");
+    console.log('✅ [AUTH-REFRESH] New tokens generated');
+    console.log(
+      '✅ [AUTH-REFRESH] accessToken:',
+      user.accessToken.substring(0, 30) + '...',
+    );
+    console.log('✅ [AUTH-REFRESH] refreshToken: (kept as is)');
 
     // ✅ Only clear and set accessToken
     res.clearCookie('accessToken');
@@ -196,7 +303,7 @@ export class AuthController {
     // ✅ NO NEED to update refreshToken cookie - it's still valid!
     // The browser already has it, and we didn't regenerate it
 
-    console.log("✅ [AUTH-REFRESH] Response sent");
+    console.log('✅ [AUTH-REFRESH] Response sent');
 
     return res.status(HttpStatus.OK).json({
       message: 'Token refreshed',

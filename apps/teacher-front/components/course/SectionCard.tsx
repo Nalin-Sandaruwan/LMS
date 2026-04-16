@@ -65,7 +65,10 @@ export function SectionCard({ section, sectionIndex }: SectionCardProps) {
                     {/* Stop propagation so clicking AddLessonDialog doesn't toggle collapse */}
 
                     <span onClick={(e) => e.stopPropagation()}>
-                        <AddLessonDialog onAdd={addLesson} />
+                        <AddLessonDialog
+                            sectionId={section.id}
+                            onAdd={addLesson}
+                        />
                     </span>
                     <ChevronDown
                         className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${collapsed ? "-rotate-90" : ""
@@ -103,9 +106,11 @@ export function SectionCard({ section, sectionIndex }: SectionCardProps) {
                                         animate="visible"
                                         className="space-y-1"
                                     >
-                                        {lessons.map((lesson, idx) => (
-                                            <LessonRow key={lesson.id} lesson={lesson} index={idx} />
-                                        ))}
+                                        {lessons
+                                            .sort((a, b) => new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime())
+                                            .map((lesson, idx) => (
+                                                <LessonRow key={lesson.id} lesson={lesson} index={idx} />
+                                            ))}
                                     </motion.div>
                                 )}
                             </AnimatePresence>

@@ -9,16 +9,25 @@ export class Lesson {
   @Column()
   title: string;
 
-  @Column({ type: 'enum', enum: ['video', 'audio', 'pdf', 'doc', 'text'], default: 'text' })
+  @Column({ type: 'enum', enum: ['video', 'audio', 'pdf', 'doc', 'text', 'article', 'quiz'], default: 'text' })
   type: string;
 
   @Column({ nullable: true })
   fileUrl: string;
 
+  @Column({ nullable: true })
+  bunnyVideoId: string;
+
+  @Column({ type: 'enum', enum: ['queued', 'processing', 'finished', 'failed'], default: 'queued' })
+  bunnyStatus: string;
+  
+  @Column({ type: 'enum', enum: ['published', 'draft'], default: 'draft' })
+  status: string;
+
   @Column()
   sectionId: number;
 
-  @ManyToOne(() => Section, (section) => section.lessons)
+  @ManyToOne(() => Section, (section) => section.lessons, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'sectionId' })
   section: Section;
 

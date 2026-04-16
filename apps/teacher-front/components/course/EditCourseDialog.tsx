@@ -14,6 +14,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+import { useUpdateCourse } from "@/hooks/useCourses";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -23,15 +24,16 @@ export interface EditCourseFields {
 }
 
 interface EditCourseDialogProps {
+    /** The ID of the course to update */
+    courseId: string | number;
     /** Current course title shown pre-filled in the form */
     initialTitle: string;
     /** Current course description shown pre-filled in the form */
     initialDescription: string;
     /**
-     * Called when the teacher clicks Save.
-     * In a real app, fire your API call here and update parent state.
+     * Optional: Called after successful save.
      */
-    onSave: (fields: EditCourseFields) => void;
+    onSave?: (fields: EditCourseFields) => void;
     /** Optional: custom trigger element. Defaults to the green Edit Course Info button. */
     trigger?: React.ReactNode;
 }
@@ -39,6 +41,7 @@ interface EditCourseDialogProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function EditCourseDialog({
+    courseId,
     initialTitle,
     initialDescription,
     onSave,
@@ -47,8 +50,9 @@ export function EditCourseDialog({
     const [open, setOpen] = useState(false);
     const [title, setTitle] = useState(initialTitle);
     const [description, setDescription] = useState(initialDescription);
-    const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
+
+    const { mutateAsync: updateCourse, isPending: saving } = useUpdateCourse();
 
     // Sync fields whenever the dialog opens (picks up any external updates)
     useEffect(() => {
@@ -60,15 +64,24 @@ export function EditCourseDialog({
     }, [open, initialTitle, initialDescription]);
 
     const handleSave = async () => {
-        if (!title.trim()) return;
-        setSaving(true);
-        // Simulate async save — replace with real API call
-        await new Promise((r) => setTimeout(r, 600));
-        onSave({ title: title.trim(), description: description.trim() });
-        setSaving(false);
-        setSaved(true);
-        // Auto-close after brief confirmation
-        setTimeout(() => setOpen(false), 800);
+        if (!title.trim() || saving) return;
+
+        try {
+            await updateCourse({
+                id: courseId.toString(),
+                data: { title: title.trim(), description: description.trim(), thumbnail: "" } // Thumbnail handling can be added later if needed
+            });
+
+            if (onSave) {
+                onSave({ title: title.trim(), description: description.trim() });
+            }
+
+            setSaved(true);
+            // Auto-close after brief confirmation
+            setTimeout(() => setOpen(false), 800);
+        } catch (error) {
+            console.error("Failed to update course:", error);
+        }
     };
 
     const isDirty =

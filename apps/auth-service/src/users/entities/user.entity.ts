@@ -18,12 +18,21 @@ export class User {
   @Column()
   password: string;
 
-  @Column({ nullable: true  })
+  @Column({ nullable: true })
   refreshToken: string;
+
+  @Column({ nullable: true })
+  otp: string;
+
+  @Column({ type: 'timestamp', nullable: true })
+  otpExpiresAt: Date;
+
+  @Column({ default: false })
+  otpSucess: boolean;
 
   @Column({
     type: 'enum',
-    enum:Role,
+    enum: Role,
     default: Role.USER,
   })
   role: Role;

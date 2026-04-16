@@ -1,5 +1,14 @@
-import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { CreateStudentDto, CreateTeacherDto, CreateUserDto } from './dto/create-user.dto';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
+import {
+  CreateStudentDto,
+  CreateTeacherDto,
+  CreateUserDto,
+} from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
@@ -18,8 +27,6 @@ export class UsersService {
     private readonly httpService: HttpService,
   ) {}
 
-
-  
   // that implimented find by the email to validate the user in the local strategy
   // logic to find user by email
   async findOneByEmail(email: string) {
@@ -28,11 +35,11 @@ export class UsersService {
       this.logger.warn(`User with email ${email} not found`);
       // throw new NotFoundException(`User with email ${email} not found`);
       return null; // Return null instead of throwing an exception
-    
     }
     return user;
   }
 
+  //find by Id
   async findOneById(id: number) {
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {
@@ -42,7 +49,20 @@ export class UsersService {
     return user;
   }
 
+  //find by email
+  async findByEmail(email: string) {
+    const user = await this.userRepository.findOne({ where: { email } });
+    if (!user) {
+      this.logger.warn(`User with email ${email} not found`);
+      return null;
+    }
+    return user;
+  }
 
+  //find all
+  async findAll() {
+    return await this.userRepository.find();
+  }
 
   // create new teacher
   async TeacherSignUp(teacherUser: CreateTeacherDto) {
@@ -51,9 +71,10 @@ export class UsersService {
     // Check if a user with the same email already exists
     if (existingUser) {
       this.logger.warn(`User with email ${teacherUser.email} already exists`);
-      throw new BadRequestException(`User with email ${teacherUser.email} already exists`);
+      throw new BadRequestException(
+        `User with email ${teacherUser.email} already exists`,
+      );
     }
-
 
     //auth server Create the new user role as teacher and save it to the database
     const hashedPassword = await bcrypt.hash(teacherUser.password, 10);
@@ -67,25 +88,31 @@ export class UsersService {
     // Call another server (LMS Service) using HttpService
     try {
       const lmsResponse = await firstValueFrom(
-        this.httpService.post('http://localhost:3002/teacher/create', {
-          id: savedTeacher.id,
-          fullName: teacherUser.fullName,
-          email: teacherUser.email,
-          mobileNumber: teacherUser.mobileNumber,
-          teachingExpert: teacherUser.teachingExpert,
-          shortBio: teacherUser.shortBio,
-          socialLinks: teacherUser.socialLinks,
-          profilePicture: teacherUser.profilePicture,
-        }).pipe(
-          catchError((error) => {
-            this.logger.error(`Failed to call LMS Service: ${error.message}`);
-            // If the LMS side fails, you might want to throw an error
-            // so the user creation doesn't proceed without sync
-            throw new BadRequestException('LMS Service synchronization failed');
-          }),
-        ),
+        this.httpService
+          .post('http://localhost:3002/teacher/create', {
+            id: savedTeacher.id,
+            fullName: teacherUser.fullName,
+            email: teacherUser.email,
+            mobileNumber: teacherUser.mobileNumber,
+            teachingExpert: teacherUser.teachingExpert,
+            shortBio: teacherUser.shortBio,
+            socialLinks: teacherUser.socialLinks,
+            profilePicture: teacherUser.profilePicture,
+          })
+          .pipe(
+            catchError((error) => {
+              this.logger.error(`Failed to call LMS Service: ${error.message}`);
+              // If the LMS side fails, you might want to throw an error
+              // so the user creation doesn't proceed without sync
+              throw new BadRequestException(
+                'LMS Service synchronization failed',
+              );
+            }),
+          ),
       );
-      this.logger.log(`LMS Service response: ${JSON.stringify(lmsResponse.data)}`);
+      this.logger.log(
+        `LMS Service response: ${JSON.stringify(lmsResponse.data)}`,
+      );
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
       this.logger.error(`Error during LMS Service sync: ${errorMessage}`);
@@ -98,10 +125,12 @@ export class UsersService {
 
   // create new student
   async StudentSignUp(studentUser: CreateStudentDto) {
-    const existingUser = await this.findOneByEmail(studentUser.email);            
+    const existingUser = await this.findOneByEmail(studentUser.email);
     if (existingUser) {
       this.logger.warn(`User with email ${studentUser.email} already exists`);
-      throw new BadRequestException(`User with email ${studentUser.email} already exists`);
+      throw new BadRequestException(
+        `User with email ${studentUser.email} already exists`,
+      );
     }
 
     //auth server Create the new user role as teacher and save it to the database
@@ -116,21 +145,27 @@ export class UsersService {
     // Call another server (LMS Service) using HttpService
     try {
       const lmsResponse = await firstValueFrom(
-        this.httpService.post('http://localhost:3002/student/create', {
-          id: savedStudent.id,
-          fullName: studentUser.fullName,
-          email: studentUser.email,
-          mobileNumber: studentUser.mobileNumber,
-        }).pipe(
-          catchError((error) => {
-            this.logger.error(`Failed to call LMS Service: ${error.message}`);
-            // If the LMS side fails, you might want to throw an error
-            // so the user creation doesn't proceed without sync
-            throw new BadRequestException('LMS Service synchronization failed');
-          }),
-        ),
+        this.httpService
+          .post('http://localhost:3002/student/create', {
+            id: savedStudent.id,
+            fullName: studentUser.fullName,
+            email: studentUser.email,
+            mobileNumber: studentUser.mobileNumber,
+          })
+          .pipe(
+            catchError((error) => {
+              this.logger.error(`Failed to call LMS Service: ${error.message}`);
+              // If the LMS side fails, you might want to throw an error
+              // so the user creation doesn't proceed without sync
+              throw new BadRequestException(
+                'LMS Service synchronization failed',
+              );
+            }),
+          ),
       );
-      this.logger.log(`LMS Service response: ${JSON.stringify(lmsResponse.data)}`);
+      this.logger.log(
+        `LMS Service response: ${JSON.stringify(lmsResponse.data)}`,
+      );
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
       this.logger.error(`Error during LMS Service sync: ${errorMessage}`);
@@ -139,20 +174,14 @@ export class UsersService {
     return savedStudent;
   }
 
-  findAll() {
-    return this.userRepository.find();
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
-
+  // restrict user(Like Remove)
   async updateRestricted(id: number, updateUserDto: UpdateUserDto) {
-    return await this.userRepository.update(id, { isActive: false }); 
+    return await this.userRepository.update(id, { isActive: false });
   }
 
+  // update user
   async update(id: number, updateUserDto: UpdateUserDto) {
-    const user = await this.userRepository.findOne({ where: { id } });  
+    const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {
       this.logger.warn(`User with ID ${id} not found for update`);
       throw new NotFoundException(`User with ID ${id} not found`);
@@ -160,11 +189,11 @@ export class UsersService {
 
     // Update only allowed fields (e.g., fullName, mobileNumber, etc.)
     // Assuming UpdateUserDto has optional fields for updating
-     
-    return await this.userRepository.update(id, { ...updateUserDto });
 
+    return await this.userRepository.update(id, { ...updateUserDto });
   }
 
+  // remove the User
   remove(id: number) {
     return `This action removes a #${id} user`;
   }

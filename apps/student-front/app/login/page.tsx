@@ -7,28 +7,57 @@ import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, ArrowLeft, CheckCircle2, ShieldCheck, Zap, BookOpen } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useAuth, useLogin } from '../hooks/api hooks/useAuth';
+import { toast } from 'sonner';
+import { useEffect } from 'react';
+
 
 type AuthState = 'LOGIN' | 'FORGOT_PASSWORD' | 'VERIFY_OTP' | 'RESET_PASSWORD';
 
 export default function LoginPage() {
     const router = useRouter();
+    const { data: user, isLoading: isCheckingAuth } = useAuth();
+    const loginMutation = useLogin();
+
     const [authState, setAuthState] = useState<AuthState>('LOGIN');
     const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [otp, setOtp] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
-    // Mock flow handlers
-    const handleSimulatedSubmit = (nextState: AuthState | 'COMPLETED', ms = 1500) => {
-        setIsLoading(true);
-        setTimeout(() => {
-            setIsLoading(false);
-            if (nextState === 'COMPLETED') {
-                router.push('/profile/your-profile'); // Redirect to profile on success
-            } else {
-                setAuthState(nextState);
+    // Redirect if already logged in
+    useEffect(() => {
+        if (user) {
+            router.replace('/profile/your-profile');
+        }
+    }, [user, router]);
+
+    const handleLogin = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        loginMutation.mutate(
+            { email, password },
+            {
+                onSuccess: () => {
+                    toast.success('Successfully signed in!', {
+                        description: 'Welcome back to the platform.',
+                    });
+                    router.push('/profile/your-profile');
+                },
+                onError: (error: any) => {
+                    const message = error.response?.data?.message || 'Invalid email or password. Please try again.';
+                    toast.error('Sign in failed', {
+                        description: message,
+                    });
+                },
             }
-        }, ms);
+        );
+    };
+
+    // Mock flow handlers for other states
+    const handleSimulatedSubmit = (nextState: AuthState, ms = 1500) => {
+        // ... keeps mock logic for forgot password flow for now
     };
 
     const containerVariants: Variants = {
@@ -67,7 +96,7 @@ export default function LoginPage() {
                                     <p className="text-gray-500 dark:text-gray-400 font-medium">Enter your credentials to access your account.</p>
                                 </div>
 
-                                <form className="space-y-5" onSubmit={(e) => { e.preventDefault(); handleSimulatedSubmit('COMPLETED'); }}>
+                                <form className="space-y-5" onSubmit={handleLogin}>
                                     <div className="space-y-1.5">
                                         <label className="text-sm font-bold text-gray-700 dark:text-gray-300">Email Address</label>
                                         <div className="relative">
@@ -81,6 +110,7 @@ export default function LoginPage() {
                                                 onChange={(e) => setEmail(e.target.value)}
                                                 placeholder="you@example.com"
                                                 className="pl-10 h-12 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 rounded-xl"
+                                                disabled={loginMutation.isPending}
                                             />
                                         </div>
                                     </div>
@@ -103,8 +133,11 @@ export default function LoginPage() {
                                             <Input
                                                 type={showPassword ? "text" : "password"}
                                                 required
+                                                value={password}
+                                                onChange={(e) => setPassword(e.target.value)}
                                                 placeholder="••••••••"
                                                 className="pl-10 pr-10 h-12 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 rounded-xl"
+                                                disabled={loginMutation.isPending}
                                             />
                                             <button
                                                 type="button"
@@ -118,18 +151,18 @@ export default function LoginPage() {
 
                                     <Button
                                         type="submit"
-                                        disabled={isLoading}
+                                        disabled={loginMutation.isPending}
                                         className="w-full h-12 rounded-xl text-base font-bold flex items-center justify-center group"
                                     >
-                                        {isLoading ? "Signing In..." : "Sign In"}
-                                        {!isLoading && <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />}
+                                        {loginMutation.isPending ? "Signing In..." : "Sign In"}
+                                        {!loginMutation.isPending && <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />}
                                     </Button>
                                 </form>
 
                                 <div className="text-center pt-4 border-t border-gray-200 dark:border-gray-800">
                                     <p className="text-gray-600 dark:text-gray-400 font-medium">
                                         Don't have an account?{' '}
-                                        <Link href="/signup" className="text-blue-600 dark:text-blue-500 font-bold hover:underline">
+                                        <Link href="/sign-up" className="text-blue-600 dark:text-blue-500 font-bold hover:underline">
                                             Sign up for free
                                         </Link>
                                     </p>
@@ -344,9 +377,9 @@ export default function LoginPage() {
             {/* Right Side - Premium Graphic Area */}
             <div className="hidden lg:flex w-1/2 bg-gray-900 dark:bg-black relative overflow-hidden items-center justify-center border-l border-gray-200 dark:border-gray-800">
                 {/* Dynamic Background Gradients */}
-                <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-pulse" />
-                <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-pulse delay-1000" />
-                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03]" />
+                <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-pulse"></div>
+                <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-pulse delay-1000"></div>
+                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03]"></div>
 
                 <div className="relative w-full max-w-lg z-10 p-12">
                     <motion.div
@@ -359,7 +392,7 @@ export default function LoginPage() {
                         </div>
                         <h2 className="text-4xl md:text-5xl font-black text-white mb-6 leading-tight">
                             Elevate Your <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
+                            <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-400 to-purple-400">
                                 Learning Journey
                             </span>
                         </h2>

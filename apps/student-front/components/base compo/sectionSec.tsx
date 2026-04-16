@@ -22,14 +22,15 @@ export function SectionSec() {
                         EXCELLENCE IN EDUCATION
                     </p>
                     <h1 className='text-4xl md:text-5xl lg:text-5xl font-extrabold text-blue-950 dark:text-white leading-tight mb-6'>
-                        Committed To Learn <br className="hidden md:block" /> Excellence In Education.
+                        Future Value Creation
+                        <br className="hidden md:block" />TOKENIZED
                     </h1>
                     <p className='text-base md:text-lg text-gray-600 dark:text-gray-300 mb-4 leading-relaxed'>
-                        We are dedicated to transforming the way people learn. Our mission is to provide high-quality, accessible online courses that empower individuals to gain new skills and knowledge at their own pace.
-                    </p>
+                        As a part of our vision, we are currently working on implementing the most advanced AI and BLOCKCHAIN TECHNOLOGY !                    </p>
                     <p className='text-base md:text-lg text-gray-600 dark:text-gray-300 mb-8 leading-relaxed'>
-                        With a team of experienced educators and industry professionals, we offer engaging content designed to inspire and motivate learners from all backgrounds. Join our vibrant community of learners and start your journey with us today!
-                    </p>
+                        as a creator -ultimately your idensphere will be transformed into an AI character of yourself that will talk to future generations and share knowledge Forever WHILE YOUR IDENSPHERE GAIN VALUE!                    </p>
+                    <p className='text-base md:text-lg text-gray-600 dark:text-gray-300 mb-4 leading-relaxed'>
+                        As a user- generous amount of your subscription will be reinvested into your idensphere account                    </p>
                     <div>
                         <Button variant="default" size="lg" className='h-12 px-8 text-md font-bold shadow-lg shadow-blue-500/25'>
                             Get Started

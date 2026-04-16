@@ -1,12 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-    Save,
-    Video,
-    CheckCircle2,
-    UploadCloud
-} from "lucide-react";
+import { AnimatePresence } from "framer-motion";
+import { UploadCloud, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -19,10 +15,19 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import type { Lesson } from "@/components/course/courseTypes";
+import { useLesson } from "@/hooks/useLesson";
+
+// Sub-components
+import type { UploadPhase } from "./replace-video/types";
+import { VideoFilePicker } from "./replace-video/VideoFilePicker";
+import { UploadingPhase } from "./replace-video/UploadingPhase";
+import { EncodingPhase } from "./replace-video/EncodingPhase";
+import { DonePhase } from "./replace-video/DonePhase";
+import { SubmitButton } from "./replace-video/SubmitButton";
 
 interface ReplaceVideoDialogProps {
     lesson: Lesson;
-    /** Called when the teacher confirms the new video */
+    /** Called when the full flow (upload + encoding) completes */
     onSave?: (file: File) => void;
     trigger?: React.ReactNode;
 }
@@ -30,34 +35,51 @@ interface ReplaceVideoDialogProps {
 export function ReplaceVideoDialog({ lesson, onSave, trigger }: ReplaceVideoDialogProps) {
     const [open, setOpen] = useState(false);
     const [videoFile, setVideoFile] = useState<File | null>(null);
+    const [phase, setPhase] = useState<UploadPhase>("idle");
+    const [progress, setProgress] = useState(0);
 
-    // UI state
-    const [saving, setSaving] = useState(false);
-    const [saved, setSaved] = useState(false);
+    const { replaceVideo } = useLesson();
 
-    // Reset when opening dialog
+    // Reset state whenever the dialog is (re-)opened
     useEffect(() => {
         if (open) {
             setVideoFile(null);
-            setSaved(false); 
-            setSaving(false);
+            setPhase("idle");
+            setProgress(0);
         }
     }, [open]);
 
     const handleSave = async () => {
-        if (!videoFile) return;
-        setSaving(true);
-        await new Promise((r) => setTimeout(r, 600)); // Simulated API
-        
-        onSave?.(videoFile);
+        if (!videoFile || phase !== "idle") return;
 
-        setSaving(false);
-        setSaved(true);
-        setTimeout(() => setOpen(false), 700);
+        // Capture before await so TypeScript retains the non-null type across async boundaries
+        const file = videoFile;
+        setPhase("uploading");
+
+        try {
+            await replaceVideo({
+                id: lesson.id,
+                file,
+                onProgress: (p) => setProgress(p),
+                // Fires the moment TUS bytes are fully sent — switches UI to encoding phase
+                onUploadComplete: () => setPhase("encoding"),
+            });
+
+            // replaceVideo only resolves after polling confirms bunnyStatus === 'finished'
+            setPhase("done");
+            onSave?.(file);
+            setTimeout(() => setOpen(false), 900);
+        } catch {
+            // Errors are already toasted inside the hook — allow retry
+            setPhase("idle");
+        }
     };
 
+    const isBusy = phase === "uploading" || phase === "encoding";
+    const isDone = phase === "done";
+
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={(v) => { if (!isBusy) setOpen(v); }}>
             <DialogTrigger asChild>
                 {trigger ?? (
                     <Button size="sm" variant="outline" className="h-7 px-3 text-xs rounded-xl gap-1">
@@ -81,76 +103,56 @@ export function ReplaceVideoDialog({ lesson, onSave, trigger }: ReplaceVideoDial
                         </DialogTitle>
                     </div>
                     <DialogDescription className="text-xs text-gray-400 dark:text-gray-500 ml-12">
-                        Upload a new MP4 video for <span className="font-semibold text-gray-600 dark:text-gray-300">"{lesson.title}"</span>. This will overwrite the current video.
+                        Upload a new MP4 video for{" "}
+                        <span className="font-semibold text-gray-600 dark:text-gray-300">
+                            "{lesson.title}"
+                        </span>
+                        . This will overwrite the current video.
                     </DialogDescription>
                 </DialogHeader>
 
-                {/* ── Form body ── */}
-                <div className="px-6 py-5">
-                    <div className="space-y-1.5">
-                        <label className={`flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
-                            videoFile 
-                            ? "border-green-500 bg-green-50 dark:bg-green-900/20" 
-                            : "border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50"
-                        }`}>
-                            <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center px-4">
-                                {videoFile ? (
-                                    <>
-                                        <CheckCircle2 className="w-8 h-8 mb-2 text-green-500" />
-                                        <p className="text-sm font-bold text-green-700 dark:text-green-400 line-clamp-1">
-                                            {videoFile.name}
-                                        </p>
-                                        <p className="text-xs text-green-600/80 dark:text-green-500/80 mt-1">
-                                            {(videoFile.size / (1024 * 1024)).toFixed(2)} MB • Click to replace
-                                        </p>
-                                    </>
-                                ) : (
-                                    <>
-                                        <Video className="w-8 h-8 mb-2 text-gray-400" />
-                                        <p className="text-sm font-bold text-gray-700 dark:text-gray-300">Click to upload new video</p>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-1 mb-2">MP4 format only (max. 2GB)</p>
-                                        {lesson.videoUrl && (
-                                            <span className="text-[10px] bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 px-2.5 py-1 rounded-full font-bold">
-                                                A video currently exists
-                                            </span>
-                                        )}
-                                    </>
-                                )}
-                            </div>
-                            <input
-                                type="file"
-                                className="hidden"
-                                accept="video/mp4"
-                                onChange={(e) => {
-                                    const file = e.target.files?.[0];
-                                    if (file) setVideoFile(file);
-                                }}
-                            />
-                        </label>
-                    </div>
+                {/* ── Body ── */}
+                <div className="px-6 py-5 space-y-4">
+                    {/* File picker — hidden while busy or done */}
+                    {!isBusy && !isDone && (
+                        <VideoFilePicker
+                            videoFile={videoFile}
+                            hasExistingVideo={!!lesson.fileUrl}
+                            onChange={setVideoFile}
+                        />
+                    )}
+
+                    {/* Phase panels — animated in/out */}
+                    <AnimatePresence>
+                        {phase === "uploading" && (
+                            <UploadingPhase fileName={videoFile?.name} progress={progress} />
+                        )}
+                        {phase === "encoding" && (
+                            <EncodingPhase />
+                        )}
+                        {phase === "done" && (
+                            <DonePhase />
+                        )}
+                    </AnimatePresence>
                 </div>
 
                 {/* ── Footer ── */}
                 <DialogFooter className="px-6 pb-6 pt-0 gap-2">
                     <DialogClose asChild>
-                        <Button variant="outline" className="rounded-xl font-bold" disabled={saving}>
+                        <Button
+                            variant="outline"
+                            className="rounded-xl font-bold"
+                            disabled={isBusy}
+                        >
                             Cancel
                         </Button>
                     </DialogClose>
 
-                    <Button
-                        className="rounded-xl font-bold min-w-[130px]"
+                    <SubmitButton
+                        phase={phase}
+                        disabled={!videoFile || isBusy || isDone}
                         onClick={handleSave}
-                        disabled={!videoFile || saving}
-                    >
-                        {saved ? (
-                            <><CheckCircle2 className="w-4 h-4 mr-2" /> Uploaded!</>
-                        ) : saving ? (
-                            <><span className="w-4 h-4 mr-2 border-2 border-white/40 border-t-white rounded-full animate-spin inline-block" /> Uploading…</>
-                        ) : (
-                            <><Save className="w-4 h-4 mr-2" /> Replace Video</>
-                        )}
-                    </Button>
+                    />
                 </DialogFooter>
             </DialogContent>
         </Dialog>

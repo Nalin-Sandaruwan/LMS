@@ -33,21 +33,26 @@ export function CourseHeroCard({
         >
             {/* Thumbnail */}
             <div className="relative h-48 overflow-hidden">
-                <img
-                    src={course.thumbnail}
-                    alt={course.title}
-                    className="w-full h-full object-cover"
-                />
+                {course.thumbnail ? (
+                    <img
+                        src={course.thumbnail}
+                        alt={course.title}
+                        className="w-full h-full object-cover"
+                    />
+                ) : (
+                    <div className="w-full h-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                        <span className="text-gray-400 text-xs">No Thumbnail</span>
+                    </div>
+                )}
                 <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
                 <div className="absolute bottom-4 left-5 right-5 flex items-end justify-between">
-                    <span 
-                        className={`text-xs font-bold text-white px-2.5 py-1 rounded-full ${
-                            course.isActive ? "bg-green-600" : "bg-gray-600"
-                        }`}
+                    <span
+                        className={`text-xs font-bold text-white px-2.5 py-1 rounded-full ${course.isActive ? "bg-green-600" : "bg-gray-600"
+                            }`}
                     >
                         {course.isActive ? "Published" : "Not Published"}
                     </span>
-                   
+
                 </div>
             </div>
 
@@ -70,13 +75,13 @@ export function CourseHeroCard({
                         <BookOpen className="w-3.5 h-3.5" /> {totalLessons} lessons
                     </span>
                     <span className="flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5" /> {course.duration || 0 } mins
+                        <Clock className="w-3.5 h-3.5" /> {course.duration || 0} mins
                     </span>
                     {/* <span className="flex items-center gap-1">
                         <Award className="w-3.5 h-3.5" /> {course.level}
                     </span> */}
                     <span className="flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5" /> 
+                        <Clock className="w-3.5 h-3.5" />
                         Updated {course.updatedAt ? new Date(course.updatedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : "Unknown"}
                     </span>
                 </div>
@@ -84,6 +89,7 @@ export function CourseHeroCard({
                 {/* Actions */}
                 <div className="flex gap-3 mt-5">
                     <EditCourseDialog
+                        courseId={course.id}
                         initialTitle={title}
                         initialDescription={description}
                         onSave={onInfoSave}

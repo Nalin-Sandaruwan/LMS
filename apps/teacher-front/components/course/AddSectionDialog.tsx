@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { Plus, LayoutList, CheckCircle2 } from "lucide-react";
+import { useParams } from "next/navigation";
+import { useSection } from "@/hooks/useSection";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -33,6 +35,10 @@ export function AddSectionDialog({ onAdd, trigger }: AddSectionDialogProps) {
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
 
+    const params = useParams();
+    const courseId = Number(params?.id);
+    const { createSection, isCreating } = useSection();
+
     // Reset form every time the dialog opens
     useEffect(() => {
         if (open) {
@@ -46,16 +52,24 @@ export function AddSectionDialog({ onAdd, trigger }: AddSectionDialogProps) {
     const handleAdd = async () => {
         const trimmedTitle = title.trim();
         const trimmedDescription = description.trim();
-        if (!trimmedTitle) return;
+        if (!trimmedTitle || isCreating) return;
 
         setSaving(true);
-        // Simulate async — swap for real API call
-        await new Promise((r) => setTimeout(r, 500));
+        try {
+            await createSection({
+                courseId,
+                title: trimmedTitle,
+                description: trimmedDescription,
+            });
 
-        onAdd(trimmedTitle, trimmedDescription);
-        setSaving(false);
-        setSaved(true);
-        setTimeout(() => setOpen(false), 700);
+            onAdd(trimmedTitle, trimmedDescription);
+            setSaved(true);
+            setTimeout(() => setOpen(false), 700);
+        } catch (error) {
+            console.error("Failed to create section:", error);
+        } finally {
+            setSaving(false);
+        }
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {

@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Logo } from './Logo';
 
 export function Footer() {
     return (
@@ -23,9 +24,7 @@ export function Footer() {
                             viewport={{ once: true }}
                             transition={{ duration: 0.5 }}
                         >
-                            <h3 className="text-2xl font-black bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
-                                TechLMS
-                            </h3>
+                            <Logo className="w-[140px] h-auto mb-4" />
                             <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
                                 Empowering the next generation of digital creators and software engineers through cutting-edge, interactive learning.
                             </p>
@@ -99,7 +98,7 @@ export function Footer() {
                 {/* Bottom Bar */}
                 <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-gray-200 dark:border-gray-800/50">
                     <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 md:mb-0">
-                        © {new Date().getFullYear()} TechLMS Inc. All rights reserved.
+                        © {new Date().getFullYear()} Idensphere Inc. All rights reserved.
                     </p>
                     <div className="flex space-x-6">
                         {/* Social Icons (using simple SVGs for universal compatibility) */}

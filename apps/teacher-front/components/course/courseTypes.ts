@@ -13,9 +13,11 @@ export interface Lesson {
     duration: string;
     status: LessonStatus;
     videoUrl?: string;
+    fileUrl?: string;
     file?: File;
     preview: boolean;
     description: string;
+    createdAt?: string;
 }
 
 export interface Section {

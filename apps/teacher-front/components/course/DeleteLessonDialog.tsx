@@ -1,6 +1,7 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
+import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +15,7 @@ import {
     DialogClose,
 } from "@/components/ui/dialog";
 import type { Lesson } from "@/components/course/courseTypes";
+import { useLesson } from "@/hooks/useLesson";
 
 interface DeleteLessonDialogProps {
     lesson: Lesson;
@@ -21,8 +23,22 @@ interface DeleteLessonDialogProps {
 }
 
 export function DeleteLessonDialog({ lesson, onDelete }: DeleteLessonDialogProps) {
+    const { deleteLesson, isDeleting } = useLesson();
+    const [open, setOpen] = useState(false);
+
+    const handleDelete = async () => {
+        try {
+            await deleteLesson(lesson.id);
+            setOpen(false);
+            onDelete?.();
+            toast.success("Lesson deleted successfully");
+        } catch (error) {
+            toast.error("Failed to delete lesson. Please try again.");
+        }
+    };
+
     return (
-        <Dialog>
+        <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 <Button
                     size="sm"
@@ -43,18 +59,17 @@ export function DeleteLessonDialog({ lesson, onDelete }: DeleteLessonDialogProps
                 </DialogHeader>
                 <DialogFooter className="gap-2 sm:justify-end mt-2 pt-4 border-t border-gray-100 dark:border-gray-800 w-full">
                     <DialogClose asChild>
-                        <Button variant="outline" className="rounded-xl font-bold px-6">
+                        <Button variant="outline" className="rounded-xl font-bold px-6" disabled={isDeleting}>
                             Cancel
                         </Button>
                     </DialogClose>
-                    <DialogClose asChild>
-                        <Button 
-                            className="rounded-xl font-bold bg-red-600 hover:bg-red-700 text-white shadow-md shadow-red-500/20 px-6"
-                            onClick={() => onDelete?.()}
-                        >
-                            Yes, Delete
-                        </Button>
-                    </DialogClose>
+                    <Button
+                        className="rounded-xl font-bold bg-red-600 hover:bg-red-700 text-white shadow-md shadow-red-500/20 px-6"
+                        onClick={handleDelete}
+                        disabled={isDeleting}
+                    >
+                        {isDeleting ? "Deleting..." : "Yes, Delete"}
+                    </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

@@ -69,8 +69,13 @@ export function CourseGridProfile({ course, idx }: CourseGridProfileProps) {
                     {/* Progress Bar */}
                     <div className="space-y-2">
                         <div className="flex justify-between text-sm font-bold">
-                            <span className="text-gray-700 dark:text-gray-300">
+                            <span className="text-gray-700 dark:text-gray-300 flex items-center gap-2">
                                 {course.status === 'completed' ? 'Fully Completed' : 'Progress'}
+                                {course.status !== 'completed' && (
+                                    <span className="bg-blue-100 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] px-1.5 py-0.5 rounded-sm uppercase tracking-tighter">
+                                        {course.status === 'active' || course.status === 'in-progress' ? 'Active' : course.status}
+                                    </span>
+                                )}
                             </span>
                             <span className={`${course.status === 'completed' ? 'text-emerald-500' : 'text-blue-600 dark:text-blue-400'}`}>
                                 {course.completedLessons}/{course.totalLessons} <span className="font-medium text-xs text-gray-500">Lessons</span>
@@ -87,20 +92,28 @@ export function CourseGridProfile({ course, idx }: CourseGridProfileProps) {
                     </div>
 
                     {/* Footer Row */}
-                    <div className="pt-4 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center">
+                    <div className="pt-4 border-t border-gray-100 dark:border-gray-800 flex flex-wrap gap-2 justify-between items-center">
                         <span className="text-xs text-gray-500 font-medium truncate pr-2">Accessed {course.lastAccessed}</span>
-                        {course.status === 'completed' && course.certificate ? (
-                            <Button variant="ghost" size="sm" className="text-amber-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-500/10 px-2 h-8 font-bold whitespace-nowrap">
-                                <Award className="w-4 h-4 mr-1.5" />
-                                Certificate
-                            </Button>
-                        ) : (
+                        <div className="flex gap-2">
+                            {course.status === 'completed' && course.certificate && (
+                                <Button variant="ghost" size="sm" className="text-amber-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-500/10 px-2 h-8 font-bold whitespace-nowrap">
+                                    <Award className="w-4 h-4 mr-1.5" />
+                                    Certificate
+                                </Button>
+                            )}
                             <Link href={`/profile/my-courses/${course.id}`}>
-                                <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-500/10 px-2 h-8 font-bold whitespace-nowrap">
-                                    Continue
+                                <Button variant={course.status === 'completed' ? 'ghost' : 'default'} size="sm" className={`px-4 h-8 font-bold whitespace-nowrap ${course.status === 'completed' ? 'text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-500/10' : 'shadow-md shadow-blue-500/20'}`}>
+                                    {course.status === 'completed' ? 'Rewatch' : 'Continue'}
                                 </Button>
                             </Link>
-                        )}
+                            {course.status === 'completed' && (
+                                <Link href={`/profile/my-courses/${course.id}`}>
+                                    <Button variant="default" size="sm" className="px-4 h-8 font-bold whitespace-nowrap shadow-md shadow-blue-500/20">
+                                        Continue
+                                    </Button>
+                                </Link>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

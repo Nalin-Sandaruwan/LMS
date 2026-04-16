@@ -28,6 +28,9 @@ export class JwtMiddleware implements NestMiddleware {
       '/auth/signup/teacher',
       '/auth/users',
       '/auth/signup/student',
+      '/auth/verify-email',
+      '/auth/verify-otp',
+      '/auth/reset-password',
     ];
     if (publicPaths.includes(req.url)) {
       console.log('✅ [GATEWAY-AUTH] Public route - skipping middleware');

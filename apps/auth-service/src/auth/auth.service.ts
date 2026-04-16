@@ -16,6 +16,7 @@ import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { isString } from 'util';
+import { ExceptionsHandler } from '@nestjs/core/exceptions/exceptions-handler';
 
 @Injectable()
 export class AuthService {
@@ -96,13 +97,43 @@ export class AuthService {
         id: id,
       },
     });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (user.role !== 'teacher') {
+      throw new UnauthorizedException('Access restricted to teachers only');
+    }
+
+    return {
+      user,
+    };
+  }
+
+  //fint user profile logic
+  async getProfileUser(id: number) {
+    const user = await this.UserRepository.findOne({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (user.role !== 'user') {
+      throw new UnauthorizedException('Access restricted to user only');
+    }
+
     return {
       user,
     };
   }
 
   async refreshToken(id: number) {
-    console.log("🔄 [AUTH-SERVICE-REFRESH] Refreshing tokens for user:", id);
+    console.log('🔄 [AUTH-SERVICE-REFRESH] Refreshing tokens for user:', id);
 
     const user = await this.UserRepository.findOne({ where: { id } });
 
@@ -112,11 +143,18 @@ export class AuthService {
 
     // ✅ ONLY generate a NEW accessToken - keep the existing refreshToken
     const payload = { sub: user.id, role: String(user.role) };
-    const accessToken = await this.jwtService.signAsync(payload, { expiresIn: '15m' });
+    const accessToken = await this.jwtService.signAsync(payload, {
+      expiresIn: '15m',
+    });
 
-    console.log("✅ [AUTH-SERVICE-REFRESH] New accessToken generated");
-    console.log("✅ [AUTH-SERVICE-REFRESH] accessToken:", accessToken.substring(0, 30) + "...");
-    console.log("✅ [AUTH-SERVICE-REFRESH] Keeping existing refreshToken (no update to DB)");
+    console.log('✅ [AUTH-SERVICE-REFRESH] New accessToken generated');
+    console.log(
+      '✅ [AUTH-SERVICE-REFRESH] accessToken:',
+      accessToken.substring(0, 30) + '...',
+    );
+    console.log(
+      '✅ [AUTH-SERVICE-REFRESH] Keeping existing refreshToken (no update to DB)',
+    );
 
     // ✅ Return the NEW accessToken with the SAME refreshToken
     return {
@@ -128,23 +166,29 @@ export class AuthService {
   //That was the main function for generating access and refresh token
   async generateAccessToken(id: number, role: string) {
     const payload = { sub: id, role };
-    
+
     // ✅ Access token signed with JWT_SECRET (short-lived)
-    const accessToken = await this.jwtService.signAsync(payload, { expiresIn: '15m' });
-    
+    const accessToken = await this.jwtService.signAsync(payload, {
+      expiresIn: '15m',
+    });
+
     // ✅ Refresh token signed with REFRESH_JWT_SECRET (long-lived)
-    const refreshToken = await this.refreshJwtService.signAsync(payload, { expiresIn: '7d' });
-    
-    console.log("🔑 [TOKEN-GENERATION] Access token created with JWT_SECRET ✓");
-    console.log("🔑 [TOKEN-GENERATION] Refresh token created with REFRESH_JWT_SECRET ✓");
-    
+    const refreshToken = await this.refreshJwtService.signAsync(payload, {
+      expiresIn: '7d',
+    });
+
+    console.log('🔑 [TOKEN-GENERATION] Access token created with JWT_SECRET ✓');
+    console.log(
+      '🔑 [TOKEN-GENERATION] Refresh token created with REFRESH_JWT_SECRET ✓',
+    );
+
     return { accessToken, refreshToken };
   }
 
   //that using for the access token stratagy
   async validateJwtToken(id: number): Promise<any> {
     const user = await this.UserRepository.findOne({ where: { id } });
-    
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -164,5 +208,93 @@ export class AuthService {
       throw new UnauthorizedException('Invalid refresh token');
     }
     return { id: userId };
+  }
+
+  //find user
+  async findByEmail(email: string) {
+    const user = await this.UserService.findOneByEmail(email);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const genOTP = await this.generateOtp(user.id);
+
+    return {
+      user,
+      otp: genOTP,
+    };
+  }
+
+  //genarate the otp
+  async generateOtp(userId: number) {
+    const otp = Math.floor(100000 + Math.random() * 900000);
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+    console.log(otp);
+
+    await this.UserRepository.update(userId, {
+      otp: otp.toString(),
+      otpExpiresAt: expiresAt,
+    });
+
+    return {
+      otp: otp.toString(),
+      expiresAt: expiresAt.toISOString(),
+    };
+  }
+
+  //veryfy the otp
+  async verifyOtp(email: string, otp: string | number) {
+    const user = await this.UserService.findOneByEmail(email);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Ensure both are compared as strings in case the JSON sent `otp` as a number
+    if (user.otp !== String(otp)) {
+      throw new UnauthorizedException('Invalid otp');
+    }
+
+    // Safely parse the database date string into a Date object just in case it returns as a string
+    const expiresAt = new Date(user.otpExpiresAt);
+    if (expiresAt < new Date()) {
+      throw new UnauthorizedException('Otp expired');
+    }
+
+    await this.UserRepository.update(
+      { email },
+      {
+        otpSucess: true,
+      },
+    );
+
+    return {
+      user,
+      otp: String(otp),
+      otpSucess: true,
+    };
+  }
+
+  //reset password
+  async resetPassword(email: string, newPassword: string) {
+    const user = await this.UserService.findOneByEmail(email);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (!user.otpSucess) {
+      throw new UnauthorizedException('Otp not verified');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await this.UserRepository.update(user.id, {
+      password: hashedPassword,
+      otp: null as any,
+      otpExpiresAt: null as any,
+      otpSucess: false,
+    });
+
+    return { message: 'Password reset successful' };
   }
 }

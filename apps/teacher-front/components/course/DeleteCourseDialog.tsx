@@ -1,8 +1,9 @@
 "use client";
 
 import React from "react";
-import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Loader2, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import {
     Dialog,
     DialogTrigger,
@@ -13,6 +14,7 @@ import {
     DialogFooter,
     DialogClose,
 } from "@/components/ui/dialog";
+import { useDeleteCourse } from "@/hooks/useCourses";
 
 interface DeleteCourseDialogProps {
     courseId: number;
@@ -21,11 +23,24 @@ interface DeleteCourseDialogProps {
 }
 
 export function DeleteCourseDialog({ courseId, courseTitle, onDelete }: DeleteCourseDialogProps) {
+    const router = useRouter();
+    const { mutateAsync: deleteCourse, isPending } = useDeleteCourse();
+
+    const handleDelete = async () => {
+        try {
+            await deleteCourse(courseId.toString());
+            onDelete?.();
+            router.push("/your-courses");
+        } catch (error) {
+            // Error is handled by the hook's toast
+            console.error("Delete course error:", error);
+        }
+    };
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button 
-                    variant="outline" 
+                <Button
+                    variant="outline"
                     size="sm"
                     className="rounded-2xl font-bold h-9 border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 px-4 text-xs"
                 >
@@ -48,11 +63,19 @@ export function DeleteCourseDialog({ courseId, courseTitle, onDelete }: DeleteCo
                         </Button>
                     </DialogClose>
                     <DialogClose asChild>
-                        <Button 
+                        <Button
                             className="rounded-xl font-bold bg-red-600 hover:bg-red-700 text-white shadow-md shadow-red-500/20 px-6"
-                            onClick={() => onDelete?.()}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                handleDelete();
+                            }}
+                            disabled={isPending}
                         >
-                            Yes, Delete Course
+                            {isPending ? (
+                                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Deleting...</>
+                            ) : (
+                                "Yes, Delete Course"
+                            )}
                         </Button>
                     </DialogClose>
                 </DialogFooter>

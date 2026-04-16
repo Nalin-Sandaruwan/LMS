@@ -1,7 +1,6 @@
 "use client"
 import * as React from 'react';
-import Logo from "@/public/icons/logo.svg";
-import Image from "next/image";
+import { Logo } from './Logo';
 import { Button } from '../ui/button';
 import { ModeToggle } from '@/components/ui/dark.mood';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -49,7 +48,7 @@ export function Navigation() {
                     whileTap={{ scale: 0.95 }}
                     className="cursor-pointer shrink-0"
                 >
-                    <Image src={Logo} alt="Logo" className='w-[80px] h-auto m-1' />
+                    <Logo className="w-[110px] md:w-[150px] h-auto transition-all" />
                 </motion.div>
 
                 {/* Desktop Navigation Links */}
@@ -95,19 +94,19 @@ export function Navigation() {
                             ) : (
                                 <div className="flex items-center gap-4">
                                     <Link href="/profile">
-                                        <Avatar className="cursor-pointer border-2 border-transparent hover:border-green-500 transition-colors">
+                                        <Avatar className="cursor-pointer w-10 h-10 border-2 border-transparent hover:border-green-500 transition-colors">
                                             <AvatarFallback className='bg-green-300 border border-green-700 text-green-700 font-bold'>
                                                 {user?.name?.charAt(0)?.toUpperCase() || 'U'}
                                             </AvatarFallback>
                                         </Avatar>
                                     </Link>
-                                    <Button 
-                                        variant="outline" 
-                                        size="sm" 
-                                        onClick={handleLogout} 
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={handleLogout}
                                         disabled={isLoggingOut}
                                         className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 dark:border-red-900/30 dark:hover:bg-red-900/20 disabled:opacity-50"
-                                    > 
+                                    >
                                         {isLoggingOut ? "Logging out..." : "Logout"}
                                     </Button>
                                 </div>
@@ -194,12 +193,12 @@ export function Navigation() {
                                         <Button variant="default" className="px-5 shadow-md shadow-green-500/20"> Login </Button>
                                     </Link>
                                 ) : (
-                                    <Button 
-                                        variant="outline" 
-                                        onClick={handleLogout} 
+                                    <Button
+                                        variant="outline"
+                                        onClick={handleLogout}
                                         disabled={isLoggingOut}
                                         className="ml-auto shrink-0 px-5 text-red-600 border-red-200 hover:bg-red-50 dark:border-red-900/30 dark:hover:bg-red-950/30 disabled:opacity-50"
-                                    > 
+                                    >
                                         {isLoggingOut ? "..." : "Logout"}
                                     </Button>
                                 )}

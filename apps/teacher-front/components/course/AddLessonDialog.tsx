@@ -23,6 +23,8 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+import * as tus from "tus-js-client";
+import { useLesson } from "@/hooks/useLesson";
 import type { Lesson, LessonType, LessonStatus } from "@/components/course/courseTypes";
 
 // ─── Type meta ────────────────────────────────────────────────────────────────
@@ -42,6 +44,8 @@ const TYPE_OPTIONS: {
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface AddLessonDialogProps {
+    /** The ID of the section this lesson belongs to */
+    sectionId: number;
     /** Called when the teacher confirms the new lesson */
     onAdd: (lesson: Omit<Lesson, "id">) => void;
     /** Optional custom trigger; defaults to the ghost "Add Lesson" button */
@@ -50,7 +54,7 @@ interface AddLessonDialogProps {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function AddLessonDialog({ onAdd, trigger }: AddLessonDialogProps) {
+export function AddLessonDialog({ sectionId, onAdd, trigger }: AddLessonDialogProps) {
     const [open, setOpen] = useState(false);
 
     // Form fields
@@ -65,6 +69,9 @@ export function AddLessonDialog({ onAdd, trigger }: AddLessonDialogProps) {
     // UI state
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
+
+    const { createLesson, getUploadSession, isCreating, isGettingSession } = useLesson();
 
     // Reset on open
     useEffect(() => {
@@ -73,25 +80,93 @@ export function AddLessonDialog({ onAdd, trigger }: AddLessonDialogProps) {
             setStatus("draft"); setPreview(false); setDescription("");
             setVideoFile(null);
             setSaved(false); setSaving(false);
+            setUploadProgress(0);
         }
     }, [open]);
 
     const handleAdd = async () => {
-        if (!title.trim()) return;
+        if (!title.trim() || isCreating || isGettingSession) return;
         setSaving(true);
-        await new Promise((r) => setTimeout(r, 500)); // replace with real API call
-        onAdd({
+        setUploadProgress(0);
+
+        let bunnyVideoId: string | undefined = undefined;
+        let bunnyStatus: string = 'queued';
+
+        // 1. Handle Video Upload if applicable
+        if (type === "video" && videoFile) {
+            try {
+                // Get upload session from backend using mutation
+                const session = await getUploadSession({ title: title.trim(), sectionId });
+
+                // Start TUS upload
+                await new Promise((resolve, reject) => {
+                    const upload = new tus.Upload(videoFile, {
+                        endpoint: 'https://video.bunnycdn.com/tusupload',
+                        retryDelays: [0, 3000, 5000, 10000, 20000],
+                        headers: {
+                            AuthorizationSignature: session.signature,
+                            AuthorizationExpire: session.expiration,
+                            VideoId: session.videoId,
+                            LibraryId: session.libraryId,
+                        },
+                        metadata: {
+                            filetype: videoFile.type,
+                            title: title.trim(),
+                        },
+                        onError: (error) => {
+                            console.error('Upload failed:', error);
+                            reject(error);
+                        },
+                        onProgress: (bytesUploaded, bytesTotal) => {
+                            const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
+                            setUploadProgress(parseFloat(percentage));
+                        },
+                        onSuccess: () => {
+                            bunnyVideoId = session.videoId;
+                            bunnyStatus = 'processing';
+                            resolve(true);
+                        },
+                    });
+                    upload.start();
+                });
+            } catch (error) {
+                console.error('Error during video upload:', error);
+                setSaving(false);
+                return;
+            }
+        } else {
+            // Fake delay for other types
+            await new Promise((r) => setTimeout(r, 500));
+        }
+
+        const lessonData: any = {
+            sectionId,
             title: title.trim(),
             type,
-            duration: duration.trim() || "—",
             status,
-            preview,
-            description: description.trim(),
-            file: type === "video" && videoFile ? videoFile : undefined,
-        });
-        setSaving(false);
-        setSaved(true);
-        setTimeout(() => setOpen(false), 700);
+            bunnyVideoId,
+            bunnyStatus,
+        };
+
+        // 2. Save Lesson to Backend
+        try {
+            const savedLesson = await createLesson(lessonData);
+
+            onAdd({
+                ...lessonData,
+                id: savedLesson.id,
+                duration: duration.trim() || "—",
+                preview,
+                description: description.trim(),
+            });
+
+            setSaved(true);
+            setTimeout(() => setOpen(false), 700);
+        } catch (error) {
+            console.error('Failed to create lesson:', error);
+        } finally {
+            setSaving(false);
+        }
     };
 
     return (
@@ -255,8 +330,8 @@ export function AddLessonDialog({ onAdd, trigger }: AddLessonDialogProps) {
                             </label>
 
                             <label className={`flex flex-col items-center justify-center w-full h-36 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${videoFile
-                                    ? "border-green-500 bg-green-50 dark:bg-green-900/20"
-                                    : "border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                                ? "border-green-500 bg-green-50 dark:bg-green-900/20"
+                                : "border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50"
                                 }`}>
                                 <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center px-4">
                                     {videoFile ? (
@@ -281,6 +356,7 @@ export function AddLessonDialog({ onAdd, trigger }: AddLessonDialogProps) {
                                     type="file"
                                     className="hidden"
                                     accept="video/mp4"
+                                    disabled={saving}
                                     onChange={(e) => {
                                         const file = e.target.files?.[0];
                                         if (file) {
@@ -289,6 +365,21 @@ export function AddLessonDialog({ onAdd, trigger }: AddLessonDialogProps) {
                                     }}
                                 />
                             </label>
+
+                            {saving && type === "video" && uploadProgress > 0 && (
+                                <div className="mt-3 space-y-2">
+                                    <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-gray-500">
+                                        <span>Uploading…</span>
+                                        <span>{uploadProgress}%</span>
+                                    </div>
+                                    <div className="h-2 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-green-500 transition-all duration-300 ease-out"
+                                            style={{ width: `${uploadProgress}%` }}
+                                        />
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

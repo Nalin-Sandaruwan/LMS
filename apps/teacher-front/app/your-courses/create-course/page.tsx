@@ -12,7 +12,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ImageIcon, UploadCloud, Save, X } from "lucide-react";
+import { ImageIcon, UploadCloud, Save, X, Loader2 } from "lucide-react";
+import { useCreateCourse } from "@/hooks/useCourses";
 
 export default function CreateCourseDialogPage() {
     const router = useRouter();
@@ -21,25 +22,35 @@ export default function CreateCourseDialogPage() {
     const [description, setDescription] = useState("");
     const [thumbnailStr, setThumbnailStr] = useState<string>("");
 
+    const { mutateAsync: createCourse, isPending } = useCreateCourse();
+
     const isValid = title.trim() && description.trim();
 
     const handleOpenChange = (isOpen: boolean) => {
+        if (isPending) return; // Prevent closing while saving
         setOpen(isOpen);
         if (!isOpen) {
-            router.push("/your-courses"); // Navigate back if dialog is closed/cancelled
+            router.push("/your-courses");
         }
     };
 
-    const handleSave = () => {
-        if (!isValid) return;
+    const handleSave = async () => {
+        if (!isValid || isPending) return;
 
-        // Simulate course creation locally
-        console.log("Saving new course:", { title, description, thumbnail: thumbnailStr });
-        const dummyNewCourseId = 999;
+        try {
+            const newCourse = await createCourse({
+                title: title.trim(),
+                description: description.trim(),
+                thumbnail: thumbnailStr, // Currently handles preview URL or empty string
+            });
 
-        // Hide dialog and gracefully navigate directly into the new course editor
-        setOpen(false);
-        router.push(`/your-courses/${dummyNewCourseId}`);
+            // On success, navigate to the specific course editor
+            setOpen(false);
+            router.push(`/your-courses/${newCourse.id}`);
+        } catch (error) {
+            // Error is handled by the toast in useCreateCourse hook
+            console.error("Failed to create course:", error);
+        }
     };
 
     return (
@@ -145,10 +156,14 @@ export default function CreateCourseDialogPage() {
                     </Button>
                     <Button
                         onClick={handleSave}
-                        disabled={!isValid}
+                        disabled={!isValid || isPending}
                         className="font-bold rounded-xl shadow-md shadow-green-500/20"
                     >
-                        <Save className="w-4 h-4 mr-2" /> Create & Edit Course
+                        {isPending ? (
+                            <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Creating...</>
+                        ) : (
+                            <><Save className="w-4 h-4 mr-2" /> Create & Edit Course</>
+                        )}
                     </Button>
                 </DialogFooter>
             </DialogContent>

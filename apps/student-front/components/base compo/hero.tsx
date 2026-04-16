@@ -56,13 +56,12 @@ export function Hero(props: IAppProps) {
                             Excellence in Education
                         </p>
                         <h1 className='text-5xl md:text-6xl lg:text-7xl font-black text-gray-900 dark:text-white mb-2 leading-tight drop-shadow-sm'>
-                            Committed To Learn <br className="hidden md:block" />
+                            {/* Excellence in education <br className="hidden md:block" /> */}
                             <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-purple-600">
-                                Excellence In Education.
-                            </span>
+                                Tokenized Future For Individuals</span>
                         </h1>
                         <p className='text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl'>
-                            Your one-stop solution for online learning. Discover thousands of courses from top experts to boost your career.
+                            Part of every dollar you spend on yourself gets reinvested into your tokenized idensphere
                         </p>
 
                         <div className="flex gap-4">

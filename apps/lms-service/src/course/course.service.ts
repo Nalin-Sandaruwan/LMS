@@ -1,18 +1,22 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { Course } from './entities/course.entity';
 import { Teacher } from '../teacher/entities/teacher.entity';
+import { BunnyStreamService } from '../lessons/bunny-stream.service';
 
 @Injectable()
 export class CourseService {
+  private readonly logger = new Logger(CourseService.name);
+
   constructor(
     @InjectRepository(Course)
     private readonly courseRepository: Repository<Course>,
     @InjectRepository(Teacher)
     private readonly teacherRepository: Repository<Teacher>,
+    private readonly bunnyStreamService: BunnyStreamService,
   ) {}
 
   //create the courses
@@ -75,7 +79,23 @@ export class CourseService {
 
   // update the course
   async update(id: number, updateCourseDto: UpdateCourseDto) {
+    const course = await this.findOne(id);
+    if (!course) {
+      throw new NotFoundException(`Course with ID ${id} not found`);
+    }
+
+    // Apply updates to the database
     await this.courseRepository.update(id, updateCourseDto);
+
+    // If title has changed and a Bunny collection exists, rename it asynchronously
+    if (updateCourseDto.title && updateCourseDto.title !== course.title && course.bunnyCollectionId) {
+      this.bunnyStreamService
+        .updateCollection(course.bunnyCollectionId, updateCourseDto.title)
+        .catch((err) => {
+          this.logger.error(`Failed to rename Bunny collection for course ${id}: ${err.message}`);
+        });
+    }
+
     return this.findOne(id);
   }
 
@@ -102,5 +122,26 @@ export class CourseService {
       return course;
     }
     return null;
+  }
+
+  // --- Bunny.net Integration ---
+
+  async getOrCreateBunnyCollection(courseId: number): Promise<string> {
+    const course = await this.findOne(courseId);
+    if (!course) {
+      throw new NotFoundException(`Course with ID ${courseId} not found`);
+    }
+
+    if (course.bunnyCollectionId) {
+      return course.bunnyCollectionId;
+    }
+
+    this.logger.log(`Creating Bunny.net collection for course: ${course.title}`);
+    const collectionId = await this.bunnyStreamService.createCollection(course.title);
+    
+    await this.courseRepository.update(courseId, { bunnyCollectionId: collectionId });
+    this.logger.log(`Registered Bunny collection ${collectionId} for course ${courseId}`);
+
+    return collectionId;
   }
 }

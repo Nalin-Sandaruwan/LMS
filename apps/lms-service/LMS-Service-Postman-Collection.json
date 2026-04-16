@@ -1,0 +1,558 @@
+{
+	"info": {
+		"_postman_id": "8a2f1b4c-9d6e-4f3a-b2c5-8e9d0f1a2b3c",
+		"name": "🎓 LMS Service API",
+		"description": "Comprehensive collection for testing all LMS Service endpoints, including Course, Section, Lesson, and Enrollment management.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "🏥 Health Check",
+			"item": [
+				{
+					"name": "GET Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lms",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lms"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Secure Health Check",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "{{teacherUserId}}",
+								"type": "text"
+							},
+							{
+								"key": "x-user-role",
+								"value": "{{teacherRole}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/lms/lms",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lms",
+								"lms"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "👩‍🏫 Teacher",
+			"item": [
+				{
+					"name": "POST Create Teacher",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": 1,\n  \"fullName\": \"Dr. John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"mobileNumber\": \"+1234567890\",\n  \"teachingExpert\": \"Computer Science\",\n  \"shortBio\": \"Passionate educator with 10 years experience.\",\n  \"profilePicture\": \"https://example.com/profile.jpg\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/teacher/create",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teacher",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET All Teachers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/teacher",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teacher"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Teacher By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/teacher/{{teacherUserId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teacher",
+								"{{teacherUserId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "👨‍🎓 Student",
+			"item": [
+				{
+					"name": "POST Create Student",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": 101,\n  \"fullName\": \"Jane Smith\",\n  \"email\": \"jane.smith@example.com\",\n  \"mobileNumber\": \"+0987654321\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/student/create",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"student",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET All Students",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/student",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"student"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "📚 Course",
+			"item": [
+				{
+					"name": "POST Create Course",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.id) {",
+									"    pm.collectionVariables.set(\"courseId\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "{{teacherUserId}}",
+								"type": "text"
+							},
+							{
+								"key": "x-user-role",
+								"value": "{{teacherRole}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Advanced NestJS Development\",\n  \"description\": \"Learn how to build scalable microservices with NestJS.\",\n  \"thumbnail\": \"https://example.com/nestjs.png\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/course",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"course"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET All Courses",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/course",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"course"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Teacher Created Courses",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "{{teacherUserId}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/course/teacher-created",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"course",
+								"teacher-created"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "📂 Section",
+			"item": [
+				{
+					"name": "POST Create Section",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.id) {",
+									"    pm.collectionVariables.set(\"sectionId\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"courseId\": {{courseId}},\n  \"title\": \"Getting Started\",\n  \"description\": \"Environment setup and first project.\",\n  \"duration\": 60\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/section",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"section"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "🎬 Lesson",
+			"item": [
+				{
+					"name": "POST Create Article Lesson",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.id) {",
+									"    pm.collectionVariables.set(\"lessonId\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sectionId\": {{sectionId}},\n  \"title\": \"NestJS Architecture Overview\",\n  \"type\": \"article\",\n  \"status\": \"published\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/lessons",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lessons"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST Start Bunny Upload Session",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sectionId\": {{sectionId}},\n  \"title\": \"First Video Lesson\",\n  \"fileName\": \"intro.mp4\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/lessons/upload-session",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lessons",
+								"upload-session"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "📝 Enrollment",
+			"item": [
+				{
+					"name": "POST Create Enrollment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.id) {",
+									"    pm.collectionVariables.set(\"enrollmentId\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": 101,\n  \"classId\": {{courseId}},\n  \"status\": \"active\",\n  \"progressCalculation\": 0\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/enrollment",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"enrollment"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET All Enrollments",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/enrollment",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"enrollment"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Enrollment By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/enrollment/{{enrollmentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"enrollment",
+								"{{enrollmentId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH Update Progress",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"progressCalculation\": 25.5,\n  \"status\": \"active\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/enrollment/{{enrollmentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"enrollment",
+								"{{enrollmentId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Enrollment",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/enrollment/{{enrollmentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"enrollment",
+								"{{enrollmentId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3002",
+			"type": "string"
+		},
+		{
+			"key": "teacherUserId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "studentUserId",
+			"value": "101",
+			"type": "string"
+		},
+		{
+			"key": "teacherRole",
+			"value": "teacher",
+			"type": "string"
+		},
+		{
+			"key": "courseId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "sectionId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "lessonId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "enrollmentId",
+			"value": "1",
+			"type": "string"
+		}
+	]
+}

@@ -9,12 +9,24 @@ export class CreateLessonDto {
     @IsNotEmpty()
     title: string;
 
-    @IsEnum(['video', 'audio', 'pdf', 'doc', 'text'])
+    @IsEnum(['video', 'audio', 'pdf', 'doc', 'text', 'article', 'quiz'])
     @IsNotEmpty()
-    type: 'video' | 'audio' | 'pdf' | 'doc' | 'text';
+    type: 'video' | 'audio' | 'pdf' | 'doc' | 'text' | 'article' | 'quiz';
 
     @IsString()
     @IsOptional()
     fileUrl?: string;
+
+    @IsString()
+    @IsOptional()
+    bunnyVideoId?: string;
+
+    @IsString()
+    @IsOptional()
+    bunnyStatus?: string;
+
+    @IsEnum(['published', 'draft'])
+    @IsOptional()
+    status?: string;
 }
 

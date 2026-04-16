@@ -1,8 +1,9 @@
 "use client";
 
 import React from "react";
-import { Trash2 } from "lucide-react";
+import { Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useRouter, useParams } from "next/navigation";
 import {
     Dialog,
     DialogTrigger,
@@ -13,6 +14,7 @@ import {
     DialogFooter,
     DialogClose,
 } from "@/components/ui/dialog";
+import { useSection } from "@/hooks/useSection";
 
 interface DeleteSectionDialogProps {
     sectionId: number;
@@ -21,11 +23,28 @@ interface DeleteSectionDialogProps {
 }
 
 export function DeleteSectionDialog({ sectionId, sectionTitle, onDelete }: DeleteSectionDialogProps) {
+    const router = useRouter();
+    const params = useParams();
+    const courseId = params?.id as string;
+    const { deleteSection, isDeleting } = useSection();
+
+    const handleDelete = async () => {
+        try {
+            await deleteSection(sectionId);
+            onDelete?.();
+            // Redirect back to the course page to ensure state is fresh
+            if (courseId) {
+                router.push(`/your-courses/${courseId}`);
+            }
+        } catch (error) {
+            console.error("Delete section error:", error);
+        }
+    };
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button 
-                    variant="ghost" 
+                <Button
+                    variant="ghost"
                     size="sm"
                     className="h-7 px-2 text-xs rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
                 >
@@ -48,11 +67,22 @@ export function DeleteSectionDialog({ sectionId, sectionTitle, onDelete }: Delet
                         </Button>
                     </DialogClose>
                     <DialogClose asChild>
-                        <Button 
+                        <Button
                             className="rounded-xl font-bold bg-red-600 hover:bg-red-700 text-white shadow-md shadow-red-500/20 px-6"
-                            onClick={() => onDelete?.()}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                handleDelete();
+                            }}
+                            disabled={isDeleting}
                         >
-                            Yes, Delete Section
+                            {isDeleting ? (
+                                <>
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    Deleting...
+                                </>
+                            ) : (
+                                "Yes, Delete Section"
+                            )}
                         </Button>
                     </DialogClose>
                 </DialogFooter>

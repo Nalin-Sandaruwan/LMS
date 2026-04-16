@@ -34,7 +34,7 @@ export function CourseCard({ course }: { course: Course }) {
             {/* Thumbnail */}
             <div className="relative h-44 overflow-hidden bg-gray-100 dark:bg-gray-800">
                 <img
-                    src={course.thumbnail}
+                    src={course.thumbnail || undefined}
                     alt={course.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
