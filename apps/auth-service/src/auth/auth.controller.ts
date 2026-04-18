@@ -41,15 +41,13 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(
-    @Body() loginDto: loginDto,
+    @Req() req,
     @Res({ passthrough: true }) response: Response,
   ) {
-    console.log('🔑 [AUTH-LOGIN] Logging in user:', loginDto.email);
+    const user = req.user;
+    console.log('🔑 [AUTH-LOGIN] Generating tokens for verified user:', user.email);
 
-    const result = await this.authService.login(
-      loginDto.email,
-      loginDto.password,
-    );
+    const result = await this.authService.login(user);
 
     // ✅ Clear any old cookies first
     response.clearCookie('accessToken');
@@ -314,5 +312,24 @@ export class AuthController {
         email: req.user.email,
       },
     });
+  }
+
+  // Admin: Get all teachers
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @Get('admin/teachers')
+  async getTeachers() {
+    return await this.userService.findAllTeachers();
+  }
+
+  // Admin: Verify a teacher (set isActive to true/false)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @Patch('admin/teachers/verify/:id')
+  async verifyTeacher(
+    @Param('id') id: number,
+    @Body() body: { isActive: boolean },
+  ) {
+    return await this.userService.update(id, { isActive: body.isActive });
   }
 }

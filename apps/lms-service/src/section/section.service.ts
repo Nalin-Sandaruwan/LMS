@@ -31,7 +31,7 @@ export class SectionService {
 
   async findOne(id: number) {
     return await this.sectionRepository.findOne({
-      where: { id },
+      where: { id }, 
       relations: ['course', 'lessons'],
     });
   }

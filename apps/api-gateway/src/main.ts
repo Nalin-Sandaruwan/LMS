@@ -17,6 +17,7 @@ async function bootstrap() {
       'http://localhost:5174',
       'http://localhost:5173',
       'http://localhost:3000',
+      'http://localhost:1575',
     ], // Keep aligned with your front-end ports
     credentials: true,
   });

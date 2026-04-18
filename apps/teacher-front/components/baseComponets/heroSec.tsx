@@ -45,7 +45,7 @@ export function HeroSection() {
     };
 
     return (
-        <div className="relative min-h-dvh flex items-center justify-center overflow-hidden ">
+        <div className="relative min-h-dvh flex items-center justify-center overflow-hidden " suppressHydrationWarning>
 
             {/* Background image — separate layer so opacity doesn't affect children */}
             <div

@@ -64,6 +64,11 @@ export class UsersService {
     return await this.userRepository.find();
   }
 
+  // find all teachers
+  async findAllTeachers() {
+    return await this.userRepository.find({ where: { role: 'teacher' as any } });
+  }
+
   // create new teacher
   async TeacherSignUp(teacherUser: CreateTeacherDto) {
     const existingUser = await this.findOneByEmail(teacherUser.email);

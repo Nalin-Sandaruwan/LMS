@@ -3,7 +3,7 @@ import { HeroSection } from "@/components/baseComponets/heroSec";
 
 export default function Home() {
   return (
-    <div className="relative flex flex-col min-h-screen">
+    <div className="relative flex flex-col min-h-screen" suppressHydrationWarning>
       <Navigation />
       <main className="grow">
         <HeroSection />

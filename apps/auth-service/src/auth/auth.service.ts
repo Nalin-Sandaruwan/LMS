@@ -27,19 +27,24 @@ export class AuthService {
     @Inject('REFRESH_JWT_SERVICE') private readonly refreshJwtService: any, // ✅ Inject custom refresh JWT service
   ) {}
 
-  //that mainly for local strategy
+  // that mainly for local strategy
   async validateUser(email: string, password: string) {
+    console.log(`🔐 [AUTH-SERVICE] Validating user: ${email}`);
     const user = await this.UserService.findOneByEmail(email);
+    
     if (!user) {
-      throw new NotFoundException('User not found');
+      console.warn(`❌ [AUTH-SERVICE] User not found: ${email}`);
+      return null;
     }
 
     // Compare plain text password with hashed password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
+      console.warn(`❌ [AUTH-SERVICE] Password mismatch for user: ${email}`);
+      return null;
     }
 
+    console.log(`✅ [AUTH-SERVICE] User validated: ${email}`);
     return {
       id: user.id,
       email: user.email,
@@ -65,29 +70,30 @@ export class AuthService {
     return user;
   }
 
-  async login(email: string, password: string) {
-    const user = await this.UserService.findOneByEmail(email);
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      throw new NotFoundException('Invalid credentials');
-    }
-
+  // Simplified login that generates tokens without re-validating password
+  // Useful when the user is already validated by a guard (LocalAuthGuard)
+  async login(user: any) {
     const { accessToken, refreshToken } = await this.generateAccessToken(
       user.id,
-      String(user.role), // ✓ Converts to string
+      String(user.role),
     );
+
     await this.UserRepository.update(user.id, { refreshToken });
-    // Attach user to request for later use
 
     return {
       accessToken,
       refreshToken,
       user: { id: user.id, email: user.email, role: user.role },
     };
+  }
+
+  // Legacy/Full login (if called directly without guard)
+  async loginWithCredentials(email: string, password: string) {
+    const validatedUser = await this.validateUser(email, password);
+    if (!validatedUser) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+    return this.login(validatedUser);
   }
 
   //fint user profile logic

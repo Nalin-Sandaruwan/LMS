@@ -36,7 +36,7 @@ export function Navigation() {
     const currentNavItems = [...publicNavItems, ...privateNavItems];
 
     return (
-        <div className='absolute top-0 w-full z-50 page-margin'>
+        <div className='absolute top-0 w-full z-50 page-margin' suppressHydrationWarning>
             <motion.div
                 initial={{ y: -50, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
