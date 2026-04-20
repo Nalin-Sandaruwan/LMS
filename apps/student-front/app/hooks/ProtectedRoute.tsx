@@ -49,7 +49,10 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
                     </div>
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Account Not Active</h2>
                     <p className="text-gray-500 dark:text-gray-400 font-medium">
-                        Your teacher account is currently pending approval or has been deactivated. Please contact an administrator to restore access.
+                        {user.role === 'teacher' 
+                            ? "Your teacher account is currently pending approval or has been deactivated. Please contact an administrator to restore access."
+                            : "Your student account is currently inactive or has been restricted. Please contact support to restore access."
+                        }
                     </p>
                 </div>
             </div>

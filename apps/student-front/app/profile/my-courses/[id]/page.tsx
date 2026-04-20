@@ -1,6 +1,6 @@
 "use client"
 import * as React from 'react';
-import { X } from 'lucide-react';
+import { X, BookOpen } from 'lucide-react';
 import Link from 'next/link';
 
 import { useParams } from 'next/navigation';
@@ -22,12 +22,27 @@ export default function CoursePlayerPage() {
 
     // Application States
     const [expandedSections, setExpandedSections] = React.useState<string[]>([]);
-    const [activeLesson, setActiveLesson] = React.useState<any>(null);
+    const [activeLessonState, setActiveLessonState] = React.useState<any>(null);
     const [completedLessons, setCompletedLessons] = React.useState<string[]>([]);
     const [isPlaying, setIsPlaying] = React.useState(false);
     const [showSidebar, setShowSidebar] = React.useState(true);
 
     const courseData = enrollment?.course;
+    const sections = courseData?.sections || [];
+
+    // Derive the first available lesson as a fallback to avoid UI flickering/race conditions
+    const firstAvailableLesson = React.useMemo(() => {
+        if (!sections.length) return null;
+        for (const section of sections) {
+            if (section.lessons && section.lessons.length > 0) {
+                return section.lessons[0];
+            }
+        }
+        return null;
+    }, [sections]);
+
+    // effective active lesson (state takes priority, then fallback)
+    const activeLesson = activeLessonState || firstAvailableLesson;
 
     // Initialize state when data is loaded
     React.useEffect(() => {
@@ -35,26 +50,19 @@ export default function CoursePlayerPage() {
             setCompletedLessons(enrollment.completedLessons);
         }
 
-        if (courseData?.sections && courseData.sections.length > 0) {
-            const firstSection = courseData.sections[0];
-            if (firstSection.lessons && firstSection.lessons.length > 0) {
-                if (!activeLesson) {
-                    setActiveLesson(firstSection.lessons[0]);
-                }
-                setExpandedSections(prev => prev.length === 0 ? [firstSection.id.toString()] : prev);
-            }
+        if (firstAvailableLesson && !activeLessonState) {
+            setExpandedSections(prev => prev.length === 0 ? [sections.find((s: any) => s.lessons?.some((l: any) => l.id === firstAvailableLesson.id))?.id.toString() || ""] : prev);
         }
-    }, [courseData, enrollment]);
+    }, [enrollment, firstAvailableLesson, activeLessonState, sections]);
 
     // Derived state
-    const sections = courseData?.sections || [];
     const totalLessons = sections.reduce((acc: number, sec: any) => acc + (sec.lessons?.length || 0), 0);
     const progressPercentage = totalLessons > 0 ? Math.round((completedLessons.length / totalLessons) * 100) : 0;
 
     // Handlers
     const toggleSection = (id: string) => {
         setExpandedSections(prev =>
-            prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]
+            prev.includes(id) ? prev.filter((s: string) => s !== id) : [...prev, id]
         );
     };
 
@@ -78,7 +86,7 @@ export default function CoursePlayerPage() {
     };
 
     const selectLesson = (lesson: any) => {
-        setActiveLesson(lesson);
+        setActiveLessonState(lesson);
         setIsPlaying(true);
         // On mobile, auto-close sidebar when playing a new lesson
         if (typeof window !== 'undefined' && window.innerWidth < 1024) {
@@ -120,13 +128,13 @@ export default function CoursePlayerPage() {
         );
     }
 
-    if (error || !enrollment || !activeLesson) {
+    if (error || !enrollment) {
         return (
             <div className="h-screen flex items-center justify-center bg-white dark:bg-gray-950">
                 <div className="text-center space-y-4">
                     <X className="w-16 h-16 text-red-500 mx-auto" />
-                    <h2 className="text-2xl font-black">Course not found</h2>
-                    <p className="text-gray-500">We couldn't load the course content. Please try again later.</p>
+                    <h2 className="text-2xl font-black">Enrollment not found</h2>
+                    <p className="text-gray-500">We couldn't find this enrollment. It may have been removed or you don't have access.</p>
                     <Link href="/profile/my-courses">
                         <Button className="rounded-xl font-bold">Back to My Courses</Button>
                     </Link>
@@ -134,6 +142,25 @@ export default function CoursePlayerPage() {
             </div>
         );
     }
+
+    // Handle course with no lessons yet
+    if (!activeLesson) {
+        return (
+            <div className="h-screen flex items-center justify-center bg-white dark:bg-gray-950">
+                <div className="text-center space-y-4 p-8 max-w-md">
+                    <div className="w-20 h-20 bg-gray-100 dark:bg-gray-900 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <BookOpen className="w-10 h-10 text-gray-400" />
+                    </div>
+                    <h2 className="text-2xl font-black">{courseData?.title || "Course content"}</h2>
+                    <p className="text-gray-500 font-medium">This course doesn't have any lessons updated yet. Please check back later or contact the instructor.</p>
+                    <Link href="/profile/my-courses">
+                        <Button variant="outline" className="rounded-xl font-bold mt-4">Back to My Courses</Button>
+                    </Link>
+                </div>
+            </div>
+        );
+    }
+
 
     return (
         <div className="relative flex flex-col min-h-screen bg-white dark:bg-gray-950 font-sans h-screen overflow-hidden">

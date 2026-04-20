@@ -143,6 +143,7 @@ export class UsersService {
     const student = await this.userRepository.create({
       ...studentUser,
       password: hashedPassword,
+      isActive: true, // Students are active by default
     });
     console.log(studentUser);
     const savedStudent = await this.userRepository.save(student);

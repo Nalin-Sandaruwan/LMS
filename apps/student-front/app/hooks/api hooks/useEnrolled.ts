@@ -5,10 +5,11 @@ import { toast } from "sonner";
 /**
  * Hook to fetch all courses the current student is enrolled in.
  */
-export const useUserEnrolledCourses = () => {
+export const useUserEnrolledCourses = (enabled = true) => {
   return useQuery({
     queryKey: ["enrolled-courses"],
     queryFn: getUserEnrolledCourses,
+    enabled: enabled,
   });
 };
 

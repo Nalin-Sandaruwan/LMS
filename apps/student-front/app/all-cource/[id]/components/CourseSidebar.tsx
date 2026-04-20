@@ -14,7 +14,7 @@ interface CourseSidebarProps {
 export function CourseSidebar({ course }: CourseSidebarProps) {
     const { data: user } = useAuth();
     const router = useRouter();
-    const { data: enrollments } = useUserEnrolledCourses();
+    const { data: enrollments } = useUserEnrolledCourses(!!user);
     const { mutate: enroll, isPending } = useCreateEnrollment();
 
     const isEnrolled = enrollments?.some((e: any) => Number(e.classId) === Number(course.id));

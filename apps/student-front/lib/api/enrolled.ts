@@ -28,3 +28,4 @@ export const updateEnrollment = async (id: string, data: any) => {
   const response = await apiClient.patch(`/api/enrollment/${id}`, data);
   return response.data;
 };
+

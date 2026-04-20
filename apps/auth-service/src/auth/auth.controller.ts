@@ -332,4 +332,23 @@ export class AuthController {
   ) {
     return await this.userService.update(id, { isActive: body.isActive });
   }
+
+  // Admin: Get all users
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @Get('admin/users')
+  async getUsers() {
+    return await this.userService.findAll();
+  }
+
+  // Admin: Toggle any user's active status
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @Patch('admin/users/status/:id')
+  async updateUserStatus(
+    @Param('id') id: number,
+    @Body() body: { isActive: boolean },
+  ) {
+    return await this.userService.update(id, { isActive: body.isActive });
+  }
 }

@@ -47,8 +47,16 @@ export class CourseService {
 
   //find all
   async findAll() {
-    return await this.courseRepository.find({ 
-      relations: ['teacher', 'sections', 'sections.lessons'] 
+    return await this.courseRepository.find({
+      relations: ['teacher', 'sections', 'sections.lessons'],
+    });
+  }
+
+  // Find a specific course without heavy relations
+  async findOneWithoutVideo(id: number) {
+    return await this.courseRepository.findOne({
+      where: { id },
+      relations: ['teacher', 'sections'],
     });
   }
 
@@ -56,14 +64,13 @@ export class CourseService {
   async findAllTeacherCreated(teacherId: number) {
     const courses = await this.courseRepository.find({
       where: { teacherId },
-      relations: ['teacher', 'sections', 'sections.lessons'] 
+      relations: ['teacher', 'sections', 'sections.lessons'],
     });
 
-
     if (!courses || courses.length === 0) {
-      return{
+      return {
         message: 'No courses found for this teacher',
-      }
+      };
     }
 
     return courses;
@@ -88,11 +95,17 @@ export class CourseService {
     await this.courseRepository.update(id, updateCourseDto);
 
     // If title has changed and a Bunny collection exists, rename it asynchronously
-    if (updateCourseDto.title && updateCourseDto.title !== course.title && course.bunnyCollectionId) {
+    if (
+      updateCourseDto.title &&
+      updateCourseDto.title !== course.title &&
+      course.bunnyCollectionId
+    ) {
       this.bunnyStreamService
         .updateCollection(course.bunnyCollectionId, updateCourseDto.title)
         .catch((err) => {
-          this.logger.error(`Failed to rename Bunny collection for course ${id}: ${err.message}`);
+          this.logger.error(
+            `Failed to rename Bunny collection for course ${id}: ${err.message}`,
+          );
         });
     }
 
@@ -104,21 +117,23 @@ export class CourseService {
     const course = await this.findOne(id);
     if (course) {
       // Use a transaction to ensure complete cleanup and prevent orphans
-      await this.courseRepository.manager.transaction(async (transactionalEntityManager) => {
-        if (course.sections && course.sections.length > 0) {
-          // 1. Remove all lessons from all sections
-          for (const section of course.sections) {
-            if (section.lessons && section.lessons.length > 0) {
-              await transactionalEntityManager.remove(section.lessons);
+      await this.courseRepository.manager.transaction(
+        async (transactionalEntityManager) => {
+          if (course.sections && course.sections.length > 0) {
+            // 1. Remove all lessons from all sections
+            for (const section of course.sections) {
+              if (section.lessons && section.lessons.length > 0) {
+                await transactionalEntityManager.remove(section.lessons);
+              }
             }
+            // 2. Remove all sections
+            await transactionalEntityManager.remove(course.sections);
           }
-          // 2. Remove all sections
-          await transactionalEntityManager.remove(course.sections);
-        }
-        
-        // 3. Remove the course itself
-        await transactionalEntityManager.remove(course);
-      });
+
+          // 3. Remove the course itself
+          await transactionalEntityManager.remove(course);
+        },
+      );
       return course;
     }
     return null;
@@ -136,11 +151,19 @@ export class CourseService {
       return course.bunnyCollectionId;
     }
 
-    this.logger.log(`Creating Bunny.net collection for course: ${course.title}`);
-    const collectionId = await this.bunnyStreamService.createCollection(course.title);
-    
-    await this.courseRepository.update(courseId, { bunnyCollectionId: collectionId });
-    this.logger.log(`Registered Bunny collection ${collectionId} for course ${courseId}`);
+    this.logger.log(
+      `Creating Bunny.net collection for course: ${course.title}`,
+    );
+    const collectionId = await this.bunnyStreamService.createCollection(
+      course.title,
+    );
+
+    await this.courseRepository.update(courseId, {
+      bunnyCollectionId: collectionId,
+    });
+    this.logger.log(
+      `Registered Bunny collection ${collectionId} for course ${courseId}`,
+    );
 
     return collectionId;
   }

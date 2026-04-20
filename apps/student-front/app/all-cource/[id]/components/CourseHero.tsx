@@ -57,7 +57,7 @@ export function CourseHero({ course }: CourseHeroProps) {
                         </div>
                         <div className="flex items-center gap-2 font-medium">
                             <Calendar className="w-4 h-4 text-gray-500" />
-                            <span>Last updated {course.lastUpdated || 'Recently'}</span>
+                            <span>Last updated {course.updatedAt ? new Date(course.updatedAt).toLocaleDateString() : 'Recently'}</span>
                         </div>
                         <div className="flex items-center gap-2 font-medium">
                             <Globe className="w-4 h-4 text-gray-500" />
@@ -66,12 +66,20 @@ export function CourseHero({ course }: CourseHeroProps) {
                     </div>
 
                     <div className="mt-8 flex items-center gap-4 group cursor-pointer">
-                        <div className="w-12 h-12 bg-gray-800 rounded-full flex items-center justify-center font-black text-gray-300 border border-gray-700 shadow-inner overflow-hidden">
-                            {course.instructor ? course.instructor.charAt(0) : <Users className="w-6 h-6" />}
+                        <div className="w-12 h-12 bg-gray-800 rounded-full flex items-center justify-center font-black text-gray-300 border border-gray-700 shadow-inner overflow-hidden relative">
+                            {course.teacher?.profilePicture ? (
+                                <img 
+                                    src={course.teacher.profilePicture} 
+                                    alt={course.teacher.fullName} 
+                                    className="absolute inset-0 w-full h-full object-cover"
+                                />
+                            ) : (
+                                <span>{course.teacher?.fullName?.charAt(0) || <Users className="w-6 h-6" />}</span>
+                            )}
                         </div>
                         <div>
                             <p className="text-xs text-gray-500 uppercase font-black tracking-widest mb-0.5">Instructor</p>
-                            <p className="text-base text-blue-400 font-bold group-hover:underline">{course.instructor || "Platform Specialist"}</p>
+                            <p className="text-base text-blue-400 font-bold group-hover:underline">{course.teacher?.fullName || "Platform Specialist"}</p>
                         </div>
                     </div>
                 </motion.div>

@@ -17,7 +17,7 @@ export function CourseCurriculum({ course }: CourseCurriculumProps) {
                 <div className="flex items-center gap-3 text-sm text-gray-500 font-medium">
                     <span>{course.sections?.length || 0} sections</span>
                     <span className="text-gray-300 dark:text-gray-800">&bull;</span>
-                    <span>{course.sections?.reduce((acc: number, s: any) => acc + (s.lessons?.length || 0), 0) || 0} lessons</span>
+                    <span>{course.sections?.reduce((acc: number, s: any) => acc + (s.lessons?.length || 0), 0) || course.lessonCount || 0} lessons</span>
                     <span className="text-gray-300 dark:text-gray-800">&bull;</span>
                     <span>{course.hours || '0'} hours total length</span>
                 </div>

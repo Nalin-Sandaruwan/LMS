@@ -9,3 +9,8 @@ export const getCourseById = async (id: string | number) => {
   const response = await apiClient.get(`/api/course/${id}`);
   return response.data;
 };
+
+export const getCourseByIdWithoutVideo = async (id: string | number) => {
+  const response = await apiClient.get(`/api/course/without-video/${id}`);
+  return response.data;
+};

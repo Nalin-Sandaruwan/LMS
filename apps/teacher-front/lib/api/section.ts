@@ -19,4 +19,10 @@ export const sectionApi = {
     const response = await apiClient.delete(`/api/section/${id}`);
     return response.data;
   },
+
+  // update section
+  updateSection: async (id: number, data: CreateSectionData) => {
+    const response = await apiClient.patch(`/api/section/${id}`, data);
+    return response.data;
+  },
 };

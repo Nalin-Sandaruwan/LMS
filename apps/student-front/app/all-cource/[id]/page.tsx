@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useParams } from 'next/navigation';
 import { Navigation } from "@/components/base compo/navigation";
 import { Footer } from "@/components/base compo/footer";
-import { useCourseById } from '../../hooks/api hooks/useCourse';
+import { useCourseByIdWithoutVideo } from '../../hooks/api hooks/useCourse';
 import { DetailSkeleton } from './components/DetailSkeleton';
 import { ErrorState } from './components/ErrorState';
 import { CourseHero } from './components/CourseHero';
@@ -13,7 +13,7 @@ import { CourseSidebar } from './components/CourseSidebar';
 export default function CourseDetailPage() {
     const params = useParams();
     const id = params?.id as string;
-    const { data: course, isLoading, isError } = useCourseById(id);
+    const { data: course, isLoading, isError } = useCourseByIdWithoutVideo(id);
 
     if (isLoading) return <DetailSkeleton />;
     if (isError || !course) return <ErrorState />;

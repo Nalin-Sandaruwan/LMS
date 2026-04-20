@@ -31,9 +31,21 @@ export class JwtMiddleware implements NestMiddleware {
       '/auth/verify-email',
       '/auth/verify-otp',
       '/auth/reset-password',
+      '/api/course', // Whitelist exact match for course list
+      '/api/course/without-video',
     ];
-    if (publicPaths.includes(req.url)) {
-      console.log('✅ [GATEWAY-AUTH] Public route - skipping middleware');
+
+    // Check for public paths or specific public GET requests
+    const isPublicPath = publicPaths.includes(req.url);
+    
+    // Only allow global search and public detail view to skip middleware
+    const isPublicCourseList = req.method === 'GET' && req.url === '/api/course';
+    const isPublicCourseDetail = req.method === 'GET' && req.url.startsWith('/api/course/without-video');
+
+    if (isPublicPath || isPublicCourseList || isPublicCourseDetail) {
+      console.log(
+        '✅ [GATEWAY-AUTH] Public route - skipping middleware',
+      );
       return next();
     }
 

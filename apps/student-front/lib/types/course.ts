@@ -19,11 +19,21 @@ export interface Section {
     lessons: Lesson[];
 }
 
+export interface Teacher {
+    id: number;
+    fullName: string;
+    email: string;
+    teachingExpert: string;
+    shortBio: string;
+    profilePicture?: string;
+}
+
 export interface Course {
     id: string | number;
     title: string;
     description?: string;
-    instructor?: string;
+    teacherId?: number;
+    teacher?: Teacher;
     category?: string;
     level?: CourseLevel;
     rating?: number;
@@ -31,10 +41,11 @@ export interface Course {
     hours?: string | number;
     price?: string | number;
     thumbnail?: string;
-    image?: string; // Legacy support if needed
+    image?: string; 
     isActive?: boolean;
     students?: string | number;
-    lastUpdated?: string;
+    updatedAt?: string;
+    createdAt?: string;
     whatYouWillLearn?: string[];
     sections?: Section[];
 }
