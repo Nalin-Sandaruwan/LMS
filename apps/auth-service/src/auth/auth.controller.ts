@@ -61,7 +61,7 @@ export class AuthController {
       secure: false,
       sameSite: 'lax',
       path: '/',
-      maxAge: 60 * 1000, // 60 seconds
+      maxAge: 15 * 60 * 1000, // 15 minutes (matched to JWT expiry)
     });
 
     response.cookie('refreshToken', result.refreshToken, {
@@ -289,13 +289,13 @@ export class AuthController {
     // ✅ Only clear and set accessToken
     res.clearCookie('accessToken');
 
-    // ✅ Set new accessToken cookie
+    // ✅ Set new accessToken cookie (15 mins)
     res.cookie('accessToken', user.accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
-      maxAge: 60 * 1000, // 60 seconds
+      maxAge: 15 * 60 * 1000, // 15 minutes
     });
 
     // ✅ NO NEED to update refreshToken cookie - it's still valid!
@@ -310,6 +310,7 @@ export class AuthController {
       result: {
         id: req.user.id,
         email: req.user.email,
+        role: req.user.role, // ✅ Crucial for API Gateway role mapping
       },
     });
   }

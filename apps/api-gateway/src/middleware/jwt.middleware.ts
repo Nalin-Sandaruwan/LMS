@@ -31,21 +31,21 @@ export class JwtMiddleware implements NestMiddleware {
       '/auth/verify-email',
       '/auth/verify-otp',
       '/auth/reset-password',
-      '/api/course', // Whitelist exact match for course list
+      // '/api/course', // Whitelist exact match for course list
       '/api/course/without-video',
     ];
 
     // Check for public paths or specific public GET requests
     const isPublicPath = publicPaths.includes(req.url);
-    
+
     // Only allow global search and public detail view to skip middleware
-    const isPublicCourseList = req.method === 'GET' && req.url === '/api/course';
-    const isPublicCourseDetail = req.method === 'GET' && req.url.startsWith('/api/course/without-video');
+    const isPublicCourseList =
+      req.method === 'GET' && req.url === '/api/course';
+    const isPublicCourseDetail =
+      req.method === 'GET' && req.url.startsWith('/api/course/without-video');
 
     if (isPublicPath || isPublicCourseList || isPublicCourseDetail) {
-      console.log(
-        '✅ [GATEWAY-AUTH] Public route - skipping middleware',
-      );
+      console.log('✅ [GATEWAY-AUTH] Public route - skipping middleware');
       return next();
     }
 
@@ -91,11 +91,6 @@ export class JwtMiddleware implements NestMiddleware {
       const verifyResult = await this.verifyWithUserData(newCookieHeader);
       console.log('📊 [POST-REFRESH-VERIFY] userData:', verifyResult.userData);
       this.attachUserHeaders(req, verifyResult.userData);
-
-      console.log('🎯 [BEFORE-NEXT-TOKEN-REFRESH] Headers:', {
-        'x-user-id': req.headers['x-user-id'],
-        'x-user-role': req.headers['x-user-role'],
-      });
 
       return next();
     }
@@ -165,14 +160,10 @@ export class JwtMiddleware implements NestMiddleware {
       req.headers['x-user-id'] = String(refreshed.data.result.id);
       req.headers['x-user-role'] = refreshed.data.result.role || 'user';
       console.log(
-        `✅ [GATEWAY-AUTH] User info attached - ID: ${refreshed.data.result.id}, Role: ${refreshed.data.result.role}`,
+        `✅ [GATEWAY-AUTH] User info attached - ID: ${refreshed.data.result.id}, Role: ${req.headers['x-user-role']}`,
       );
     }
 
-    console.log('🎯 [BEFORE-NEXT-REFRESH] Calling next() - Headers now are:', {
-      'x-user-id': req.headers['x-user-id'],
-      'x-user-role': req.headers['x-user-role'],
-    });
     return next();
   }
 
