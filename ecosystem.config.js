@@ -12,7 +12,7 @@ module.exports = {
     {
       name: 'auth-service',
       cwd: './apps/auth-service',
-      script: './dist/main.js',
+      script: './dist/src/main.js',
       env: {
         NODE_ENV: 'production',
         PORT: 3001
