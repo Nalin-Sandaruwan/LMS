@@ -5,6 +5,8 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Course } from './entities/course.entity';
 import { Teacher } from '../teacher/entities/teacher.entity';
 
+import { BunnyStreamService } from '../lessons/bunny-stream.service';
+
 describe('CourseService', () => {
   let service: CourseService;
 
@@ -13,7 +15,8 @@ describe('CourseService', () => {
       providers: [
         CourseService,
         { provide: getRepositoryToken(Course), useValue: {} },
-        { provide: getRepositoryToken(Teacher), useValue: {} }
+        { provide: getRepositoryToken(Teacher), useValue: {} },
+        { provide: BunnyStreamService, useValue: {} }
       ],
     }).compile();
 

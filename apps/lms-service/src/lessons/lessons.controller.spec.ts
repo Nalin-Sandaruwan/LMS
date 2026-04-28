@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { LessonsController } from './lessons.controller';
 import { LessonsService } from './lessons.service';
+import { BunnyStreamService } from './bunny-stream.service';
 
 describe('LessonsController', () => {
   let controller: LessonsController;
@@ -8,7 +9,10 @@ describe('LessonsController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [LessonsController],
-      providers: [{ provide: LessonsService, useValue: {} }],
+      providers: [
+        { provide: LessonsService, useValue: {} },
+        { provide: BunnyStreamService, useValue: {} }
+      ],
     }).compile();
 
     controller = module.get<LessonsController>(LessonsController);
