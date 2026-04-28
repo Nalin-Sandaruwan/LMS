@@ -11,7 +11,7 @@ import { UserMenu } from './nav-components/UserMenu';
 import { MobileMenu } from './nav-components/MobileMenu';
 
 const navItems = [
-    { name: "Homesss ", href: "/" },
+    { name: "Home ", href: "/" },
     { name: "All Courses", href: "/all-cource" },
     { name: "Pricing", href: "/plans" },
     { name: "About us", href: "/about_us" },
