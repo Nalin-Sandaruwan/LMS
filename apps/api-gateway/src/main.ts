@@ -22,6 +22,7 @@ async function bootstrap() {
       'http://31.97.135.164:5174',
       'http://31.97.135.164:1575',
       'http://31.97.135.164:3000',
+      'http://31.97.135.164',
     ], // Keep aligned with your front-end ports
     credentials: true,
   });
