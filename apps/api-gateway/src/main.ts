@@ -18,6 +18,10 @@ async function bootstrap() {
       'http://localhost:5173',
       'http://localhost:3000',
       'http://localhost:1575',
+      'http://31.97.135.164:5173',
+      'http://31.97.135.164:5174',
+      'http://31.97.135.164:1575',
+      'http://31.97.135.164:3000',
     ], // Keep aligned with your front-end ports
     credentials: true,
   });
