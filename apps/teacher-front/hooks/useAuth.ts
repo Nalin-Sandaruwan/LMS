@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { authApi, UserProfile, TeacherSignupPayload, TeacherLoginPayload } from "@/lib/api/auth";
+export type { UserProfile, TeacherSignupPayload, TeacherLoginPayload };
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 

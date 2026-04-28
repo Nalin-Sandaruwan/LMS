@@ -10,7 +10,7 @@ export default (): TypeOrmModuleOptions => {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     autoLoadEntities: true,
-    entities:[User],
+    entities: [User],
     synchronize: process.env.DB_SYNCHRONIZE === 'true',
   };
 };

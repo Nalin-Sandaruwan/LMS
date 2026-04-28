@@ -40,12 +40,12 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(
-    @Req() req,
-    @Res({ passthrough: true }) response: Response,
-  ) {
+  async login(@Req() req, @Res({ passthrough: true }) response: Response) {
     const user = req.user;
-    console.log('🔑 [AUTH-LOGIN] Generating tokens for verified user:', user.email);
+    console.log(
+      '🔑 [AUTH-LOGIN] Generating tokens for verified user:',
+      user.email,
+    );
 
     const result = await this.authService.login(user);
 

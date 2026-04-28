@@ -48,4 +48,5 @@ export interface Course {
     createdAt?: string;
     whatYouWillLearn?: string[];
     sections?: Section[];
+    lessonCount?: number | string;
 }

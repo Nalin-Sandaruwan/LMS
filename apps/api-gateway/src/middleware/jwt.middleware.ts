@@ -160,7 +160,7 @@ export class JwtMiddleware implements NestMiddleware {
       req.headers['x-user-id'] = String(refreshed.data.result.id);
       req.headers['x-user-role'] = refreshed.data.result.role || 'user';
       console.log(
-        `✅ [GATEWAY-AUTH] User info attached - ID: ${refreshed.data.result.id}, Role: ${req.headers['x-user-role']}`,
+        `✅ [GATEWAY-AUTH] User info attached - ID: ${refreshed.data.result.id}, Role: ${String(req.headers['x-user-role'])}`,
       );
     }
 

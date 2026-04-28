@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Navigation } from "@/components/base compo/navigation";
 import { Footer } from "@/components/base compo/footer";
 
+import Link from 'next/link';
+
 export function ErrorState() {
     return (
         <div className="relative flex flex-col min-h-screen bg-gray-50 dark:bg-gray-950">
@@ -19,7 +21,7 @@ export function ErrorState() {
                         We couldn't find the course you're looking for. It might have been removed or the link is incorrect.
                     </p>
                     <Button asChild className="w-full">
-                        <a href="/all-cource">Browse All Courses</a>
+                        <Link href="/all-cource">Browse All Courses</Link>
                     </Button>
                 </div>
             </main>

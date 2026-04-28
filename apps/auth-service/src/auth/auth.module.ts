@@ -12,7 +12,6 @@ import jwtConfig from 'src/config/jwt.config';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { RefreshTokenStrategy } from './stratagy/refresh.auth.stratagy';
 
-
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
@@ -35,12 +34,19 @@ import { RefreshTokenStrategy } from './stratagy/refresh.auth.stratagy';
         const jwt = require('jsonwebtoken');
         return {
           signAsync: (payload: any, options: any = {}) => {
-            const secret = configService.get<string>('REFRESH_JWT_SECRET') || process.env.REFRESH_JWT_SECRET;
+            const secret =
+              configService.get<string>('REFRESH_JWT_SECRET') ||
+              process.env.REFRESH_JWT_SECRET;
             return new Promise((resolve, reject) => {
-              jwt.sign(payload, secret, { expiresIn: '7d', ...options }, (err: any, token: any) => {
-                if (err) reject(err);
-                else resolve(token);
-              });
+              jwt.sign(
+                payload,
+                secret,
+                { expiresIn: '7d', ...options },
+                (err: any, token: any) => {
+                  if (err) reject(err);
+                  else resolve(token);
+                },
+              );
             });
           },
         };
@@ -48,6 +54,5 @@ import { RefreshTokenStrategy } from './stratagy/refresh.auth.stratagy';
       inject: [ConfigService],
     },
   ],
- 
-}) 
+})
 export class AuthModule {}

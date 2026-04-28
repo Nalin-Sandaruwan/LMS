@@ -66,7 +66,9 @@ export class UsersService {
 
   // find all teachers
   async findAllTeachers() {
-    return await this.userRepository.find({ where: { role: 'teacher' as any } });
+    return await this.userRepository.find({
+      where: { role: 'teacher' as any },
+    });
   }
 
   // create new teacher

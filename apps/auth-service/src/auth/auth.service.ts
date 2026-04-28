@@ -31,7 +31,7 @@ export class AuthService {
   async validateUser(email: string, password: string) {
     console.log(`🔐 [AUTH-SERVICE] Validating user: ${email}`);
     const user = await this.UserService.findOneByEmail(email);
-    
+
     if (!user) {
       console.warn(`❌ [AUTH-SERVICE] User not found: ${email}`);
       return null;

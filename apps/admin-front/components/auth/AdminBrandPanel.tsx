@@ -50,7 +50,7 @@ export function AdminBrandPanel() {
                                 <BarChart3 className="w-6 h-6" />
                             </div>
                         </div>
-                        <p className="text-gray-300 italic">"Authority and insight. This dashboard provides all the tools necessary to maintain the integrity and excellence of our learning ecosystem."</p>
+                        <p className="text-gray-300 italic">&quot;Authority and insight. This dashboard provides all the tools necessary to maintain the integrity and excellence of our learning ecosystem.&quot;</p>
                     </motion.div>
                 </div>
             </div>

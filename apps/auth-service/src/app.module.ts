@@ -15,7 +15,7 @@ import ormConfig from './config/orm.config';
     }),
     TypeOrmModule.forRoot(ormConfig()),
     AuthModule,
-    UsersModule
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

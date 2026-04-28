@@ -6,10 +6,7 @@ import { User } from './entities/user.entity';
 import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([User]),
-    HttpModule,
-  ], // Provide the User repository here
+  imports: [TypeOrmModule.forFeature([User]), HttpModule], // Provide the User repository here
   controllers: [UsersController],
   providers: [UsersService],
   exports: [UsersService],

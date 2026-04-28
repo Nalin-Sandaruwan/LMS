@@ -1,11 +1,11 @@
 import { Role } from 'src/auth/enums/roles.enum';
 
 export class CreateUserDto {
-	email: string;
-	password: string;
-	refreshToken?: string;
-	role?: Role;
-	isActive: boolean;
+  email: string;
+  password: string;
+  refreshToken?: string;
+  role?: Role;
+  isActive: boolean;
 }
 
 export class CreateTeacherDto {
@@ -23,11 +23,11 @@ export class CreateTeacherDto {
 }
 
 export class CreateStudentDto {
-  fullName: string
+  fullName: string;
   email: string;
   password: string;
   mobileNumber: string;
   refreshToken?: string;
   role?: Role;
-  isActive: boolean; 
+  isActive: boolean;
 }

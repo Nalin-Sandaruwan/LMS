@@ -59,35 +59,61 @@ describe('AuthService', () => {
   describe('validateUser', () => {
     it('should return a user object (without password) if valid credentials are provided', async () => {
       // Arrange
-      const mockUser = { id: 1, email: 'test@example.com', password: 'hashedPassword', role: 'STUDENT' };
+      const mockUser = {
+        id: 1,
+        email: 'test@example.com',
+        password: 'hashedPassword',
+        role: 'STUDENT',
+      };
       mockUsersService.findOneByEmail.mockResolvedValue(mockUser);
-      
+
       // Override bcrypt.compare to pretend the password is a match
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
       // Act
-      const result = await service.validateUser('test@example.com', 'password123');
+      const result = await service.validateUser(
+        'test@example.com',
+        'password123',
+      );
 
       // Assert
-      expect(usersService.findOneByEmail).toHaveBeenCalledWith('test@example.com');
-      expect(bcrypt.compare).toHaveBeenCalledWith('password123', 'hashedPassword');
-      expect(result).toEqual({ id: 1, email: 'test@example.com', role: 'STUDENT' });
+      expect(usersService.findOneByEmail).toHaveBeenCalledWith(
+        'test@example.com',
+      );
+      expect(bcrypt.compare).toHaveBeenCalledWith(
+        'password123',
+        'hashedPassword',
+      );
+      expect(result).toEqual({
+        id: 1,
+        email: 'test@example.com',
+        role: 'STUDENT',
+      });
     });
 
     it('should throw NotFoundException if user is not found', async () => {
       mockUsersService.findOneByEmail.mockResolvedValue(null); // Pretend user doesn't exist
 
-      await expect(service.validateUser('wrong@example.com', 'password')).rejects.toThrow(NotFoundException);
+      await expect(
+        service.validateUser('wrong@example.com', 'password'),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('should throw UnauthorizedException if password does not match', async () => {
-      const mockUser = { id: 1, email: 'test@example.com', password: 'hashedPassword', role: 'STUDENT' };
+      const mockUser = {
+        id: 1,
+        email: 'test@example.com',
+        password: 'hashedPassword',
+        role: 'STUDENT',
+      };
       mockUsersService.findOneByEmail.mockResolvedValue(mockUser);
-      
+
       // Override bcrypt.compare to pretend the password is FALSE
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
-      await expect(service.validateUser('test@example.com', 'wrongpassword')).rejects.toThrow(UnauthorizedException);
+      await expect(
+        service.validateUser('test@example.com', 'wrongpassword'),
+      ).rejects.toThrow(UnauthorizedException);
     });
   });
 
@@ -96,15 +122,23 @@ describe('AuthService', () => {
     it('should throw NotFoundException if user is not found during login', async () => {
       mockUsersService.findOneByEmail.mockResolvedValue(null);
 
-      await expect(service.login('test@example.com', 'password')).rejects.toThrow(NotFoundException);
+      await expect(
+        service.login('test@example.com', 'password'),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('should throw NotFoundException for invalid credentials during login', async () => {
-      const mockUser = { id: 1, email: 'test@example.com', password: 'hashedPassword' };
+      const mockUser = {
+        id: 1,
+        email: 'test@example.com',
+        password: 'hashedPassword',
+      };
       mockUsersService.findOneByEmail.mockResolvedValue(mockUser);
       (bcrypt.compare as jest.Mock).mockResolvedValue(false); // Wrong password
 
-      await expect(service.login('test@example.com', 'wrongpassword')).rejects.toThrow(NotFoundException);
+      await expect(
+        service.login('test@example.com', 'wrongpassword'),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 });

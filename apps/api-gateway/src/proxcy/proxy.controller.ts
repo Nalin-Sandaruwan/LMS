@@ -1,5 +1,5 @@
 // apps/gateway/src/proxy/proxy.controller.ts
-import { Controller, All, Req, Res, Param } from '@nestjs/common';
+import { Controller, All, Req, Res } from '@nestjs/common';
 import { ProxyService } from './proxy.service';
 
 @Controller()
