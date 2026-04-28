@@ -2,7 +2,8 @@ module.exports = {
   apps: [
     {
       name: 'api-gateway',
-      script: './apps/api-gateway/dist/main.js',
+      cwd: './apps/api-gateway',
+      script: './dist/main.js',
       env: {
         NODE_ENV: 'production',
         PORT: 3000
@@ -10,7 +11,8 @@ module.exports = {
     },
     {
       name: 'auth-service',
-      script: './apps/auth-service/dist/main.js',
+      cwd: './apps/auth-service',
+      script: './dist/main.js',
       env: {
         NODE_ENV: 'production',
         PORT: 3001
@@ -18,7 +20,8 @@ module.exports = {
     },
     {
       name: 'lms-service',
-      script: './apps/lms-service/dist/main.js',
+      cwd: './apps/lms-service',
+      script: './dist/main.js',
       env: {
         NODE_ENV: 'production',
         PORT: 3002
