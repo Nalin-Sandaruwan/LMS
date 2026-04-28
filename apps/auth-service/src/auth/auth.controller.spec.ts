@@ -47,36 +47,30 @@ describe('AuthController', () => {
   describe('login', () => {
     it('should authenticate the user, clear old cookies, and return tokens', async () => {
       // Arrange: Setup mock data and service responses
-      const loginDto = {
-        email: 'student@example.com',
-        password: 'password123',
-      };
+      const mockUser = { id: 1, email: 'student@example.com', role: 'STUDENT' };
+      const mockReq = { user: mockUser };
+      
       const expectedTokens = {
         accessToken: 'mock-access-token',
         refreshToken: 'mock-refresh-token',
-        user: { id: 1, email: 'student@example.com' },
+        user: mockUser,
       };
 
       // Tell our mock service what to return when called
       mockAuthService.login.mockResolvedValue(expectedTokens);
 
       // Act: Call the controller method
-      const result = await controller.login(loginDto, mockResponse);
+      const result = await controller.login(mockReq, mockResponse);
 
       // Assert: Verify the behavior
-      // 1. Did it call the auth service with the correct email/password?
-      expect(authService.login).toHaveBeenCalledWith(
-        loginDto.email,
-        loginDto.password,
-      );
+      // 1. Did it call the auth service with the user object from the request?
+      expect(authService.login).toHaveBeenCalledWith(mockUser);
 
-      // 2. Did it try to clear old cookies? (Checking based on your controller logic)
+      // 2. Did it try to clear old cookies?
       expect(mockResponse.clearCookie).toHaveBeenCalledWith('accessToken');
       expect(mockResponse.clearCookie).toHaveBeenCalledWith('refreshToken');
 
       // 3. Did it return the expected data?
-      // (Note: If your controller manually sets cookies and returns something else,
-      // you would test `mockResponse.cookie` instead of returning the result directly)
       expect(result).toEqual(expectedTokens);
     });
   });

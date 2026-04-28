@@ -123,7 +123,7 @@ describe('AuthService', () => {
       mockUsersService.findOneByEmail.mockResolvedValue(null);
 
       await expect(
-        service.login('test@example.com', 'password'),
+        service.loginWithCredentials('test@example.com', 'password'),
       ).rejects.toThrow(NotFoundException);
     });
 
@@ -137,8 +137,8 @@ describe('AuthService', () => {
       (bcrypt.compare as jest.Mock).mockResolvedValue(false); // Wrong password
 
       await expect(
-        service.login('test@example.com', 'wrongpassword'),
-      ).rejects.toThrow(NotFoundException);
+        service.loginWithCredentials('test@example.com', 'wrongpassword'),
+      ).rejects.toThrow(UnauthorizedException); // Should be UnauthorizedException based on validateUser fix
     });
   });
 });

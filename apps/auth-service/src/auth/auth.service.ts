@@ -34,14 +34,14 @@ export class AuthService {
 
     if (!user) {
       console.warn(`❌ [AUTH-SERVICE] User not found: ${email}`);
-      return null;
+      throw new NotFoundException('User with this email was not found');
     }
 
     // Compare plain text password with hashed password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       console.warn(`❌ [AUTH-SERVICE] Password mismatch for user: ${email}`);
-      return null;
+      throw new UnauthorizedException('Invalid password');
     }
 
     console.log(`✅ [AUTH-SERVICE] User validated: ${email}`);
