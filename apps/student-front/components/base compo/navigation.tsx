@@ -11,7 +11,7 @@ import { UserMenu } from './nav-components/UserMenu';
 import { MobileMenu } from './nav-components/MobileMenu';
 
 const navItems = [
-    { name: "Home", href: "/" },
+    { name: "Homes", href: "/" },
     { name: "All Courses", href: "/all-cource" },
     { name: "Pricing", href: "/plans" },
     { name: "About us", href: "/about_us" },
@@ -66,11 +66,11 @@ export function Navigation() {
             </motion.div>
 
             {/* Mobile Navigation Overlay */}
-            <MobileMenu 
-                isOpen={isOpen} 
-                onClose={() => setIsOpen(false)} 
-                navItems={navItems} 
-                pathname={pathname} 
+            <MobileMenu
+                isOpen={isOpen}
+                onClose={() => setIsOpen(false)}
+                navItems={navItems}
+                pathname={pathname}
             />
         </div>
     );
