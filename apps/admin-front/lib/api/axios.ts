@@ -2,8 +2,8 @@ import axios from "axios";
 
 // Create a globally configured Axios instance for Admin
 export const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000",
-  withCredentials: true, 
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://31.97.135.164:3000",
+  withCredentials: true,
 });
 
 // Response interceptor to handle global errors like 401 Unauthorized
@@ -13,7 +13,8 @@ apiClient.interceptors.response.use(
     // Catch 401 and redirect to login automatically
     if (error.response?.status === 401) {
       // Don't redirect if we are already trying to login or check profile
-      const currentPath = typeof window !== "undefined" ? window.location.pathname : "";
+      const currentPath =
+        typeof window !== "undefined" ? window.location.pathname : "";
       const isLoginRequest = error.config?.url === "/auth/login";
       const isProfileRequest = error.config?.url === "/auth/verify"; // Use basic verify for admin session check
 
