@@ -7,8 +7,7 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
         PORT: 3000
-      },
-      env_file: '.env'
+      }
     },
     {
       name: 'auth-service',
@@ -17,8 +16,7 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
         PORT: 3001
-      },
-      env_file: '.env'
+      }
     },
     {
       name: 'lms-service',
@@ -27,8 +25,7 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
         PORT: 3002
-      },
-      env_file: '.env'
+      }
     },
     {
       name: 'student-front',
