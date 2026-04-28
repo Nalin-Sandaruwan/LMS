@@ -50,7 +50,7 @@ export function HeroSection() {
             {/* Background image — separate layer so opacity doesn't affect children */}
             <div
                 className="absolute inset-0 -z-10 bg-cover bg-center bg-no-repeat opacity-40"
-                style={{ backgroundImage: "url('/hero/hero.jpg')" }}
+                style={{ backgroundImage: "url('/teacher/hero/hero.jpg')" }}
             />
             {/* Dark base + gradient overlays */}
             <div className="absolute inset-0 -z-10 bg-white dark:bg-slate-950" style={{ zIndex: -11 }} />

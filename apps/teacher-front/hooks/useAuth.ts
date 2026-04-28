@@ -1,7 +1,13 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { authApi, UserProfile, TeacherSignupPayload, TeacherLoginPayload } from "@/lib/api/auth";
+import { useRouter } from "next/navigation";
+import {
+  authApi,
+  UserProfile,
+  TeacherSignupPayload,
+  TeacherLoginPayload,
+} from "@/lib/api/auth";
 export type { UserProfile, TeacherSignupPayload, TeacherLoginPayload };
 import { toast } from "sonner";
 import { AxiosError } from "axios";
@@ -75,6 +81,7 @@ export function useTeacherLogin() {
 
 export function useLogout() {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   return useMutation({
     mutationFn: authApi.logout,
@@ -82,7 +89,7 @@ export function useLogout() {
       // Clear the query cache for authUser so it resets safely
       queryClient.setQueryData(["authUser"], null);
       toast.success("Successfully logged out.");
-      window.location.href = "/login";
+      router.push("/login");
     },
     onError: (error) => {
       console.error("Logout failed", error);
