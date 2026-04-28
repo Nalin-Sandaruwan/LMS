@@ -41,32 +41,30 @@ export function UserMenu({ pathname }: UserMenuProps) {
                     <Button variant="default" size="lg"> Login </Button>
                 </Link>
             )}
-            <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-                <DropdownMenuTrigger asChild>
-                    <Avatar className="cursor-pointer border-2 border-transparent hover:border-blue-500 transition-colors">
-                        <AvatarFallback className='bg-blue-300 border border-blue-700 text-blue-700 font-bold'>
-                            {user ? user.email.substring(0, 2).toUpperCase() : 'GS'}
-                        </AvatarFallback>
-                    </Avatar>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56 p-2 rounded-xl border border-gray-200 dark:border-gray-800 shadow-xl bg-white/95 dark:bg-gray-950/95 backdrop-blur-xl mt-2 z-50">
-                    <div className="flex flex-col p-2 border-b border-gray-100 dark:border-gray-800 mb-2">
-                        <span className="font-bold text-sm text-gray-900 dark:text-white">
-                            {user ? 'Authenticated User' : 'Guest User'}
-                        </span>
-                        <span className="text-xs text-gray-500">
-                            {user ? user.email : 'guest@example.com'}
-                        </span>
-                    </div>
-                    <div className="flex flex-col space-y-1">
-                        {user && (
+            {user && (
+                <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+                    <DropdownMenuTrigger asChild>
+                        <Avatar className="cursor-pointer border-2 border-transparent hover:border-blue-500 transition-colors">
+                            <AvatarFallback className='bg-blue-300 border border-blue-700 text-blue-700 font-bold'>
+                                {user.email.substring(0, 2).toUpperCase()}
+                            </AvatarFallback>
+                        </Avatar>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56 p-2 rounded-xl border border-gray-200 dark:border-gray-800 shadow-xl bg-white/95 dark:bg-gray-950/95 backdrop-blur-xl mt-2 z-50">
+                        <div className="flex flex-col p-2 border-b border-gray-100 dark:border-gray-800 mb-2">
+                            <span className="font-bold text-sm text-gray-900 dark:text-white">
+                                Authenticated User
+                            </span>
+                            <span className="text-xs text-gray-500">
+                                {user.email}
+                            </span>
+                        </div>
+                        <div className="flex flex-col space-y-1">
                             <Button asChild variant="ghost" className="w-full justify-start h-9 text-sm focus:ring-0" onClick={() => setIsMenuOpen(false)}>
                                 <Link href="/profile/your-profile">Profile</Link>
                             </Button>
-                        )}
 
-                        <div className="h-px bg-gray-100 dark:bg-gray-800 my-1" />
-                        {user ? (
+                            <div className="h-px bg-gray-100 dark:bg-gray-800 my-1" />
                             <Button
                                 onClick={handleLogout}
                                 disabled={logoutMutation.isPending}
@@ -75,14 +73,10 @@ export function UserMenu({ pathname }: UserMenuProps) {
                             >
                                 {logoutMutation.isPending ? 'Logging out...' : 'Logout'}
                             </Button>
-                        ) : (
-                            <Button asChild variant="ghost" className="w-full justify-start h-9 text-sm focus:ring-0" onClick={() => setIsMenuOpen(false)}>
-                                <Link href="/login">Login</Link>
-                            </Button>
-                        )}
-                    </div>
-                </DropdownMenuContent>
-            </DropdownMenu>
+                        </div>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            )}
         </div>
     );
 }
