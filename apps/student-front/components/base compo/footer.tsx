@@ -60,17 +60,22 @@ export function Footer() {
                     <div className="space-y-4">
                         <h4 className="font-semibold text-gray-900 dark:text-white">Legal</h4>
                         <ul className="space-y-3">
-                            {['Privacy Policy', 'Terms of Service', 'Cookie Policy', 'Accessibility'].map((item, i) => (
+                            {[
+                                { name: 'Privacy Policy', href: '/privacy-policy' },
+                                { name: 'Terms of Service', href: '/terms-of-service' },
+                                { name: 'Cookie Policy', href: '/cookie-policy' },
+                                { name: 'Accessibility', href: '/accessibility' }
+                            ].map((item, i) => (
                                 <motion.li
-                                    key={item}
+                                    key={item.name}
                                     initial={{ opacity: 0, x: -10 }}
                                     whileInView={{ opacity: 1, x: 0 }}
                                     viewport={{ once: true }}
                                     transition={{ duration: 0.3, delay: 0.2 + i * 0.1 }}
                                 >
-                                    <a href="#" className="text-sm text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors">
-                                        {item}
-                                    </a>
+                                    <Link href={item.href} className="text-sm text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors">
+                                        {item.name}
+                                    </Link>
                                 </motion.li>
                             ))}
                         </ul>
