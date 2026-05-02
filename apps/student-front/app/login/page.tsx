@@ -39,11 +39,17 @@ export default function LoginPage() {
         loginMutation.mutate(
             { email, password },
             {
-                onSuccess: () => {
-                    toast.success('Successfully signed in!', {
-                        description: 'Welcome back to the platform.',
-                    });
-                    router.push('/profile/your-profile');
+                onSuccess: (data: any) => {
+                    if (data.user?.role === 'user') {
+                        toast.success('Successfully signed in!', {
+                            description: 'Welcome back to the platform.',
+                        });
+                        router.push('/profile/your-profile');
+                    } else {
+                        toast.error('Access Denied', {
+                            description: 'Please use the student portal to login.',
+                        });
+                    }
                 },
                 onError: (error: any) => {
                     const message = error.response?.data?.message || 'Invalid email or password. Please try again.';
