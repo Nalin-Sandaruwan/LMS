@@ -46,7 +46,7 @@ export function useAdminLogin() {
         const msg = error.response.data.message;
         errorMessage = Array.isArray(msg) ? msg[0] : msg;
       }
-      
+
       if (errorMessage === "Unauthorized") {
         errorMessage = "Invalid email or password.";
       }
@@ -64,7 +64,7 @@ export function useLogout() {
     onSuccess: () => {
       queryClient.setQueryData(["authUser"], null);
       toast.success("Successfully logged out.");
-      window.location.href = "/login";
+      window.location.href = "/admin/login";
     },
     onError: (error) => {
       console.error("Logout failed", error);
