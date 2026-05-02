@@ -41,11 +41,11 @@ const data = {
       items: [
         {
           title: "All Users",
-          url: "/dashboard/users",
+          url: "/admin/dashboard/users",
         },
         {
           title: "Educator Verification",
-          url: "/dashboard",
+          url: "/admin/dashboard",
         },
       ],
     },

@@ -27,7 +27,7 @@ export default function DashboardLayout({
   const pathname = usePathname()
 
   // Dynamic breadcrumb logic
-  const isUsersPage = pathname.includes("/dashboard/users")
+  const isUsersPage = pathname.includes("/admin/dashboard/users")
   const pageTitle = isUsersPage ? "User Management" : "Educator Verification"
 
   return (
