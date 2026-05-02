@@ -6,6 +6,9 @@ import { ProxyService } from './proxcy/proxy.service';
 import { ProxyController } from './proxcy/proxy.controller';
 import { JwtMiddleware } from './middleware/jwt.middleware';
 
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
+
 @Module({
   imports: [
     HttpModule.register({
@@ -13,9 +16,21 @@ import { JwtMiddleware } from './middleware/jwt.middleware';
       maxRedirects: 3,
     }),
     ConfigModule.forRoot(),
+    // Rate Limiting: 10 requests per 60 seconds
+    ThrottlerModule.forRoot([{
+      ttl: 60000,
+      limit: 10,
+    }]),
   ],
   controllers: [ProxyController],
-  providers: [ProxyService, JwtMiddleware],
+  providers: [
+    ProxyService, 
+    JwtMiddleware,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
