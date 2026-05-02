@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Create a globally configured Axios instance
 export const apiClient = axios.create({
-  baseURL: "http://31.97.135.164:3000",
+  baseURL: "https://api.idensphere.com",
   withCredentials: true, // Crucial for sending setting HTTP-Only cookies automatically
 });
 

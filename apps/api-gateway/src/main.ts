@@ -14,6 +14,10 @@ async function bootstrap() {
   // Enable CORS
   app.enableCors({
     origin: [
+      'https://idensphere.com',
+      'https://www.idensphere.com',
+      'https://admin.idensphere.com',
+      'https://teacher.idensphere.com',
       'http://localhost:5174',
       'http://localhost:5173',
       'http://localhost:3000',
