@@ -1,98 +1,166 @@
 "use client"
 import * as React from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronLeft, ChevronRight, GraduationCap, Globe, Waves, Brain } from 'lucide-react';
 
 const testimonials = [
     {
         id: 1,
-        name: "Sarah Jenkins",
-        role: "Software Engineer @ TechCorp",
-        content: "TechLMS completely changed my career trajectory. The courses are practical, well-structured, and taught by genuine industry experts. I landed my dream job within weeks of finishing the React path.",
-        initials: "SJ",
-        color: "bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400"
-    },
-    {
-        id: 2,
-        name: "David Chen",
-        role: "Freelance Designer",
-        content: "The UI/UX design masterclass is easily the best investment I've made this year. The platform itself is so gorgeously designed that just using it teaches you good design principles.",
-        initials: "DC",
-        color: "bg-purple-100 text-purple-600 dark:bg-purple-900/40 dark:text-purple-400"
+        name: "Jonathan Hale",
+        content: "Luxing truly delivers a refined living experience. Every detail feels thoughtfully designed and exceptionally comfortable for modern lifestyles.",
+        position: "top-[15%] left-[-5%] lg:left-[5%]"
     },
     {
         id: 3,
-        name: "Elena Rodriguez",
-        role: "Computer Science Student",
-        content: "As a university student, I found these courses to be the perfect bridge between academic theory and actual industry practice. Highly recommend for anyone looking to upskill quickly.",
-        initials: "ER",
-        color: "bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-400"
+        name: "Michael Lawre",
+        content: "I've never experienced a learning platform that feels this intuitive and premium. It genuinely makes you want to keep coming back and exploring more.",
+        position: "top-[10%] right-[-5%] lg:right-[5%]"
+    },
+    {
+        id: 4,
+        name: "Sarah Jenkins",
+        content: "The variety of courses and the quality of instruction have exceeded all my expectations. Highly recommended!",
+        position: "top-[-0%] left-[45%]"
     }
 ];
 
-export function Testimonials() {
-    return (
-        <section className="py-24 bg-blue-50 dark:bg-gray-900/50 relative overflow-hidden mt-12 mb-12">
-            {/* Glow Effects */}
-            <div className="absolute top-1/2 left-0 w-72 h-72 bg-blue-500/10 rounded-full blur-[100px] -z-10 -translate-y-1/2" />
-            <div className="absolute bottom-0 right-10 w-80 h-80 bg-purple-500/10 rounded-full blur-[100px] -z-10" />
+const brands = [
+    { name: "Luxentia", icon: GraduationCap },
+    { name: "Excellion", icon: Globe },
+    { name: "Prestoria", icon: Waves },
+    { name: "Magnifexia", icon: Brain },
+];
 
-            <div className="container mx-auto px-4 md:px-6">
-                <div className="text-center max-w-2xl mx-auto mb-16">
-                    <motion.p
-                        initial={{ opacity: 0, y: 10 }}
+export function Testimonials() {
+    const [currentIndex, setCurrentIndex] = React.useState(0);
+
+    const nextTestimonial = () => {
+        setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+    };
+
+    const prevTestimonial = () => {
+        setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+    };
+
+    return (
+        <section className="relative w-full py-32  dark:bg-gray-950 overflow-hidden transition-colors duration-300">
+
+            {/* Background Text Overlay (Optional visual flair) */}
+            {/* <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] dark:opacity-[0.02] pointer-events-none select-none">
+                <h2 className="text-[20vw] font-black uppercase tracking-tighter">Testimonials</h2>
+            </div> */}
+
+            <div className="container mx-auto px-4 lg:px-8 relative z-10">
+
+                {/* Header Section */}
+                <div className="flex flex-col items-center text-center mb-10">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="text-sm font-semibold text-blue-600 dark:text-blue-400 tracking-wider uppercase mb-2"
+                        className="flex items-center gap-2 mb-6"
                     >
-                        Student Success
-                    </motion.p>
+                        <span className="w-2 h-2 bg-[#4F46E5] rounded-full" />
+                        <p className="text-sm font-bold text-[#1B1D36] dark:text-gray-300 uppercase tracking-widest">Client Reviews</p>
+                    </motion.div>
+
                     <motion.h2
-                        initial={{ opacity: 0, y: 10 }}
+                        initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.1 }}
-                        className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white"
+                        className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-[#1B1D36] dark:text-white leading-tight max-w-3xl transition-colors duration-300"
                     >
-                        Loved by learners <br className="hidden md:block" /> worldwide.
+                        Insights from Our Luxury <br /> Living Community
                     </motion.h2>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {testimonials.map((testimonial, idx) => (
-                        <motion.div
-                            key={testimonial.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.5, delay: idx * 0.15 }}
-                            whileHover={{ y: -5 }}
-                            className="bg-white dark:bg-gray-950 p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-lg transition-all"
-                        >
-                            {/* Rating Stars */}
-                            <div className="flex gap-1 mb-6">
-                                {[1, 2, 3, 4, 5].map((star) => (
-                                    <svg key={star} className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                    </svg>
-                                ))}
-                            </div>
+                {/* Main Interaction Area */}
+                <div className="relative min-h-[400px] flex flex-col items-center justify-center">
 
-                            <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
-                                &ldquo;{testimonial.content}&rdquo;
-                            </p>
+                    {/* Floating Avatars */}
+                    <div className="absolute inset-0 w-full h-full pointer-events-none hidden lg:block">
+                        {testimonials.map((t, idx) => (
+                            <motion.div
+                                key={`avatar-${t.id}`}
+                                animate={{
+                                    y: [0, -15, 0],
+                                    x: [0, idx % 2 === 0 ? 10 : -10, 0]
+                                }}
+                                transition={{
+                                    duration: 5 + idx,
+                                    repeat: Infinity,
+                                    ease: "easeInOut"
+                                }}
+                                className={`absolute flex items-center gap-3 ${t.position} group pointer-events-auto cursor-pointer`}
+                                onClick={() => setCurrentIndex(idx)}
+                            >
+                                <div className={`w-12 h-12 rounded-full bg-[#4F46E5] flex items-center justify-center transition-all duration-300 group-hover:scale-110 shadow-lg ${currentIndex === idx ? 'ring-4 ring-indigo-500/20 scale-110' : 'opacity-80'}`}>
+                                    <span className="text-white text-xs font-bold">{t.name.split(' ').map(n => n[0]).join('')}</span>
+                                </div>
+                                <span className={`text-sm font-bold text-[#1B1D36] dark:text-gray-300 transition-all ${currentIndex === idx ? 'opacity-100 translate-x-1' : 'opacity-60 group-hover:opacity-100'}`}>
+                                    {t.name}
+                                </span>
+                            </motion.div>
+                        ))}
+                    </div>
 
-                            <div className="flex items-center gap-4">
-                                <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm ${testimonial.color}`}>
-                                    {testimonial.initials}
-                                </div>
-                                <div>
-                                    <h4 className="font-semibold text-gray-900 dark:text-white">{testimonial.name}</h4>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">{testimonial.role}</p>
-                                </div>
-                            </div>
-                        </motion.div>
-                    ))}
+                    {/* Central Quote & Navigation */}
+                    <div className="flex flex-col lg:flex-row items-center justify-center gap-12 w-full max-w-5xl">
+                        <div className="flex-1 relative">
+                            <AnimatePresence mode="wait">
+                                <motion.div
+                                    key={currentIndex}
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -20 }}
+                                    transition={{ duration: 0.5 }}
+                                    className="text-center lg:text-left"
+                                >
+                                    <p className="text-2xl md:text-3xl lg:text-4xl font-medium text-[#1B1D36] dark:text-gray-100 leading-[1.5] transition-colors duration-300">
+                                        &ldquo;{testimonials[currentIndex].content}&rdquo;
+                                    </p>
+                                </motion.div>
+                            </AnimatePresence>
+                        </div>
+
+                        {/* Navigation Arrows */}
+                        <div className="flex gap-4">
+                            <button
+                                onClick={prevTestimonial}
+                                className="w-14 h-14 rounded-full bg-[#1B1D36] dark:bg-white dark:text-[#1B1D36] text-white flex items-center justify-center transition-all hover:scale-110 active:scale-95 shadow-xl hover:shadow-indigo-500/20"
+                            >
+                                <ChevronLeft className="w-6 h-6" />
+                            </button>
+                            <button
+                                onClick={nextTestimonial}
+                                className="w-14 h-14 rounded-full bg-[#1B1D36] dark:bg-white dark:text-[#1B1D36] text-white flex items-center justify-center transition-all hover:scale-110 active:scale-95 shadow-xl hover:shadow-indigo-500/20"
+                            >
+                                <ChevronRight className="w-6 h-6" />
+                            </button>
+                        </div>
+                    </div>
                 </div>
+
+                {/* Bottom Logo Bar */}
+                <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className="grid grid-cols-2 md:grid-cols-4 gap-6 "
+                >
+                    {brands.map((brand, idx) => (
+                        <div
+                            key={brand.name}
+                            className="bg-white dark:bg-gray-900 rounded-[24px] p-8 flex items-center justify-center gap-4 shadow-sm hover:shadow-xl transition-all duration-300 border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900 group cursor-pointer"
+                        >
+                            <brand.icon className="w-8 h-8 text-[#1B1D36] dark:text-white transition-transform group-hover:scale-110 group-hover:rotate-6" />
+                            <span className="text-xl font-bold text-[#1B1D36] dark:text-white transition-colors">
+                                {brand.name}
+                            </span>
+                        </div>
+                    ))}
+                </motion.div>
             </div>
         </section>
     );

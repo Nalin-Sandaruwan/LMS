@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { Logo } from './Logo';
 import { ModeToggle } from '../ui/dark.mood';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useMotionValueEvent } from 'framer-motion';
 import { usePathname } from "next/navigation";
 
 // Sub-components
@@ -20,14 +20,39 @@ const navItems = [
 export function Navigation() {
     const pathname = usePathname();
     const [isOpen, setIsOpen] = React.useState(false);
+    const [isHidden, setIsHidden] = React.useState(false);
+    const [isAtTop, setIsAtTop] = React.useState(true);
+    const { scrollY } = useScroll();
+
+    useMotionValueEvent(scrollY, "change", (latest) => {
+        // Check if we are at the very top of the page
+        setIsAtTop(latest < 20);
+
+        const previous = scrollY.getPrevious() ?? 0;
+        // If scrolling down and scrolled past 100px, hide the nav
+        if (latest > previous && latest > 100) {
+            setIsHidden(true);
+        } else if (latest < previous) {
+            // If scrolling up, show the nav
+            setIsHidden(false);
+        }
+    });
 
     return (
-        <div className='absolute top-0 w-full z-50 page-margin'>
+        <div className='fixed top-0 left-0 w-full z-50 page-margin pointer-events-none'>
             <motion.div
-                initial={{ y: -50, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.1 }}
-                className='flex w-full h-16 container mx-auto border border-gray-200 dark:border-gray-800 items-center rounded-full justify-between px-6 md:px-10 backdrop-blur-xl mt-5 bg-white/40 dark:bg-gray-950/40 shadow-sm relative z-50'
+                variants={{
+                    visible: { y: 0, opacity: 1 },
+                    hidden: { y: "-150%", opacity: 0 }
+                }}
+                initial="visible"
+                animate={isHidden ? "hidden" : "visible"}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className={`flex w-full h-16 container mx-auto items-center rounded-full justify-between px-6 md:px-10 mt-5 relative z-50 pointer-events-auto transition-all duration-300 ${
+                    isAtTop 
+                        ? 'bg-transparent border-transparent shadow-none' 
+                        : 'border border-gray-200 dark:border-gray-800 backdrop-blur-xl bg-white/40 dark:bg-gray-950/40 shadow-sm'
+                }`}
             >
                 {/* Logo Section */}
                 <motion.div
