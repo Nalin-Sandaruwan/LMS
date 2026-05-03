@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Create a globally configured Axios instance for Admin
 export const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "https://api.idensphere.com",
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
   withCredentials: true,
 });
 

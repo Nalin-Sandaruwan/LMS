@@ -11,7 +11,7 @@ import ormConfig from './config/orm.config';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true, // makes it available everywhere
-      envFilePath: '.env', // optional (default is .env)
+      envFilePath: process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development',
     }),
     TypeOrmModule.forRoot(ormConfig()),
     AuthModule,

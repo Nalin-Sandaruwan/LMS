@@ -58,13 +58,13 @@ export function useAdminLogin() {
 
 export function useLogout() {
   const queryClient = useQueryClient();
-
+  const router = useRouter();
   return useMutation({
     mutationFn: authApi.logout,
     onSuccess: () => {
       queryClient.setQueryData(["authUser"], null);
       toast.success("Successfully logged out.");
-      window.location.href = "/admin/login";
+      router.push("/login");
     },
     onError: (error) => {
       console.error("Logout failed", error);
