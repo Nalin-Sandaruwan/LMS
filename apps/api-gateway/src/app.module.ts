@@ -15,7 +15,10 @@ import { APP_GUARD } from '@nestjs/core';
       timeout: 5000,
       maxRedirects: 3,
     }),
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development',
+    }),
     // Rate Limiting: 10 requests per 60 seconds
     ThrottlerModule.forRoot([{
       ttl: 60000,

@@ -20,6 +20,8 @@ export class ProxyService {
 
     if (target === 'LMS') {
       url = url.replace(/^\/api/, ''); // /api/lms → /lms
+    } else if (target === 'AUTH') {
+      url = url.replace(/^\/auth/, ''); // /auth/login → /login
     }
 
     const fullUrl = `${this.targets[target]}${url}`;
