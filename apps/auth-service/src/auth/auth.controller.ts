@@ -88,23 +88,34 @@ export class AuthController {
         ? process.env.TEACHER_FRONTEND_URL || 'http://localhost:5174'
         : process.env.STUDENT_FRONTEND_URL || 'http://localhost:5173';
 
-    return response.redirect(`${frontendUrl}/teacher/your-courses`);
+    // ✅ Redirect based on role
+    const redirectPath =
+      validatedUser.role === Role.TEACHER
+        ? '/teacher/your-courses'
+        : '/profile/your-profile';
+
+    return response.redirect(`${frontendUrl}${redirectPath}`);
   }
 
   private setAuthCookies(response: Response, result: any) {
+    const isProduction = process.env.NODE_ENV === 'production';
+    const domain = isProduction ? '.idensphere.com' : undefined;
+
     response.cookie('accessToken', result.accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isProduction,
       sameSite: 'lax',
       path: '/',
+      domain: domain,
       maxAge: 15 * 60 * 1000,
     });
 
     response.cookie('refreshToken', result.refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isProduction,
       sameSite: 'lax',
       path: '/',
+      domain: domain,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
   }
