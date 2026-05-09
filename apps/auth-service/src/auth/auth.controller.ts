@@ -88,7 +88,7 @@ export class AuthController {
         ? process.env.TEACHER_FRONTEND_URL || 'http://localhost:5174'
         : process.env.STUDENT_FRONTEND_URL || 'http://localhost:5173';
 
-    return response.redirect(`${frontendUrl}/profile/your-profile`);
+    return response.redirect(`${frontendUrl}/teacher/your-courses`);
   }
 
   private setAuthCookies(response: Response, result: any) {
