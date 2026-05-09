@@ -18,6 +18,8 @@ import * as bcrypt from 'bcrypt';
 import { isString } from 'util';
 import { ExceptionsHandler } from '@nestjs/core/exceptions/exceptions-handler';
 
+import { Role } from './enums/roles.enum';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -26,6 +28,44 @@ export class AuthService {
     private readonly jwtService: JwtService,
     @Inject('REFRESH_JWT_SERVICE') private readonly refreshJwtService: any, // ✅ Inject custom refresh JWT service
   ) {}
+
+  async validateGoogleUser(profile: any, role: Role = Role.USER) {
+    const { email, googleId, firstName, lastName, avatar } = profile;
+
+    let user = await this.UserRepository.findOne({
+      where: [{ googleId }, { email }],
+    });
+
+    if (!user) {
+      console.log(`🆕 [AUTH-SERVICE] Creating new Google user: ${email}`);
+      // New user registration via Google
+      user = this.UserRepository.create({
+        email,
+        googleId,
+        firstName,
+        lastName,
+        avatar,
+        role: role,
+        isActive: role === Role.TEACHER ? false : true, // Teachers default to inactive
+        password: '', // Social users have no local password
+      });
+      await this.UserRepository.save(user);
+
+      // ✅ NEW: Sync with LMS Service so they exist in the students/teachers table
+      await this.UserService.syncUserWithLMS(user, `${firstName} ${lastName}`);
+    } else {
+      console.log(`👋 [AUTH-SERVICE] Existing Google user logged in: ${email}`);
+      // Update profile info if it changed
+      await this.UserRepository.update(user.id, {
+        googleId,
+        firstName,
+        lastName,
+        avatar,
+      });
+    }
+
+    return user;
+  }
 
   // that mainly for local strategy
   async validateUser(email: string, password: string) {

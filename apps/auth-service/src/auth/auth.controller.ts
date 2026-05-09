@@ -31,12 +31,80 @@ import { get } from 'http';
 import { UsersService } from 'src/users/users.service';
 import { patch } from 'axios';
 
+import { GoogleAuthGuard } from './guard/google.auth.guard';
+
 @Controller()
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UsersService,
   ) {}
+
+  // --- Google OAuth ---
+
+  @Get('google/student')
+  @UseGuards(GoogleAuthGuard)
+  async googleAuthStudent(@Req() req) {
+    // Redirects to Google (handled by passport)
+  }
+
+  @Get('google/teacher')
+  @UseGuards(GoogleAuthGuard)
+  async googleAuthTeacher(@Req() req) {
+    // Redirects to Google (handled by passport)
+  }
+
+  @Get('google/callback')
+  @UseGuards(GoogleAuthGuard)
+  async googleAuthRedirect(
+    @Req() req,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const { user } = req;
+    const state = req.query.state; // 'state' contains the role (student/teacher)
+    const role = (state as Role) || Role.USER;
+
+    console.log(`📡 [GOOGLE-CALLBACK] Role from state: ${role}`);
+
+    const validatedUser = await this.authService.validateGoogleUser(user, role);
+
+    // If teacher is inactive, redirect to a special pending page
+    if (validatedUser.role === Role.TEACHER && !validatedUser.isActive) {
+      console.log(`⏳ [GOOGLE-CALLBACK] Teacher pending approval: ${validatedUser.email}`);
+      const frontendUrl = process.env.TEACHER_FRONTEND_URL || 'http://localhost:5174';
+      return response.redirect(`${frontendUrl}/pending-approval`);
+    }
+
+    const result = await this.authService.login(validatedUser);
+
+    // Set cookies
+    this.setAuthCookies(response, result);
+
+    const frontendUrl =
+      validatedUser.role === Role.TEACHER
+        ? process.env.TEACHER_FRONTEND_URL || 'http://localhost:5174'
+        : process.env.STUDENT_FRONTEND_URL || 'http://localhost:5173';
+
+    return response.redirect(`${frontendUrl}/profile/your-profile`);
+  }
+
+  private setAuthCookies(response: Response, result: any) {
+    response.cookie('accessToken', result.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 15 * 60 * 1000,
+    });
+
+    response.cookie('refreshToken', result.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+  }
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
@@ -52,37 +120,11 @@ export class AuthController {
     // ✅ Clear any old cookies first
     response.clearCookie('accessToken');
     response.clearCookie('refreshToken');
-    response.clearCookie('refresh_token'); // Clear duplicate
-    response.clearCookie('accessToken');
 
-    // ✅ Set FRESH cookies with consistent names
-    response.cookie('accessToken', result.accessToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 15 * 60 * 1000, // 15 minutes (matched to JWT expiry)
-    });
-
-    response.cookie('refreshToken', result.refreshToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    // ✅ Set FRESH cookies
+    this.setAuthCookies(response, result);
 
     console.log('✅ [AUTH-LOGIN] Cookies set for user:', result.user.email);
-    console.log(
-      '✅ [AUTH-LOGIN] accessToken set:',
-      result.accessToken.substring(0, 30) + '...',
-    );
-    console.log(
-      '✅ [AUTH-LOGIN] refreshToken set:',
-      result.refreshToken.substring(0, 30) + '...',
-    );
-
-    // Now standard 'return' works again!
     return result;
   }
 

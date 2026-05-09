@@ -34,10 +34,14 @@ export class JwtMiddleware implements NestMiddleware {
       // '/api/course', // Whitelist exact match for course list
       '/api/course/without-video',
       '/api/lessons/bunny-webhook',
+      '/auth/google/student',
+      '/auth/google/teacher',
+      '/auth/google/callback',
     ];
 
     // Check for public paths or specific public GET requests
-    const isPublicPath = publicPaths.includes(req.url);
+    const cleanUrl = req.url.split('?')[0];
+    const isPublicPath = publicPaths.includes(cleanUrl);
 
     // Only allow global search and public detail view to skip middleware
     const isPublicCourseList =
