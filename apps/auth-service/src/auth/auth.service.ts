@@ -50,9 +50,6 @@ export class AuthService {
         password: '', // Social users have no local password
       });
       await this.UserRepository.save(user);
-
-      // ✅ NEW: Sync with LMS Service so they exist in the students/teachers table
-      await this.UserService.syncUserWithLMS(user, `${firstName} ${lastName}`);
     } else {
       console.log(`👋 [AUTH-SERVICE] Existing Google user logged in: ${email}`);
       // Update profile info if it changed
@@ -63,6 +60,10 @@ export class AuthService {
         avatar,
       });
     }
+
+    // ✅ Always attempt to sync with LMS Service to ensure the profile exists in both databases
+    // (The LMS service handles "already exists" gracefully or we handle it in UsersService)
+    await this.UserService.syncUserWithLMS(user, `${firstName} ${lastName}`);
 
     return user;
   }
