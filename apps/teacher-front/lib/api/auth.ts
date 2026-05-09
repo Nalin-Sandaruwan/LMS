@@ -44,4 +44,16 @@ export const authApi = {
     const response = await apiClient.post("/auth/logout");
     return response.data;
   },
+
+  // Get teacher data from the LMS server by auth user ID
+  getTeacherData: async (id: number) => {
+    const response = await apiClient.get(`/api/teacher/${id}`);
+    return response.data;
+  },
+
+  // Update teacher data in the LMS server
+  updateTeacherData: async (id: number, data: Partial<TeacherSignupPayload>) => {
+    const response = await apiClient.patch(`/api/teacher/${id}`, data);
+    return response.data;
+  },
 };

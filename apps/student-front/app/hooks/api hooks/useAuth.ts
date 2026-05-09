@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getUserProfile, loginUser, logoutUser, registerUser } from "../../../lib/api/auth";
+import { getStudentById, getUserProfile, loginUser, logoutUser, registerUser, updateStudentProfile } from "../../../lib/api/auth";
 
 export const useAuth = () => {
   return useQuery({
@@ -48,6 +48,27 @@ export const useRegister = () => {
     mutationFn: registerUser,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+    },
+  });
+};
+
+export const useStudentProfile = (id: number | undefined) => {
+  return useQuery({
+    queryKey: ["studentProfile", id],
+    queryFn: () => getStudentById(id!),
+    enabled: !!id, // Only run the query if an ID is provided
+  });
+};
+
+export const useUpdateStudentProfile = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: any }) => updateStudentProfile(id, data),
+    onSuccess: (_, variables) => {
+      // Invalidate both user profile and specific student profile to refresh the UI
+      queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+      queryClient.invalidateQueries({ queryKey: ["studentProfile", variables.id] });
     },
   });
 };

@@ -1,8 +1,6 @@
 "use client"
 import * as React from 'react';
 import { useParams } from 'next/navigation';
-import { Navigation } from "@/components/base compo/navigation";
-import { Footer } from "@/components/base compo/footer";
 import { useCourseByIdWithoutVideo } from '../../hooks/api hooks/useCourse';
 import { DetailSkeleton } from './components/DetailSkeleton';
 import { ErrorState } from './components/ErrorState';
@@ -19,9 +17,7 @@ export default function CourseDetailPage() {
     if (isError || !course) return <ErrorState />;
 
     return (
-        <div className="relative flex flex-col min-h-screen bg-gray-50 dark:bg-gray-950">
-            <Navigation />
-
+        <>
             <main className="grow pt-24">
                 <CourseHero course={course} />
 
@@ -32,8 +28,6 @@ export default function CourseDetailPage() {
                     </div>
                 </div>
             </main>
-
-            <Footer />
-        </div>
+        </>
     );
 }

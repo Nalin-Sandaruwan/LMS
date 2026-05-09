@@ -96,7 +96,7 @@ export class UsersService {
     try {
       const lmsResponse = await firstValueFrom(
         this.httpService
-          .post('http://localhost:3002/teacher/create', {
+          .post(`${process.env.LMS_SERVICE_URL}/teacher/create`, {
             id: savedTeacher.id,
             fullName: teacherUser.fullName,
             email: teacherUser.email,
@@ -154,7 +154,7 @@ export class UsersService {
     try {
       const lmsResponse = await firstValueFrom(
         this.httpService
-          .post('http://localhost:3002/student/create', {
+          .post(`${process.env.LMS_SERVICE_URL}/student/create`, {
             id: savedStudent.id,
             fullName: studentUser.fullName,
             email: studentUser.email,

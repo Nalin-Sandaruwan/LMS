@@ -1,7 +1,5 @@
 "use client"
 import * as React from 'react';
-import { Navigation } from "@/components/base compo/navigation";
-import { Footer } from "@/components/base compo/footer";
 import { motion } from 'framer-motion';
 
 const stats = [
@@ -20,9 +18,7 @@ const team = [
 
 export default function AboutUsPage() {
   return (
-    <div className="relative flex flex-col min-h-screen bg-gray-50 dark:bg-gray-950">
-      <Navigation />
-      
+    <>
       <main className="grow pt-32 pb-24">
         {/* Glow Effects */}
         <div className="absolute top-20 left-0 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[150px] -z-10" />
@@ -148,8 +144,6 @@ export default function AboutUsPage() {
         </section>
 
       </main>
-      
-      <Footer />
-    </div>
+    </>
   );
 }

@@ -10,7 +10,7 @@ describe('CourseController', () => {
 
   const mockCourseService = {
     create: jest.fn(),
-    findAll: jest.fn(),
+    findAllWithoutLessons: jest.fn(),
     findOne: jest.fn(),
     update: jest.fn(),
     remove: jest.fn(),
@@ -61,11 +61,11 @@ describe('CourseController', () => {
   describe('findAll', () => {
     it('should return an array of courses', async () => {
       const expectedCourses = [{ id: 1, title: 'Course 1' }];
-      mockCourseService.findAll.mockResolvedValue(expectedCourses);
+      mockCourseService.findAllWithoutLessons.mockResolvedValue(expectedCourses);
 
       const result = await controller.findAll();
 
-      expect(service.findAll).toHaveBeenCalled();
+      expect(service.findAllWithoutLessons).toHaveBeenCalled();
       expect(result).toEqual(expectedCourses);
     });
   });

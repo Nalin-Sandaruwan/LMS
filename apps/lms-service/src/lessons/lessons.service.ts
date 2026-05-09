@@ -27,9 +27,9 @@ export class LessonsService {
   }
 
   async prepareUpload(title: string, sectionId: number) {
-    const section = await this.sectionRepository.findOne({ 
+    const section = await this.sectionRepository.findOne({
       where: { id: sectionId },
-      relations: ['course'] 
+      relations: ['course'],
     });
 
     if (!section) {
@@ -37,20 +37,25 @@ export class LessonsService {
     }
 
     // Get or create a specific collection for this course on Bunny.net
-    const collectionId = await this.courseService.getOrCreateBunnyCollection(section.courseId);
+    const collectionId = await this.courseService.getOrCreateBunnyCollection(
+      section.courseId,
+    );
 
     // Create the video within that collection
-    const videoId = await this.bunnyStreamService.createVideo(title, collectionId);
-    
+    const videoId = await this.bunnyStreamService.createVideo(
+      title,
+      collectionId,
+    );
+
     return this.bunnyStreamService.getUploadSignature(videoId);
   }
 
   async prepareReplaceVideo(id: number) {
     const lesson = await this.findOne(id);
-    
+
     const section = await this.sectionRepository.findOne({
       where: { id: lesson.sectionId },
-      relations: ['course']
+      relations: ['course'],
     });
 
     if (!section) {
@@ -60,13 +65,20 @@ export class LessonsService {
     // ✅ Delete the OLD video from Bunny.net first to avoid orphaned storage
     // Non-blocking: if deletion fails we log a warning but continue the replace flow
     if (lesson.bunnyVideoId) {
-      this.logger.log(`Deleting old Bunny video ${lesson.bunnyVideoId} for lesson ${id}...`);
+      this.logger.log(
+        `Deleting old Bunny video ${lesson.bunnyVideoId} for lesson ${id}...`,
+      );
       await this.bunnyStreamService.deleteVideo(lesson.bunnyVideoId);
     }
 
     // Create a NEW empty video slot on Bunny.net
-    const collectionId = await this.courseService.getOrCreateBunnyCollection(section.courseId);
-    const newVideoId = await this.bunnyStreamService.createVideo(lesson.title, collectionId);
+    const collectionId = await this.courseService.getOrCreateBunnyCollection(
+      section.courseId,
+    );
+    const newVideoId = await this.bunnyStreamService.createVideo(
+      lesson.title,
+      collectionId,
+    );
 
     // Update the lesson to point to the new video and reset status
     await this.lessonRepository.update(id, {
@@ -76,7 +88,9 @@ export class LessonsService {
       fileUrl: '', // Clear old video URL — will be set again after webhook fires
     });
 
-    this.logger.log(`Prepared video replacement for lesson ${id}. New Bunny Video ID: ${newVideoId}`);
+    this.logger.log(
+      `Prepared video replacement for lesson ${id}. New Bunny Video ID: ${newVideoId}`,
+    );
 
     // Return upload credentials — the CLIENT must now upload the video file via TUS
     return this.bunnyStreamService.getUploadSignature(newVideoId);
@@ -132,6 +146,17 @@ export class LessonsService {
 
   async remove(id: number) {
     const lesson = await this.findOne(id);
+
+    // ✅ Automatically delete the video from Bunny.net if it exists
+    if (lesson.bunnyVideoId) {
+      this.logger.log(
+        `Deleting associated Bunny.net video ${lesson.bunnyVideoId} for lesson ${id}...`,
+      );
+      // We call this without awaiting if we want to speed up the response,
+      // but awaiting is safer to ensure we don't have orphaned storage.
+      await this.bunnyStreamService.deleteVideo(lesson.bunnyVideoId);
+    }
+
     return await this.lessonRepository.remove(lesson);
   }
 }

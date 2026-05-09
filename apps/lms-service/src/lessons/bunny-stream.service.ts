@@ -119,6 +119,37 @@ export class BunnyStreamService {
     }
   }
 
+  async deleteCollection(collectionId: string): Promise<void> {
+    try {
+      const response = await fetch(
+        `${this.baseUrl}/library/${this.libraryId}/collections/${collectionId}`,
+        {
+          method: 'DELETE',
+          headers: {
+            AccessKey: this.apiKey,
+            accept: 'application/json',
+          },
+        },
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        this.logger.warn(
+          `Could not delete Bunny collection ${collectionId}: ${response.status} ${errorText}`,
+        );
+        return;
+      }
+
+      this.logger.log(`Successfully deleted Bunny collection: ${collectionId}`);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      this.logger.warn(
+        `Error deleting Bunny collection ${collectionId}: ${errorMessage}`,
+      );
+    }
+  }
+
   async updateVideo(videoId: string, title: string): Promise<void> {
     try {
       const response = await fetch(
@@ -193,12 +224,19 @@ export class BunnyStreamService {
   }
 
   getUploadSignature(videoId: string) {
+    if (!this.libraryId || !this.apiKey) {
+      this.logger.error('BUNNY_STREAM_LIBRARY_ID or BUNNY_STREAM_API_KEY is missing in environment variables!');
+    }
+
     // Expiration: 1 hour from now
     const expirationTime = Math.floor(Date.now() / 1000) + 3600;
 
     // Bunny Signature Pattern: sha256(library_id + api_key + expiration_time + video_id)
     const signatureContent =
       this.libraryId + this.apiKey + expirationTime + videoId;
+    
+    this.logger.log(`Generating signature for Video: ${videoId}, Library: ${this.libraryId}`);
+    
     const signature = crypto
       .createHash('sha256')
       .update(signatureContent)

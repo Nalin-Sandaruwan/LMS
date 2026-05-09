@@ -44,8 +44,8 @@ export function UserMenu({ pathname }: UserMenuProps) {
             {user && (
                 <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
                     <DropdownMenuTrigger asChild>
-                        <Avatar className="cursor-pointer border-2 border-transparent hover:border-blue-500 transition-colors">
-                            <AvatarFallback className='bg-blue-300 border border-blue-700 text-blue-700 font-bold'>
+                        <Avatar className="size-9 cursor-pointer border-2 border-transparent hover:border-blue-500 transition-all">
+                            <AvatarFallback className='bg-blue-300 border border-blue-700 text-blue-700 font-bold text-xs'>
                                 {user.email.substring(0, 2).toUpperCase()}
                             </AvatarFallback>
                         </Avatar>

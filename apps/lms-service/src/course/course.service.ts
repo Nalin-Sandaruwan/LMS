@@ -25,31 +25,60 @@ export class CourseService {
       throw new Error('Teacher ID is required to create a course');
     }
 
-    // // Ensure the teacher exists to prevent Foreign Key constraints
-    // let teacher = await this.teacherRepository.findOneBy({ id: createCourseDto.teacherId });
-    // if (!teacher) {
-    //   // Auto-create a stub teacher record so the course can be connected
-    //   teacher = this.teacherRepository.create({
-    //     id: createCourseDto.teacherId,
-    //     fullName: `Teacher ${createCourseDto.teacherId}`,
-    //     email: `teacher${createCourseDto.teacherId}@platform.local`,
-    //     mobileNumber: 'N/A',
-    //     teachingExpert: 'General',
-    //     shortBio: 'Auto-generated stub profile.',
-    //   });
-    //   await this.teacherRepository.save(teacher);
-    // }
+    // Ensure the teacher exists to prevent Foreign Key constraints
+    let teacher = await this.teacherRepository.findOneBy({
+      id: createCourseDto.teacherId,
+    });
+    if (!teacher) {
+      // Auto-create a stub teacher record so the course can be connected
+      teacher = this.teacherRepository.create({
+        id: createCourseDto.teacherId,
+        fullName: `Teacher ${createCourseDto.teacherId}`,
+        email: `teacher${createCourseDto.teacherId}@platform.local`,
+        mobileNumber: 'N/A',
+        teachingExpert: 'General',
+        shortBio: 'Auto-generated stub profile.',
+      });
+      await this.teacherRepository.save(teacher);
+    }
 
     const course = this.courseRepository.create(createCourseDto);
     const savedCourse = await this.courseRepository.save(course);
     return savedCourse;
   }
 
-  //find all
-  async findAll() {
-    return await this.courseRepository.find({
-      relations: ['teacher', 'sections', 'sections.lessons'],
+  //find all without lessons getting Mostly public
+  //find all without lessons getting Mostly public
+  async findAllWithoutLessons() {
+    const courses = await this.courseRepository.find({
+      where: { isActive: true },
+      relations: ['teacher', 'sections'],
     });
+
+    // Manually strip lessons and sensitive data to ensure absolute optimization
+    return courses.map((course) => ({
+      id: course.id,
+      title: course.title,
+      thumbnail: course.thumbnail,
+      lessonCount: course.lessonCount,
+      isActive: course.isActive,
+      description: course.description
+        ? course.description.substring(0, 160) + '...'
+        : '',
+      createdAt: course.createdAt,
+      teacher: course.teacher
+        ? {
+            id: course.teacher.id,
+            fullName: course.teacher.fullName,
+            profilePicture: course.teacher.profilePicture,
+          }
+        : null,
+      sections: course.sections?.map((s) => ({
+        id: s.id,
+        title: s.title,
+        duration: s.duration,
+      })),
+    }));
   }
 
   // Find a specific course without heavy relations
@@ -72,7 +101,6 @@ export class CourseService {
         message: 'No courses found for this teacher',
       };
     }
-
     return courses;
   }
 
@@ -116,6 +144,16 @@ export class CourseService {
   async remove(id: number) {
     const course = await this.findOne(id);
     if (course) {
+      // ✅ Automatically delete the Bunny.net collection if it exists
+      if (course.bunnyCollectionId) {
+        this.logger.log(
+          `Deleting Bunny.net collection ${course.bunnyCollectionId} for course ${id}...`,
+        );
+        await this.bunnyStreamService.deleteCollection(
+          course.bunnyCollectionId,
+        );
+      }
+
       // Use a transaction to ensure complete cleanup and prevent orphans
       await this.courseRepository.manager.transaction(
         async (transactionalEntityManager) => {

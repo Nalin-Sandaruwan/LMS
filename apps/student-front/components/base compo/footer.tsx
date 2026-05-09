@@ -6,8 +6,14 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Logo } from './Logo';
+import { usePathname } from 'next/navigation';
 
 export function Footer() {
+    const pathname = usePathname();
+    const isAuthPage = pathname === '/login' || pathname === '/sign-up';
+
+    if (isAuthPage) return null;
+
     return (
         <footer className="relative border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 pt-16 pb-8 overflow-hidden">
             {/* Background Glow Decorations */}

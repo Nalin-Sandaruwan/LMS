@@ -2,15 +2,12 @@
 import * as React from 'react';
 import { AlertCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { Navigation } from "@/components/base compo/navigation";
-import { Footer } from "@/components/base compo/footer";
 
 import Link from 'next/link';
 
 export function ErrorState() {
     return (
-        <div className="relative flex flex-col min-h-screen bg-gray-50 dark:bg-gray-950">
-            <Navigation />
+        <>
             <main className="grow flex items-center justify-center p-6">
                 <div className="text-center space-y-4 max-w-sm">
                     <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto">
@@ -25,7 +22,6 @@ export function ErrorState() {
                     </Button>
                 </div>
             </main>
-            <Footer />
-        </div>
+        </>
     );
 }

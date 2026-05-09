@@ -1,7 +1,5 @@
 "use client"
 import * as React from 'react';
-import { Navigation } from "@/components/base compo/navigation";
-import { Footer } from "@/components/base compo/footer";
 import { useCourses } from '../hooks/api hooks/useCourse';
 import { PageHeader } from './components/PageHeader';
 import { CategoryFilters } from './components/CategoryFilters';
@@ -30,9 +28,7 @@ export default function AllCoursesPage() {
     }, [courses, activeCategory]);
 
     return (
-        <div className="relative flex flex-col min-h-screen bg-gray-50 dark:bg-gray-950">
-            <Navigation />
-
+        <>
             <main className="grow pt-32 pb-24">
                 <PageHeader />
 
@@ -52,8 +48,6 @@ export default function AllCoursesPage() {
                     />
                 </section>
             </main>
-
-            <Footer />
-        </div>
+        </>
     );
 }

@@ -33,6 +33,7 @@ export class JwtMiddleware implements NestMiddleware {
       '/auth/reset-password',
       // '/api/course', // Whitelist exact match for course list
       '/api/course/without-video',
+      '/api/lessons/bunny-webhook',
     ];
 
     // Check for public paths or specific public GET requests

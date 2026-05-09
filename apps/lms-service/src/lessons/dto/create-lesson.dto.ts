@@ -1,32 +1,37 @@
-import { IsString, IsNotEmpty, IsEnum, IsOptional, IsNumber } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsEnum,
+  IsOptional,
+  IsNumber,
+} from 'class-validator';
 
 export class CreateLessonDto {
-    @IsNumber()
-    @IsNotEmpty()
-    sectionId: number;
+  @IsNumber()
+  @IsNotEmpty()
+  sectionId: number;
 
-    @IsString()
-    @IsNotEmpty()
-    title: string;
+  @IsString()
+  @IsNotEmpty()
+  title: string;
 
-    @IsEnum(['video', 'audio', 'pdf', 'doc', 'text', 'article', 'quiz'])
-    @IsNotEmpty()
-    type: 'video' | 'audio' | 'pdf' | 'doc' | 'text' | 'article' | 'quiz';
+  @IsEnum(['video', 'audio', 'pdf', 'doc', 'text', 'article', 'quiz'])
+  @IsNotEmpty()
+  type: 'video' | 'audio' | 'pdf' | 'doc' | 'text' | 'article' | 'quiz';
 
-    @IsString()
-    @IsOptional()
-    fileUrl?: string;
+  @IsString()
+  @IsOptional()
+  fileUrl?: string;
 
-    @IsString()
-    @IsOptional()
-    bunnyVideoId?: string;
+  @IsString()
+  @IsOptional()
+  bunnyVideoId?: string;
 
-    @IsString()
-    @IsOptional()
-    bunnyStatus?: string;
+  @IsString()
+  @IsOptional()
+  bunnyStatus?: string;
 
-    @IsEnum(['published', 'draft'])
-    @IsOptional()
-    status?: string;
+  @IsEnum(['published', 'draft'])
+  @IsOptional()
+  status?: string;
 }
-

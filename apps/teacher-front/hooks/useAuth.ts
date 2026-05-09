@@ -99,3 +99,39 @@ export function useLogout() {
     },
   });
 }
+
+/**
+ * Fetches the teacher's LMS profile data (fullName, bio, expertise, etc.)
+ * using the auth user ID.
+ * Endpoint: GET /api/teacher/:id
+ */
+export function useTeacherProfile(id: number | undefined) {
+  return useQuery({
+    queryKey: ["teacherProfile", id],
+    queryFn: () => authApi.getTeacherData(id!),
+    enabled: !!id, // Only runs when a valid id is provided
+  });
+}
+
+/**
+ * Updates the teacher's LMS profile data.
+ * Endpoint: PATCH /api/teacher/:id
+ * Automatically refreshes both the auth user and teacher profile caches on success.
+ */
+export function useUpdateTeacherProfile() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Partial<TeacherSignupPayload> }) =>
+      authApi.updateTeacherData(id, data),
+    onSuccess: (_, variables) => {
+      // Refresh both caches so the UI reflects the new data instantly
+      queryClient.invalidateQueries({ queryKey: ["authUser"] });
+      queryClient.invalidateQueries({ queryKey: ["teacherProfile", variables.id] });
+      toast.success("Profile updated successfully!");
+    },
+    onError: () => {
+      toast.error("Failed to update profile. Please try again.");
+    },
+  });
+}

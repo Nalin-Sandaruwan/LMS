@@ -11,7 +11,7 @@ import { UserMenu } from './nav-components/UserMenu';
 import { MobileMenu } from './nav-components/MobileMenu';
 
 const navItems = [
-    { name: "Home ", href: "/" },
+    { name: "Home", href: "/" },
     { name: "All Courses", href: "/all-cource" },
     { name: "Pricing", href: "/plans" },
     { name: "About us", href: "/about_us" },
@@ -24,11 +24,20 @@ export function Navigation() {
     const [isAtTop, setIsAtTop] = React.useState(true);
     const { scrollY } = useScroll();
 
+    const isAuthPage = pathname === '/login' || pathname === '/sign-up';
+
     useMotionValueEvent(scrollY, "change", (latest) => {
         // Check if we are at the very top of the page
         setIsAtTop(latest < 20);
 
         const previous = scrollY.getPrevious() ?? 0;
+
+        // Don't hide the navbar if the mobile menu is open
+        if (isOpen) {
+            setIsHidden(false);
+            return;
+        }
+
         // If scrolling down and scrolled past 100px, hide the nav
         if (latest > previous && latest > 100) {
             setIsHidden(true);
@@ -37,6 +46,8 @@ export function Navigation() {
             setIsHidden(false);
         }
     });
+
+    if (isAuthPage) return null;
 
     return (
         <div className='fixed top-0 left-0 w-full z-50 page-margin pointer-events-none'>
@@ -48,11 +59,10 @@ export function Navigation() {
                 initial="visible"
                 animate={isHidden ? "hidden" : "visible"}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
-                className={`flex w-full h-16 container mx-auto items-center rounded-full justify-between px-6 md:px-10 mt-5 relative z-50 pointer-events-auto transition-all duration-300 ${
-                    isAtTop 
-                        ? 'bg-transparent border-transparent shadow-none' 
-                        : 'border border-gray-200 dark:border-gray-800 backdrop-blur-xl bg-white/40 dark:bg-gray-950/40 shadow-sm'
-                }`}
+                className={`flex w-full h-16 container mx-auto items-center rounded-full justify-between px-6 md:px-10 mt-5 relative z-50 pointer-events-auto transition-all duration-300 ${isAtTop
+                    ? 'bg-transparent border-transparent shadow-none'
+                    : 'border border-gray-200 dark:border-gray-800 backdrop-blur-xl bg-white/40 dark:bg-gray-950/40 shadow-sm'
+                    }`}
             >
                 {/* Logo Section */}
                 <motion.div
