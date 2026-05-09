@@ -182,6 +182,36 @@ export class UsersService {
     return savedStudent;
   }
 
+  // Generic sync method for social logins
+  async syncUserWithLMS(user: User, fullName: string) {
+    const endpoint = user.role === 'teacher' ? 'teacher/create' : 'student/create';
+    const payload: any = {
+      id: user.id,
+      fullName: fullName,
+      email: user.email,
+      mobileNumber: '', // Default for social login
+    };
+
+    if (user.role === 'teacher') {
+      payload.teachingExpert = 'General';
+      payload.shortBio = 'Teacher joined via Google';
+    }
+
+    try {
+      await firstValueFrom(
+        this.httpService.post(`${process.env.LMS_SERVICE_URL}/${endpoint}`, payload).pipe(
+          catchError((error) => {
+            this.logger.error(`Failed to call LMS Service for sync: ${error.message}`);
+            return [];
+          }),
+        ),
+      );
+      this.logger.log(`✅ [USERS-SERVICE] Synced user ${user.id} with LMS Service`);
+    } catch (err) {
+      this.logger.error(`Error during LMS Service sync: ${err}`);
+    }
+  }
+
   // restrict user(Like Remove)
   async updateRestricted(id: number, updateUserDto: UpdateUserDto) {
     return await this.userRepository.update(id, { isActive: false });

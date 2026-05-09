@@ -12,6 +12,8 @@ import { PlayerHeader } from './components/PlayerHeader';
 import { VideoArea } from './components/VideoArea';
 import { LessonInfo } from './components/LessonInfo';
 import { PlayerSidebar } from './components/PlayerSidebar';
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 export default function CoursePlayerPage() {
     const params = useParams();
@@ -162,53 +164,79 @@ export default function CoursePlayerPage() {
 
 
     return (
-        <div className="relative flex flex-col min-h-screen bg-white dark:bg-gray-950 font-sans h-screen overflow-hidden">
+        <div className="relative flex flex-col min-h-screen bg-background text-foreground font-sans h-screen overflow-hidden">
+            {/* Background Decorative Elements */}
+            <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-primary/10 rounded-full filter blur-[128px] opacity-30 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-blue-500/10 rounded-full filter blur-[128px] opacity-20 pointer-events-none" />
+            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.01] pointer-events-none" />
 
-            <main className="flex-1 flex flex-col lg:flex-row h-[calc(100vh-64px)] overflow-hidden pt-24 md:pt-28">
+            <main className="flex-1 flex flex-col lg:flex-row h-[calc(100vh-64px)] overflow-hidden pt-24 md:pt-28 relative z-10">
                 {/* Main Player Area */}
                 <div className="flex-1 overflow-y-auto flex flex-col relative w-full styled-scrollbar">
-                    {/* Header */}
-                    <PlayerHeader
-                        courseTitle={courseData?.title || ""}
-                        activeLessonTitle={activeLesson.title}
-                        completedCount={completedLessons.length}
-                        totalLessons={totalLessons}
-                        progressPercentage={progressPercentage}
-                        showSidebar={showSidebar}
-                        setShowSidebar={setShowSidebar}
-                    />
-
-                    <div className="flex-1 p-0 md:p-6 lg:p-8 flex flex-col bg-gray-50 dark:bg-[#0a0a0a]">
-                        {/* Player Area */}
-                        <VideoArea activeLesson={activeLesson} />
-
-                        {/* Lesson Info & Tabs */}
-                        <LessonInfo
-                            activeLesson={activeLesson}
-                            completedLessons={completedLessons}
-                            toggleMarkComplete={toggleMarkComplete}
-                            courseData={courseData}
+                    {/* Header - Glassmorphism */}
+                    <div className="sticky top-0 z-20">
+                        <PlayerHeader
+                            courseTitle={courseData?.title || ""}
+                            activeLessonTitle={activeLesson.title}
+                            completedCount={completedLessons.length}
+                            totalLessons={totalLessons}
+                            progressPercentage={progressPercentage}
+                            showSidebar={showSidebar}
+                            setShowSidebar={setShowSidebar}
                         />
+                    </div>
+
+                    <div className="flex-1 flex flex-col bg-muted/30 dark:bg-muted/5 pb-20">
+                        <div className="w-full max-w-7xl mx-auto px-4 py-6 md:px-8 md:py-10 space-y-8">
+                            {/* Player Area with Motion */}
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.5 }}
+                                className="w-full"
+                            >
+                                <VideoArea activeLesson={activeLesson} />
+                            </motion.div>
+
+                            {/* Lesson Info & Tabs */}
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ duration: 0.5, delay: 0.2 }}
+                            >
+                                <LessonInfo
+                                    activeLesson={activeLesson}
+                                    completedLessons={completedLessons}
+                                    toggleMarkComplete={toggleMarkComplete}
+                                    courseData={courseData}
+                                />
+                            </motion.div>
+                        </div>
                     </div>
                 </div>
 
                 {/* Sidebar Playlist */}
-                <PlayerSidebar
-                    showSidebar={showSidebar}
-                    setShowSidebar={setShowSidebar}
-                    sections={sections}
-                    expandedSections={expandedSections}
-                    toggleSection={toggleSection}
-                    activeLesson={activeLesson}
-                    completedLessons={completedLessons}
-                    selectLesson={selectLesson}
-                    toggleMarkComplete={toggleMarkComplete}
-                />
+                <div className={cn(
+                    "relative z-20 border-l border-border transition-all duration-300 ease-in-out",
+                    showSidebar ? "w-full lg:w-[350px] xl:w-[400px]" : "w-0 overflow-hidden lg:w-0"
+                )}>
+                    <PlayerSidebar
+                        showSidebar={showSidebar}
+                        setShowSidebar={setShowSidebar}
+                        sections={sections}
+                        expandedSections={expandedSections}
+                        toggleSection={toggleSection}
+                        activeLesson={activeLesson}
+                        completedLessons={completedLessons}
+                        selectLesson={selectLesson}
+                        toggleMarkComplete={toggleMarkComplete}
+                    />
+                </div>
 
                 {/* Mobile Overlay */}
                 {showSidebar && (
                     <div
-                        className="fixed inset-0 bg-black/50 z-30 lg:hidden backdrop-blur-sm"
+                        className="fixed inset-0 bg-black/60 z-30 lg:hidden backdrop-blur-sm"
                         onClick={() => setShowSidebar(false)}
                     />
                 )}

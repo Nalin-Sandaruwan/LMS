@@ -12,6 +12,8 @@ import jwtConfig from 'src/config/jwt.config';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { RefreshTokenStrategy } from './stratagy/refresh.auth.stratagy';
 
+import { GoogleStrategy } from './stratagy/google.auth.stratagy';
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
@@ -27,6 +29,7 @@ import { RefreshTokenStrategy } from './stratagy/refresh.auth.stratagy';
     LocalAuthStrategy,
     JwtStrategy,
     RefreshTokenStrategy,
+    GoogleStrategy,
     // ✅ Custom provider for refresh JWT service
     {
       provide: 'REFRESH_JWT_SERVICE',
