@@ -1,13 +1,12 @@
 "use client"
 import * as React from 'react';
 import { motion } from 'framer-motion';
-import { Navigation } from '@/components/base compo/navigation';
-import { Footer } from '@/components/base compo/footer';
+
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import Link from 'next/link';
 import { ProfileNav } from '@/components/profile compo/profileNav';
-import { useAuth } from '@/app/hooks/api hooks/useAuth';
+import { useAuth, useStudentProfile } from '@/app/hooks/api hooks/useAuth';
 
 interface ProfileLayoutProps {
     children: React.ReactNode;
@@ -15,16 +14,20 @@ interface ProfileLayoutProps {
 
 export function ProfileLayout({ children }: ProfileLayoutProps) {
     const { data: user } = useAuth();
+    const { data: student } = useStudentProfile(user?.id);
 
     // Fallback display values
-    const displayName = user?.name || "LMS Student";
-    const displayEmail = user?.email || "student@lms.com";
+    const displayName = student?.fullName || user?.fullName || "LMS Student";
+    const displayEmail = student?.email || user?.email || "student@lms.com";
     const displayRole = user?.role ? (user.role.charAt(0).toUpperCase() + user.role.slice(1)) : "Student";
-    const initials = user?.email?.substring(0, 2).toUpperCase() || "ST";
+
+    // Better initials calculation from fullName
+    const initials = (student?.fullName || user?.fullName)
+        ? (student?.fullName || user?.fullName).split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase()
+        : user?.email?.substring(0, 2).toUpperCase() || "ST";
 
     return (
         <div className="relative flex flex-col min-h-screen bg-gray-50 dark:bg-gray-950">
-            <Navigation />
 
             <main className="grow pt-24 pb-20">
                 {/* 1. Hero Banner Section */}
@@ -78,7 +81,6 @@ export function ProfileLayout({ children }: ProfileLayoutProps) {
                 </div>
             </main>
 
-            <Footer />
         </div>
     );
 }

@@ -1,7 +1,5 @@
 "use client"
 import * as React from 'react';
-import { Navigation } from "@/components/base compo/navigation";
-import { Footer } from "@/components/base compo/footer";
 import { Button } from "@/components/ui/button";
 import { motion } from 'framer-motion';
 
@@ -60,9 +58,7 @@ export default function PlansPage() {
   const [isAnnual, setIsAnnual] = React.useState(false);
 
   return (
-    <div className="relative flex flex-col min-h-screen bg-gray-50 dark:bg-gray-950">
-      <Navigation />
-      
+    <>
       <main className="grow pt-32 pb-24">
         {/* Glow Effects */}
         <div className="absolute top-40 left-1/2 -translate-x-1/2 w-full max-w-3xl h-64 bg-blue-500/10 rounded-full blur-[120px] -z-10" />
@@ -171,8 +167,6 @@ export default function PlansPage() {
             <Button variant="outline" className="border-gray-300 dark:border-gray-700">Contact Support</Button>
         </section>
       </main>
-      
-      <Footer />
-    </div>
+    </>
   );
 }

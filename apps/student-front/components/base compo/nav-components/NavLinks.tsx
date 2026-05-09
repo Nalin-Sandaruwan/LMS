@@ -34,8 +34,9 @@ export function NavLinks({ items, pathname }: NavLinksProps) {
                         </motion.p>
                         {isActive && (
                             <motion.div
+                                initial={false}
                                 layoutId="activeTab"
-                                className="absolute -bottom-1.5 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400 rounded-full"
+                                className="absolute left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400 rounded-full"
                                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
                             />
                         )}

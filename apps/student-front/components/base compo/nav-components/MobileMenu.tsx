@@ -50,7 +50,7 @@ export function MobileMenu({
                     animate={{ opacity: 1, height: 'auto', y: 0 }}
                     exit={{ opacity: 0, height: 0, y: -20 }}
                     transition={{ duration: 0.3, ease: 'easeInOut' }}
-                    className="md:hidden absolute top-[85px] left-0 w-full px-4 overflow-hidden z-40"
+                    className="md:hidden absolute top-[85px] left-0 w-full px-4 overflow-hidden z-40 pointer-events-auto"
                 >
                     <div className="bg-white/95 dark:bg-gray-950/95 backdrop-blur-3xl border border-gray-200 dark:border-gray-800 rounded-3xl p-6 shadow-2xl flex flex-col gap-6">
                         <div className="flex flex-col gap-2">

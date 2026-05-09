@@ -8,6 +8,7 @@ import {
   JoinColumn,
   PrimaryGeneratedColumn,
   OneToMany,
+  Index,
 } from 'typeorm';
 import { Teacher } from '../../teacher/entities/teacher.entity';
 import { Section } from '../../section/entities/section.entity';
@@ -41,6 +42,7 @@ export class Course {
   @Column({ default: 0 })
   lessonCount: number;
 
+  @Index()
   @Column({ default: true })
   isActive: boolean;
 

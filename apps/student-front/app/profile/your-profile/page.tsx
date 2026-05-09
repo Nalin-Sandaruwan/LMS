@@ -1,6 +1,6 @@
 "use client"
 import * as React from 'react';
-import { ProfileLayout } from '@/components/profile compo/ProfileLayout';
+import { ProfileLayout } from '@/app/profile/ProfileLayout';
 import { StatusGrid } from '@/components/profile compo/statusGrid';
 import { EnrolledCourseCard } from '@/components/profile compo/enrolledCourseCard';
 import { LearningActivity } from '@/components/profile compo/LearningActivity';

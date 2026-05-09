@@ -24,3 +24,15 @@ export const registerUser = async (data: RegisterParams) => {
   });
   return response.data;
 };
+
+//LMS user Data getting
+export const getStudentById = async (id: number) => {
+  const response = await apiClient.get(`/api/student/${id}`);
+  return response.data;
+};
+
+// LMS server User Data Update
+export const updateStudentProfile = async (id: number, data: any) => {
+  const response = await apiClient.patch(`/api/student/${id}`, data);
+  return response.data;
+};

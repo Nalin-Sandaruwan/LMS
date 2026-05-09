@@ -16,10 +16,10 @@ export function CourseCurriculum({ course }: CourseCurriculumProps) {
                 </h2>
                 <div className="flex items-center gap-3 text-sm text-gray-500 font-medium">
                     <span>{course.sections?.length || 0} sections</span>
-                    <span className="text-gray-300 dark:text-gray-800">&bull;</span>
+                    {/* <span className="text-gray-300 dark:text-gray-800">&bull;</span>
                     <span>{course.sections?.reduce((acc: number, s: any) => acc + (s.lessons?.length || 0), 0) || course.lessonCount || 0} lessons</span>
                     <span className="text-gray-300 dark:text-gray-800">&bull;</span>
-                    <span>{course.hours || '0'} hours total length</span>
+                    <span>{course.hours || '0'} hours total length</span> */}
                 </div>
             </div>
 
@@ -36,13 +36,20 @@ export function CourseCurriculum({ course }: CourseCurriculumProps) {
                                         <h4 className="font-bold text-gray-900 dark:text-white">
                                             {section.title}
                                         </h4>
-                                        <p className="text-xs text-gray-500 font-bold uppercase tracking-widest">
-                                            {section.lessons?.length || 0} Modules
-                                        </p>
+                                        <div className="flex flex-col gap-1">
+                                            {/* <p className="text-xs text-gray-500 font-bold uppercase tracking-widest">
+                                                {section.lessons?.length || 0} Modules
+                                            </p> */}
+                                            {section.description && (
+                                                <p className="text-sm text-gray-500 dark:text-gray-400 max-w-2xl line-clamp-2">
+                                                    {section.description}
+                                                </p>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                            {/* <div className="divide-y divide-gray-100 dark:divide-gray-800">
                                 {section.lessons?.map((lesson: any, lIdx: number) => (
                                     <div key={lIdx} className="p-4 px-6 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group">
                                         <div className="flex items-center gap-3">
@@ -56,7 +63,7 @@ export function CourseCurriculum({ course }: CourseCurriculumProps) {
                                         </span>
                                     </div>
                                 ))}
-                            </div>
+                            </div> */}
                         </div>
                     ))
                 ) : (

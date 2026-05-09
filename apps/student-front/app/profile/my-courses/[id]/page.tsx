@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEnrollmentById, useUpdateEnrollment } from '@/app/hooks/api hooks/useEnrolled';
 import { Button } from '@/components/ui/button';
-import { Navigation } from '@/components/base compo/navigation';
 
 // Modular Components
 import { PlayerHeader } from './components/PlayerHeader';
@@ -164,9 +163,6 @@ export default function CoursePlayerPage() {
 
     return (
         <div className="relative flex flex-col min-h-screen bg-white dark:bg-gray-950 font-sans h-screen overflow-hidden">
-            <div className="z-50 border-b border-gray-200 dark:border-gray-800">
-                <Navigation />
-            </div>
 
             <main className="flex-1 flex flex-col lg:flex-row h-[calc(100vh-64px)] overflow-hidden pt-24 md:pt-28">
                 {/* Main Player Area */}

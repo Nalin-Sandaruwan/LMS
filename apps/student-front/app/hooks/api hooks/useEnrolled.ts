@@ -1,4 +1,9 @@
-import { getUserEnrolledCourses, createEnrollment, getEnrollmentById, updateEnrollment } from "@/lib/api/enrolled";
+import {
+  getUserEnrolledCourses,
+  createEnrollment,
+  getEnrollmentById,
+  updateEnrollment,
+} from "@/lib/api/enrolled";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -50,15 +55,16 @@ export const useEnrollmentById = (id: string | number) => {
  * Hook to update a specific enrollment (e.g., progress tracking).
  */
 export const useUpdateEnrollment = () => {
-    const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
-    return useMutation({
-        mutationFn: ({ id, data }: { id: string; data: any }) => updateEnrollment(id, data),
-        onSuccess: (data, variables) => {
-            // Invalidate the specific enrollment query to reflect changes
-            queryClient.invalidateQueries({ queryKey: ["enrollment", variables.id] });
-            // Also invalidate the list of enrolled courses
-            queryClient.invalidateQueries({ queryKey: ["enrolled-courses"] });
-        },
-    });
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
+      updateEnrollment(id, data),
+    onSuccess: (data, variables) => {
+      // Invalidate the specific enrollment query to reflect changes
+      queryClient.invalidateQueries({ queryKey: ["enrollment", variables.id] });
+      // Also invalidate the list of enrolled courses
+      queryClient.invalidateQueries({ queryKey: ["enrolled-courses"] });
+    },
+  });
 };

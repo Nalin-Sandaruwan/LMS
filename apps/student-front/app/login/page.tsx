@@ -381,7 +381,7 @@ export default function LoginPage() {
             </div>
 
             {/* Right Side - Premium Graphic Area */}
-            <div className="hidden lg:flex w-1/2 bg-gray-900 dark:bg-black relative overflow-hidden items-center justify-center border-l border-gray-200 dark:border-gray-800">
+            <div className="hidden relative lg:flex w-1/2 bg-gray-900 dark:bg-black relative overflow-hidden items-center justify-center  border-gray-200 dark:border-gray-800">
                 {/* Dynamic Background Gradients */}
                 <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-pulse"></div>
                 <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-pulse delay-1000"></div>
@@ -431,6 +431,9 @@ export default function LoginPage() {
                         </motion.div>
                     </div>
                 </div>
+
+                <div className='absolute w-[1px] left-0 h-[70%] bg-gradient-to-b from-transparent via-gray-200 dark:via-gray-800 to-transparent opacity-50' />
+
             </div>
 
         </div>

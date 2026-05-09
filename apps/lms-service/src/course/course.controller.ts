@@ -41,9 +41,10 @@ export class CourseController {
     return result;
   }
 
+  //without video getting Mostly public
   @Get()
   findAll() {
-    return this.courseService.findAll();
+    return this.courseService.findAllWithoutLessons();
   }
 
   @Get('without-video/:id')
@@ -58,7 +59,9 @@ export class CourseController {
   ) {
     const id = parseInt(teacherId, 10);
     if (!teacherId || isNaN(id)) {
-      throw new UnauthorizedException('Teacher ID is missing or invalid. Authentication may have failed at the gateway.');
+      throw new UnauthorizedException(
+        'Teacher ID is missing or invalid. Authentication may have failed at the gateway.',
+      );
     }
     return this.courseService.findAllTeacherCreated(id);
   }

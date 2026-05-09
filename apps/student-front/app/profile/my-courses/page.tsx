@@ -1,14 +1,12 @@
 "use client"
 import * as React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Navigation } from '@/components/base compo/navigation';
-import { Footer } from '@/components/base compo/footer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ProfileNav } from '@/components/profile compo/profileNav';
 import { BookOpen, Search, Filter, PlayCircle, CheckCircle, Clock, Award, MoreVertical, Compass } from 'lucide-react';
 import Link from 'next/link';
-import { ProfileLayout } from '@/components/profile compo/ProfileLayout';
+import { ProfileLayout } from '@/app/profile/ProfileLayout';
 import { CourseGridProfile } from '@/components/profile compo/courseGridProfile';
 import { useUserEnrolledCourses } from '@/app/hooks/api hooks/useEnrolled';
 

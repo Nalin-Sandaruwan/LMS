@@ -5,6 +5,8 @@ import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { Navigation } from "@/components/base compo/navigation";
+import { Footer } from "@/components/base compo/footer";
 
 const geistHeading = Geist({ subsets: ['latin'], variable: '--font-geist-heading' });
 
@@ -44,7 +46,13 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            {children}
+            <div className="relative flex flex-col min-h-screen">
+              <Navigation />
+              <main className="grow">
+                {children}
+              </main>
+              <Footer />
+            </div>
             <Toaster position="bottom-right" richColors />
           </ThemeProvider>
         </QueryProvider>
