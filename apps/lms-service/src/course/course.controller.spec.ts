@@ -46,9 +46,8 @@ describe('CourseController', () => {
 
       mockCourseService.create.mockResolvedValue(expectedCourse);
 
-      // In JavaScript testing we mimic the exact signature your controller takes.
-      // Your controller gets '1' as a string and dto as the second param.
-      const result = await controller.create('1', dto);
+      // Your controller gets dto as 1st param and userId as 2nd param.
+      const result = await controller.create(dto, '1');
 
       // The controller is mapping it to teacherId using parseInt
       // but there seems to be a JS object spread mistake inside your actual controller.

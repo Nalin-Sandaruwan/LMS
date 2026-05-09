@@ -41,7 +41,7 @@ export function LessonInfo({
             </div>
 
             {/* Tabs Implementation */}
-            <div className="flex border-b border-gray-200 dark:border-gray-800 space-x-8 mb-6 overflow-x-auto custom-scrollbar">
+            {/* <div className="flex border-b border-gray-200 dark:border-gray-800 space-x-8 mb-6 overflow-x-auto custom-scrollbar">
                 {[
                     { id: 'overview', label: 'Overview' },
                     { id: 'qa', label: 'Q&A' },
@@ -59,10 +59,10 @@ export function LessonInfo({
                         )}
                     </button>
                 ))}
-            </div>
+            </div> */}
 
             {/* Tab Content */}
-            <div className="text-gray-600 dark:text-gray-300">
+            {/* <div className="text-gray-600 dark:text-gray-300">
                 {activeTab === 'overview' && (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
                         <div>
@@ -99,7 +99,7 @@ export function LessonInfo({
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                             <input type="text" placeholder="Search questions..." className="w-full pl-9 pr-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl focus:border-blue-500 outline-none transition-colors" />
                         </div>
-                        {/* Mock Q&A Thread */}
+                        
                         <div className="flex gap-4 p-4 border border-gray-200 dark:border-gray-800 rounded-2xl bg-white dark:bg-[#0f0f0f]">
                             <div className="w-10 h-10 rounded-full bg-linear-to-tr from-purple-500 to-blue-500 shrink-0 text-white flex items-center justify-center font-bold">A</div>
                             <div className="flex-1">
@@ -120,7 +120,8 @@ export function LessonInfo({
                         <p className="text-gray-500 font-medium tracking-wide">Nothing here yet.</p>
                     </motion.div>
                 )}
-            </div>
+            </div> */}
+
         </div>
     );
 }
