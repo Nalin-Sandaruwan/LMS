@@ -61,9 +61,9 @@ export default function EditProfilePage() {
                     onSave={handleSave}
                 />
 
-                <SecurityForm />
+                {/* <SecurityForm />
 
-                <DangerZone />
+                <DangerZone /> */}
             </div>
         </ProfileLayout>
     );
