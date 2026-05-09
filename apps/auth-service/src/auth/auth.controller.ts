@@ -70,8 +70,11 @@ export class AuthController {
 
     // If teacher is inactive, redirect to a special pending page
     if (validatedUser.role === Role.TEACHER && !validatedUser.isActive) {
-      console.log(`⏳ [GOOGLE-CALLBACK] Teacher pending approval: ${validatedUser.email}`);
-      const frontendUrl = process.env.TEACHER_FRONTEND_URL || 'http://localhost:5174';
+      console.log(
+        `⏳ [GOOGLE-CALLBACK] Teacher pending approval: ${validatedUser.email}`,
+      );
+      const frontendUrl =
+        process.env.TEACHER_FRONTEND_URL || 'http://localhost:5174';
       return response.redirect(`${frontendUrl}/pending-approval`);
     }
 
