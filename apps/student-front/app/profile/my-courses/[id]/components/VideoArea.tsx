@@ -12,7 +12,7 @@ export function VideoArea({ activeLesson }: VideoAreaProps) {
     if (!activeLesson) return null;
 
     return (
-        <div className="relative w-full aspect-video bg-black md:rounded-2xl overflow-hidden shadow-2xl group shrink-0 border border-gray-900">
+        <div className="relative w-full   aspect-video bg-black md:rounded-2xl overflow-hidden shadow-2xl group shrink-0 border border-gray-900">
             {activeLesson.type === 'video' ? (
                 activeLesson.status === 'published' && activeLesson.fileUrl ? (
                     <iframe
