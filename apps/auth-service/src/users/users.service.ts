@@ -14,7 +14,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { catchError, firstValueFrom, NotFoundError } from 'rxjs';
+import { catchError, firstValueFrom, of } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 
 @Injectable()
@@ -187,9 +187,9 @@ export class UsersService {
     const endpoint = user.role === 'teacher' ? 'teacher/create' : 'student/create';
     const payload: any = {
       id: user.id,
-      fullName: fullName,
+      fullName: fullName || user.email.split('@')[0], // Fallback if name is missing
       email: user.email,
-      mobileNumber: '', // Default for social login
+      mobileNumber: '',
     };
 
     if (user.role === 'teacher') {
@@ -197,12 +197,16 @@ export class UsersService {
       payload.shortBio = 'Teacher joined via Google';
     }
 
+    console.log(`📡 [AUTH-SERVICE] Syncing user with LMS... Payload:`, JSON.stringify(payload));
+
     try {
       await firstValueFrom(
         this.httpService.post(`${process.env.LMS_SERVICE_URL}/${endpoint}`, payload).pipe(
           catchError((error) => {
-            this.logger.error(`Failed to call LMS Service for sync: ${error.message}`);
-            return [];
+            const errorMsg = error.response?.data?.message || error.message;
+            this.logger.error(`Failed to call LMS Service for sync: ${errorMsg}`);
+            // Return a dummy object so firstValueFrom doesn't throw EmptyError
+            return of({ success: false, error: errorMsg });
           }),
         ),
       );
