@@ -64,7 +64,7 @@ export function useLogout() {
     onSuccess: () => {
       queryClient.setQueryData(["authUser"], null);
       toast.success("Successfully logged out.");
-      router.push("/login");
+      router.push("/login"); 
     },
     onError: (error) => {
       console.error("Logout failed", error);

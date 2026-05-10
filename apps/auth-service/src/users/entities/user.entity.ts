@@ -15,29 +15,29 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Column({ unique: true, nullable: true })
-  googleId: string;
+  @Column({ type: 'varchar', unique: true, nullable: true })
+  googleId: string | null;
 
-  @Column({ nullable: true })
-  firstName: string;
+  @Column({ type: 'varchar', nullable: true })
+  firstName: string | null;
 
-  @Column({ nullable: true })
-  lastName: string;
+  @Column({ type: 'varchar', nullable: true })
+  lastName: string | null;
 
-  @Column({ nullable: true })
-  avatar: string;
+  @Column({ type: 'varchar', nullable: true })
+  avatar: string | null;
 
-  @Column({ nullable: true })
-  password: string;
+  @Column({ type: 'varchar', nullable: true })
+  password: string | null;
 
-  @Column({ nullable: true })
-  refreshToken: string;
+  @Column({ type: 'varchar', nullable: true })
+  refreshToken: string | null;
 
-  @Column({ nullable: true })
-  otp: string;
+  @Column({ type: 'varchar', nullable: true })
+  otp: string | null;
 
   @Column({ type: 'timestamp', nullable: true })
-  otpExpiresAt: Date;
+  otpExpiresAt: Date | null;
 
   @Column({ default: false })
   otpSucess: boolean;

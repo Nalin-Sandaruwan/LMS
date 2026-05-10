@@ -79,6 +79,11 @@ export class AuthService {
     }
 
     // Compare plain text password with hashed password
+    if (!user.password) {
+      console.warn(`❌ [AUTH-SERVICE] User has no local password (social account?): ${email}`);
+      throw new UnauthorizedException('This account uses social login. Please sign in with Google.');
+    }
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       console.warn(`❌ [AUTH-SERVICE] Password mismatch for user: ${email}`);
@@ -257,6 +262,12 @@ export class AuthService {
     return { id: userId };
   }
 
+  // Clear refresh token from database on logout
+  async clearRefreshToken(userId: number) {
+    console.log(`🚪 [AUTH-SERVICE] Clearing refresh token for user: ${userId}`);
+    await this.UserRepository.update(userId, { refreshToken: null });
+  }
+
   //find user
   async findByEmail(email: string) {
     const user = await this.UserService.findOneByEmail(email);
@@ -302,7 +313,11 @@ export class AuthService {
       throw new UnauthorizedException('Invalid otp');
     }
 
-    // Safely parse the database date string into a Date object just in case it returns as a string
+    // Safely check if otpExpiresAt exists and parse it
+    if (!user.otpExpiresAt) {
+      throw new UnauthorizedException('Invalid or expired OTP');
+    }
+
     const expiresAt = new Date(user.otpExpiresAt);
     if (expiresAt < new Date()) {
       throw new UnauthorizedException('Otp expired');
@@ -337,8 +352,8 @@ export class AuthService {
 
     await this.UserRepository.update(user.id, {
       password: hashedPassword,
-      otp: null as any,
-      otpExpiresAt: null as any,
+      otp: null,
+      otpExpiresAt: null,
       otpSucess: false,
     });
 
