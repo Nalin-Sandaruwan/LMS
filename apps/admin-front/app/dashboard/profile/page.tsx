@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { 
   ShieldCheck, 
@@ -150,7 +150,7 @@ export default function AdminProfilePage() {
   );
 }
 
-function SecurityItem({ icon: Icon, title, desc, status }: { icon: any, title: string, desc: string, status: 'active' | 'inactive' }) {
+function SecurityItem({ icon: Icon, title, desc, status }: { icon: React.ElementType, title: string, desc: string, status: 'active' | 'inactive' }) {
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-4">

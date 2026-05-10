@@ -12,24 +12,20 @@ import {
   Req,
   BadRequestException,
 } from '@nestjs/common';
-import { response, type Request, type Response } from 'express';
+import { type Response } from 'express';
 import { AuthService } from './auth.service';
 import {
   CreateStudentDto,
   CreateTeacherDto,
   CreateUserDto,
 } from 'src/users/dto/create-user.dto';
-import { loginDto } from './dto/login.dto';
-import { AuthGuard } from '@nestjs/passport';
 import { JwtAuthGuard } from './guard/jwt.auth.guard';
 import { LocalAuthGuard } from './guard/local.auth.guard';
 import { RefreshAuthGuard } from './guard/refresh.auth.guard';
 import { Role } from './enums/roles.enum';
 import { Roles } from './decorators/roles.decorator';
 import { RolesGuard } from './guard/role/roles.guard';
-import { get } from 'http';
 import { UsersService } from 'src/users/users.service';
-import { patch } from 'axios';
 
 import { GoogleAuthGuard } from './guard/google.auth.guard';
 
@@ -44,13 +40,13 @@ export class AuthController {
 
   @Get('google/student')
   @UseGuards(GoogleAuthGuard)
-  async googleAuthStudent(@Req() req) {
+  async googleAuthStudent() {
     // Redirects to Google (handled by passport)
   }
 
   @Get('google/teacher')
   @UseGuards(GoogleAuthGuard)
-  async googleAuthTeacher(@Req() req) {
+  async googleAuthTeacher() {
     // Redirects to Google (handled by passport)
   }
 
@@ -275,7 +271,7 @@ export class AuthController {
   //I need testing route for the acess Token remove on cookiees
   @UseGuards(JwtAuthGuard)
   @Get('test')
-  async test(@Req() req, @Res() res: Response) {
+  test(@Req() req, @Res() res: Response) {
     res.clearCookie('accessToken', { path: '/' });
     res.status(HttpStatus.OK).json({ message: 'Access token cleared' });
   }

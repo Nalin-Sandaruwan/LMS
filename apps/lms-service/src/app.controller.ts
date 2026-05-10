@@ -16,7 +16,10 @@ export class AppController {
   @Get('/lms')
   @UseGuards(RolesGuard)
   @Roles(Role.ADMIN, Role.TEACHER)
-  getLms(@Headers('x-user-id') userId: string, @Headers('x-user-role') userRole: string) {
+  getLms(
+    @Headers('x-user-id') userId: string,
+    @Headers('x-user-role') userRole: string,
+  ) {
     console.log('✅ [LMS] Request from user:', userId, 'Role:', userRole);
     return {
       message: 'Hello from LMS',

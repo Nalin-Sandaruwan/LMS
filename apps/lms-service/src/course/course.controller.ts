@@ -9,7 +9,6 @@ import {
   Headers,
   UseGuards,
   UnauthorizedException,
-  BadRequestException,
 } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { CreateCourseDto } from './dto/create-course.dto';
@@ -53,10 +52,7 @@ export class CourseController {
   }
 
   @Get('teacher-created')
-  findAllTeacherCreated(
-    @Headers('x-user-id') teacherId: string,
-    @Headers('x-user-role') userRole: string,
-  ) {
+  findAllTeacherCreated(@Headers('x-user-id') teacherId: string) {
     const id = parseInt(teacherId, 10);
     if (!teacherId || isNaN(id)) {
       throw new UnauthorizedException(

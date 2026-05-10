@@ -4,11 +4,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  CreateStudentDto,
-  CreateTeacherDto,
-  CreateUserDto,
-} from './dto/create-user.dto';
+import { CreateStudentDto, CreateTeacherDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
@@ -16,6 +12,7 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { catchError, firstValueFrom, of } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
+import { Role } from '../auth/enums/roles.enum';
 
 @Injectable()
 export class UsersService {
@@ -85,7 +82,7 @@ export class UsersService {
 
     //auth server Create the new user role as teacher and save it to the database
     const hashedPassword = await bcrypt.hash(teacherUser.password, 10);
-    const teacher = await this.userRepository.create({
+    const teacher = this.userRepository.create({
       ...teacherUser,
       password: hashedPassword,
     });
@@ -142,7 +139,7 @@ export class UsersService {
 
     //auth server Create the new user role as teacher and save it to the database
     const hashedPassword = await bcrypt.hash(studentUser.password, 10);
-    const student = await this.userRepository.create({
+    const student = this.userRepository.create({
       ...studentUser,
       password: hashedPassword,
       isActive: true, // Students are active by default
@@ -184,7 +181,8 @@ export class UsersService {
 
   // Generic sync method for social logins
   async syncUserWithLMS(user: User, fullName: string) {
-    const endpoint = user.role === 'teacher' ? 'teacher/create' : 'student/create';
+    const endpoint =
+      user.role === Role.TEACHER ? 'teacher/create' : 'student/create';
     const payload: any = {
       id: user.id,
       fullName: fullName || user.email.split('@')[0], // Fallback if name is missing
@@ -192,32 +190,41 @@ export class UsersService {
       mobileNumber: '',
     };
 
-    if (user.role === 'teacher') {
+    if (user.role === Role.TEACHER) {
       payload.teachingExpert = 'General';
       payload.shortBio = 'Teacher joined via Google';
     }
 
-    console.log(`📡 [AUTH-SERVICE] Syncing user with LMS... Payload:`, JSON.stringify(payload));
+    console.log(
+      `📡 [AUTH-SERVICE] Syncing user with LMS... Payload:`,
+      JSON.stringify(payload),
+    );
 
     try {
       await firstValueFrom(
-        this.httpService.post(`${process.env.LMS_SERVICE_URL}/${endpoint}`, payload).pipe(
-          catchError((error) => {
-            const errorMsg = error.response?.data?.message || error.message;
-            this.logger.error(`Failed to call LMS Service for sync: ${errorMsg}`);
-            // Return a dummy object so firstValueFrom doesn't throw EmptyError
-            return of({ success: false, error: errorMsg });
-          }),
-        ),
+        this.httpService
+          .post(`${process.env.LMS_SERVICE_URL}/${endpoint}`, payload)
+          .pipe(
+            catchError((error) => {
+              const errorMsg = error.response?.data?.message || error.message;
+              this.logger.error(
+                `Failed to call LMS Service for sync: ${errorMsg}`,
+              );
+              // Return a dummy object so firstValueFrom doesn't throw EmptyError
+              return of({ success: false, error: errorMsg });
+            }),
+          ),
       );
-      this.logger.log(`✅ [USERS-SERVICE] Synced user ${user.id} with LMS Service`);
+      this.logger.log(
+        `✅ [USERS-SERVICE] Synced user ${user.id} with LMS Service`,
+      );
     } catch (err) {
       this.logger.error(`Error during LMS Service sync: ${err}`);
     }
   }
 
   // restrict user(Like Remove)
-  async updateRestricted(id: number, updateUserDto: UpdateUserDto) {
+  async updateRestricted(id: number) {
     return await this.userRepository.update(id, { isActive: false });
   }
 

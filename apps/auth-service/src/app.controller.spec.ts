@@ -4,7 +4,6 @@ import { AppService } from './app.service';
 
 describe('AppController', () => {
   let appController: AppController;
-  let appService: AppService;
 
   // 1. Create a mock AppService
   // We define the methods that the controller uses, so we control what it returns.
@@ -25,7 +24,6 @@ describe('AppController', () => {
     }).compile();
 
     appController = app.get<AppController>(AppController);
-    appService = app.get<AppService>(AppService);
   });
 
   // 3. Reset our mocks after each test to ensure a clean slate

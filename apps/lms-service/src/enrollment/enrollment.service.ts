@@ -80,7 +80,7 @@ export class EnrollmentService {
 
   async update(id: number, updateEnrollmentDto: UpdateEnrollmentDto) {
     const enrollment = await this.findOne(id);
-    
+
     if (updateEnrollmentDto.completedLessons) {
       // Calculate progress
       const totalLessons = enrollment.course.sections.reduce(
@@ -90,7 +90,9 @@ export class EnrollmentService {
 
       if (totalLessons > 0) {
         const completedCount = updateEnrollmentDto.completedLessons.length;
-        updateEnrollmentDto.progressCalculation = Math.round((completedCount / totalLessons) * 100);
+        updateEnrollmentDto.progressCalculation = Math.round(
+          (completedCount / totalLessons) * 100,
+        );
       }
     }
 

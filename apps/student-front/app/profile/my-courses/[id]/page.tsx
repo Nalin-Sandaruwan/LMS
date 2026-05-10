@@ -14,6 +14,7 @@ import { LessonInfo } from './components/LessonInfo';
 import { PlayerSidebar } from './components/PlayerSidebar';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 export default function CoursePlayerPage() {
     const params = useParams();
@@ -60,6 +61,27 @@ export default function CoursePlayerPage() {
     const totalLessons = sections.reduce((acc: number, sec: any) => acc + (sec.lessons?.length || 0), 0);
     const progressPercentage = totalLessons > 0 ? Math.round((completedLessons.length / totalLessons) * 100) : 0;
 
+    // Toggle Global Navigation for Mobile Sidebar
+    React.useEffect(() => {
+        const handleResize = () => {
+            const isMobile = window.innerWidth < 1024;
+            if (isMobile && showSidebar) {
+                window.dispatchEvent(new CustomEvent('idensphere-toggle-navbar', { detail: 'hide' }));
+            } else {
+                window.dispatchEvent(new CustomEvent('idensphere-toggle-navbar', { detail: 'show' }));
+            }
+        };
+
+        handleResize(); // Initial check
+        window.addEventListener('resize', handleResize);
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            // Ensure navbar is shown when leaving the page
+            window.dispatchEvent(new CustomEvent('idensphere-toggle-navbar', { detail: 'show' }));
+        };
+    }, [showSidebar]);
+
     // Handlers
     const toggleSection = (id: string) => {
         setExpandedSections(prev =>
@@ -78,6 +100,12 @@ export default function CoursePlayerPage() {
             : [...completedLessons, lessonId];
 
         setCompletedLessons(newCompletedLessons);
+
+        if (!isCurrentlyCompleted) {
+            toast.success('Successfully marked as complete', {
+                description: 'Your progress has been saved.',
+            });
+        }
 
         // Update Backend
         updateProgress({
@@ -98,25 +126,37 @@ export default function CoursePlayerPage() {
     // Bunny.net Player event listener
     React.useEffect(() => {
         const handlePlayerMessage = (event: MessageEvent) => {
-            // Check origin
-            if (event.origin !== "https://iframe.mediadelivery.net") return;
+            // LOG EVERYTHING FOR DEBUGGING
+            if (event.origin.includes("mediadelivery") || event.origin.includes("bunny")) {
+                console.warn("📥 Player Event Received:", event.data);
+            }
+
+            const isBunnyOrigin = event.origin.includes("mediadelivery.net") || event.origin.includes("bunny.net");
+            if (!isBunnyOrigin) return;
 
             try {
-                const data = JSON.parse(event.data);
-                if (data.event === "ended" && activeLesson) {
-                    console.log("Video ended, marking as complete:", activeLesson.title);
+                let data = event.data;
+                if (typeof data === "string") {
+                    data = JSON.parse(data);
+                }
+
+                // Check multiple possible properties for the finish signal
+                const isEnded = data.event === "ended" || data.status === "ended" || data.type === "ended";
+
+                if (isEnded && activeLesson) {
+                    console.log("🎯 MATCH! Marking as complete:", activeLesson.title);
                     if (!completedLessons.includes(activeLesson.id.toString())) {
                         toggleMarkComplete(activeLesson.id.toString());
                     }
                 }
             } catch (err) {
-                // Not JSON or other message
+                // Ignore parsing errors
             }
         };
 
         window.addEventListener("message", handlePlayerMessage);
         return () => window.removeEventListener("message", handlePlayerMessage);
-    }, [activeLesson, completedLessons, enrollmentId]);
+    }, [activeLesson, completedLessons, enrollmentId, toggleMarkComplete]);
 
     if (isLoading) {
         return (
@@ -217,7 +257,7 @@ export default function CoursePlayerPage() {
 
                 {/* Sidebar Playlist */}
                 <div className={cn(
-                    "relative z-20 border-l border-border transition-all duration-300 ease-in-out",
+                    "relative z-200 border-l border-border transition-all duration-300 ease-in-out",
                     showSidebar ? "w-full lg:w-[350px] xl:w-[400px]" : "w-0 overflow-hidden lg:w-0"
                 )}>
                     <PlayerSidebar
@@ -233,13 +273,6 @@ export default function CoursePlayerPage() {
                     />
                 </div>
 
-                {/* Mobile Overlay */}
-                {showSidebar && (
-                    <div
-                        className="fixed inset-0 bg-black/60 z-30 lg:hidden backdrop-blur-sm"
-                        onClick={() => setShowSidebar(false)}
-                    />
-                )}
             </main>
         </div>
     );

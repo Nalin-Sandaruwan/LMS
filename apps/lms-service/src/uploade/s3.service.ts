@@ -1,6 +1,9 @@
 // upload/s3.service.ts
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+} from '@aws-sdk/client-s3';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
@@ -12,7 +15,9 @@ export class S3Service {
   constructor(private configService: ConfigService) {
     const region = this.configService.get<string>('AWS_REGION');
     const accessKeyId = this.configService.get<string>('AWS_ACCESS_KEY_ID');
-    const secretAccessKey = this.configService.get<string>('AWS_SECRET_ACCESS_KEY');
+    const secretAccessKey = this.configService.get<string>(
+      'AWS_SECRET_ACCESS_KEY',
+    );
     this.bucket = this.configService.get<string>('AWS_S3_BUCKET') ?? '';
 
     if (!region || !accessKeyId || !secretAccessKey || !this.bucket) {
@@ -35,12 +40,14 @@ export class S3Service {
   ): Promise<string> {
     const key = `${folder}/${Date.now()}-${file.originalname}`;
 
-    await this.s3.send(new PutObjectCommand({
-      Bucket: this.bucket,
-      Key: key,
-      Body: file.buffer,
-      ContentType: file.mimetype,
-    }));
+    await this.s3.send(
+      new PutObjectCommand({
+        Bucket: this.bucket,
+        Key: key,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+      }),
+    );
 
     // CloudFront URL return කරන්නෙ production එකේ
     const cloudFrontDomain = this.configService.get('CLOUDFRONT_DOMAIN');
@@ -56,25 +63,29 @@ export class S3Service {
   ): Promise<string> {
     const key = `videos/lesson-${lessonId}/${Date.now()}-${file.originalname}`;
 
-    await this.s3.send(new PutObjectCommand({
-      Bucket: this.bucket,
-      Key: key,
-      Body: file.buffer,
-      ContentType: file.mimetype, // 'video/mp4'
-      // Video content type set කරන එක ඉතා වැදගත්
-      Metadata: {
-        lessonId: String(lessonId),
-      },
-    }));
+    await this.s3.send(
+      new PutObjectCommand({
+        Bucket: this.bucket,
+        Key: key,
+        Body: file.buffer,
+        ContentType: file.mimetype, // 'video/mp4'
+        // Video content type set කරන එක ඉතා වැදගත්
+        Metadata: {
+          lessonId: String(lessonId),
+        },
+      }),
+    );
 
     return key; // Key save කරන්නෙ DB වල
   }
 
   // Delete file
   async deleteFile(key: string): Promise<void> {
-    await this.s3.send(new DeleteObjectCommand({
-      Bucket: this.bucket,
-      Key: key,
-    }));
+    await this.s3.send(
+      new DeleteObjectCommand({
+        Bucket: this.bucket,
+        Key: key,
+      }),
+    );
   }
 }

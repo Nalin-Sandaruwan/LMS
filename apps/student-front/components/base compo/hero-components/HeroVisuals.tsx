@@ -37,7 +37,7 @@ export function HeroVisuals() {
                     />
 
                     <Button asChild className="bg-[#4F46E5] hover:bg-[#4338CA] text-white h-[60px] px-8 rounded-xl font-semibold text-base w-full shadow-lg shadow-indigo-500/20 transition-all duration-300 hover:scale-[1.03] active:scale-95 group/btn">
-                        <Link href="/all-cource">
+                        <Link href="/all-courses">
                             Meet The Expert <span className="text-xl ml-2 font-light transition-transform duration-300 group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1">↗</span>
                         </Link>
                     </Button>

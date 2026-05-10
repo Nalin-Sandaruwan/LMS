@@ -17,7 +17,8 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
     const { data: enrollments } = useUserEnrolledCourses(!!user);
     const { mutate: enroll, isPending } = useCreateEnrollment();
 
-    const isEnrolled = enrollments?.some((e: any) => Number(e.classId) === Number(course.id));
+    const enrollment = enrollments?.find((e: any) => Number(e.classId) === Number(course.id));
+    const isEnrolled = !!enrollment;
 
     const handleEnroll = () => {
         if (!user) {
@@ -25,9 +26,9 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
             return;
         }
 
-        if (isEnrolled) {
-            // Logic for "Start Watching" can go here (e.g., navigate to first lesson)
-            console.log("Navigating to course content...");
+        if (isEnrolled && enrollment) {
+            // Logic for "Start Watching" - navigate to player page
+            router.push(`/profile/my-courses/${enrollment.id}`);
             return;
         }
         if (course.id) {
@@ -80,8 +81,8 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
                             onClick={handleEnroll}
                             disabled={isPending}
                             className={`w-full h-14 text-base font-black rounded-2xl shadow-lg transition-all duration-300 ${isEnrolled
-                                    ? "bg-green-600 hover:bg-green-700 shadow-green-600/25"
-                                    : "bg-blue-600 hover:bg-blue-700 shadow-blue-600/25"
+                                ? "bg-green-600 hover:bg-green-700 shadow-green-600/25"
+                                : "bg-blue-600 hover:bg-blue-700 shadow-blue-600/25"
                                 } disabled:opacity-70`}
                         >
                             {isPending ? "Processing..." : isEnrolled ? "Start Watching" : "Enroll Now"}

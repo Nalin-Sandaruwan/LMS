@@ -16,7 +16,7 @@ describe('CourseService', () => {
         CourseService,
         { provide: getRepositoryToken(Course), useValue: {} },
         { provide: getRepositoryToken(Teacher), useValue: {} },
-        { provide: BunnyStreamService, useValue: {} }
+        { provide: BunnyStreamService, useValue: {} },
       ],
     }).compile();
 

@@ -137,7 +137,7 @@ export default function MyCoursesPage() {
                                 ? "We couldn't find any courses matching your search. Try different keywords or clear the filters."
                                 : "You haven't enrolled in any courses yet. Explore our catalog and start learning today!"}
                         </p>
-                        <Link href="/all-cource">
+                        <Link href="/all-courses">
                             <Button size="lg" className="rounded-xl font-bold font-lg shadow-lg shadow-blue-500/25">
                                 <Compass className="w-5 h-5 mr-2" />
                                 Explore Courses

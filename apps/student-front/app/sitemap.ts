@@ -14,7 +14,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     {
-      url: `${baseUrl}/all-cource`,
+      url: `${baseUrl}/all-courses`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.8,

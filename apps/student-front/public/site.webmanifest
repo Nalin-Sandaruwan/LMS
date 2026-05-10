@@ -1,0 +1,17 @@
+{
+  "name": "Idensphere LMS",
+  "short_name": "Idensphere",
+  "description": "The future of AI-driven learning and knowledge sharing.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4f46e5",
+  "icons": [
+    {
+      "src": "/icons/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

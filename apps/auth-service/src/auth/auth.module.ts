@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import * as jwt from 'jsonwebtoken';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -36,7 +37,6 @@ import { HttpModule } from '@nestjs/axios';
     {
       provide: 'REFRESH_JWT_SERVICE',
       useFactory: (configService: ConfigService) => {
-        const jwt = require('jsonwebtoken');
         return {
           signAsync: (payload: any, options: any = {}) => {
             const secret =
@@ -45,10 +45,10 @@ import { HttpModule } from '@nestjs/axios';
             return new Promise((resolve, reject) => {
               jwt.sign(
                 payload,
-                secret,
+                secret!,
                 { expiresIn: '7d', ...options },
-                (err: any, token: any) => {
-                  if (err) reject(err);
+                (err, token) => {
+                  if (err) reject(new Error(err.message));
                   else resolve(token);
                 },
               );

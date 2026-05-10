@@ -36,7 +36,7 @@ export function PlayerHeader({
                     <h1 className="font-bold text-gray-900 dark:text-white text-base md:text-lg leading-tight line-clamp-1">
                         {courseTitle}
                     </h1>
-                    <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">Playing: {activeLessonTitle}</p>
+                    <p className="text-xs text-blue-600 dark:text-blue-400 font-medium" data-testid="active-lesson">Playing: {activeLessonTitle}</p>
                 </div>
             </div>
 

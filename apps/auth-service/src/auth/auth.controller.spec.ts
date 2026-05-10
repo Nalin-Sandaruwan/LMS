@@ -49,7 +49,7 @@ describe('AuthController', () => {
       // Arrange: Setup mock data and service responses
       const mockUser = { id: 1, email: 'student@example.com', role: 'STUDENT' };
       const mockReq = { user: mockUser };
-      
+
       const expectedTokens = {
         accessToken: 'mock-access-token',
         refreshToken: 'mock-refresh-token',
