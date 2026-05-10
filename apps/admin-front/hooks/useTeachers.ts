@@ -30,3 +30,19 @@ export function useVerifyTeacher() {
     },
   });
 }
+
+export function useTeacherProfile(id: number) {
+  return useQuery({
+    queryKey: ["teacher", id],
+    queryFn: () => adminApi.getTeacherProfile(id),
+    enabled: !!id,
+  });
+}
+
+export function useTeacherCourses(id: number) {
+  return useQuery({
+    queryKey: ["teacher-courses", id],
+    queryFn: () => adminApi.getTeacherCourses(id),
+    enabled: !!id,
+  });
+}

@@ -13,11 +13,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { RefreshTokenStrategy } from './stratagy/refresh.auth.stratagy';
 
 import { GoogleStrategy } from './stratagy/google.auth.stratagy';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
     UsersModule,
+    HttpModule,
     // ✅ Register access token JWT
     JwtModule.registerAsync(jwtConfig.asProvider()),
     PassportModule.register({ defaultStrategy: 'jwt' }),

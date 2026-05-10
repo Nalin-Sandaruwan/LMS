@@ -40,13 +40,14 @@ const data = {
       isActive: true,
       items: [
         {
-          title: "All Users",
-          url: "/admin/dashboard/users",
-        },
-        {
           title: "Educator Verification",
           url: "/admin/dashboard",
         },
+        {
+          title: "All Users",
+          url: "/admin/dashboard/users",
+        }
+
       ],
     },
     {
@@ -58,33 +59,33 @@ const data = {
       ),
       items: [
         {
-          title: "Courses",
-          url: "#",
+          title: "System Catalog",
+          url: "/admin/dashboard/showAllcources",
         },
-        {
-          title: "Reviews",
-          url: "#",
-        },
+        // {
+        //   title: "Reviews",
+        //   url: "#",
+        // },
       ],
     },
-    {
-      title: "Settings",
-      url: "#",
-      icon: (
-        <Settings2Icon
-        />
-      ),
-      items: [
-        {
-          title: "Platform",
-          url: "#",
-        },
-        {
-          title: "Security",
-          url: "#",
-        },
-      ],
-    },
+    // {
+    //   title: "Settings",
+    //   url: "#",
+    //   icon: (
+    //     <Settings2Icon
+    //     />
+    //   ),
+    //   items: [
+    //     {
+    //       title: "Platform",
+    //       url: "#",
+    //     },
+    //     {
+    //       title: "Security",
+    //       url: "#",
+    //     },
+    //   ],
+    // },
   ],
   projects: [],
 }

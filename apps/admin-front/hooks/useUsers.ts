@@ -32,3 +32,22 @@ export function useUpdateUserStatus() {
     },
   });
 }
+
+export function useDeleteUser() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => adminApi.deleteUser(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["teachers"] });
+      toast.success("User permanently deleted.");
+    },
+    onError: (error) => {
+      console.error("Delete failed:", error);
+      toast.error("Delete Failed", { 
+        description: "Could not remove the user. They might have dependent data or are an admin." 
+      });
+    },
+  });
+}

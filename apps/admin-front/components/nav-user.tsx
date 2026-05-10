@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/sidebar"
 import { ChevronsUpDownIcon, SparklesIcon, BadgeCheckIcon, CreditCardIcon, BellIcon, LogOutIcon } from "lucide-react"
 
+import { useRouter } from "next/navigation"
 import { useLogout } from "@/hooks/useAuth"
 
 export function NavUser({
@@ -35,6 +36,7 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar()
   const { mutate: logout } = useLogout()
+  const router = useRouter()
 
   return (
     <SidebarMenu>
@@ -76,7 +78,7 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/dashboard/profile")}>
                 <BadgeCheckIcon />
                 Admin Profile
               </DropdownMenuItem>

@@ -16,6 +16,7 @@ export interface GeneralUser {
   role: string;
   isActive: boolean;
   createdAt: string;
+  lastLogin?: string;
 }
 
 export const adminApi = {
@@ -25,7 +26,10 @@ export const adminApi = {
   },
 
   verifyTeacher: async (id: number, isActive: boolean) => {
-    const response = await apiClient.patch(`/auth/admin/teachers/verify/${id}`, { isActive });
+    const response = await apiClient.patch(
+      `/auth/admin/teachers/verify/${id}`,
+      { isActive },
+    );
     return response.data;
   },
 
@@ -35,7 +39,32 @@ export const adminApi = {
   },
 
   updateUserStatus: async (id: number, isActive: boolean) => {
-    const response = await apiClient.patch(`/auth/admin/users/status/${id}`, { isActive });
+    const response = await apiClient.patch(`/auth/admin/users/status/${id}`, {
+      isActive,
+    });
+    return response.data;
+  },
+
+  deleteUser: async (id: number) => {
+    const response = await apiClient.delete(`/auth/admin/users/${id}`);
+    return response.data;
+  },
+
+  getTeacherProfile: async (id: number): Promise<TeacherUser> => {
+    // Fetch both from LMS (profile details) and Auth (account status)
+    const [lmsResponse, authResponse] = await Promise.all([
+      apiClient.get(`/api/teacher/${id}`),
+      apiClient.get(`/auth/admin/users/${id}`),
+    ]);
+
+    return {
+      ...lmsResponse.data,
+      isActive: authResponse.data.isActive,
+    };
+  },
+
+  getTeacherCourses: async (id: number) => {
+    const response = await apiClient.get(`/api/course/admin/teacher/${id}`);
     return response.data;
   },
 };

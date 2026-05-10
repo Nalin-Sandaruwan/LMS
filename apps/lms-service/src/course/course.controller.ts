@@ -85,4 +85,10 @@ export class CourseController {
     const result = await this.courseService.remove(+id);
     return result;
   }
+
+  // Admin endpoint to get all courses for a specific teacher
+  @Get('admin/teacher/:id')
+  async findAllByTeacherForAdmin(@Param('id') id: string) {
+    return this.courseService.findAllTeacherCreated(+id);
+  }
 }

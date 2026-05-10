@@ -68,14 +68,13 @@ export class AuthController {
 
     const validatedUser = await this.authService.validateGoogleUser(user, role);
 
-    // If teacher is inactive, redirect to a special pending page
+    // If teacher is inactive, we still allow them to log in.
+    // Frontend ProtectedRoute will handle the "Account Not Active" UI.
     if (validatedUser.role === Role.TEACHER && !validatedUser.isActive) {
       console.log(
-        `⏳ [GOOGLE-CALLBACK] Teacher pending approval: ${validatedUser.email}`,
+        `⏳ [GOOGLE-CALLBACK] Inactive Teacher logging in: ${validatedUser.email}`,
       );
-      const frontendUrl =
-        process.env.TEACHER_FRONTEND_URL || 'http://localhost:5174';
-      return response.redirect(`${frontendUrl}/pending-approval`);
+      // No redirect to /pending-approval here anymore.
     }
 
     const result = await this.authService.login(validatedUser);
@@ -393,5 +392,21 @@ export class AuthController {
     @Body() body: { isActive: boolean },
   ) {
     return await this.userService.update(id, { isActive: body.isActive });
+  }
+
+  // Admin: Permanently delete a user
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @Delete('admin/users/:id')
+  async hardDeleteUser(@Param('id') id: number) {
+    return await this.authService.hardDeleteUser(id);
+  }
+
+  // Admin: Get a single user by ID
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @Get('admin/users/:id')
+  async getUserById(@Param('id') id: number) {
+    return await this.userService.findOneById(id);
   }
 }

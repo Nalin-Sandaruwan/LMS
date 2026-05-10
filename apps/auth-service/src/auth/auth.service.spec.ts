@@ -7,6 +7,8 @@ import { JwtService } from '@nestjs/jwt';
 import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
+import { HttpService } from '@nestjs/axios';
+
 // 1. Mock the bcrypt library so we don't do real slow hashing in unit tests
 jest.mock('bcrypt');
 
@@ -32,6 +34,11 @@ describe('AuthService', () => {
     signAsync: jest.fn(),
   };
 
+  const mockHttpService = {
+    post: jest.fn(),
+    delete: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -39,6 +46,7 @@ describe('AuthService', () => {
         { provide: getRepositoryToken(User), useValue: mockUserRepository },
         { provide: UsersService, useValue: mockUsersService },
         { provide: JwtService, useValue: mockJwtService },
+        { provide: HttpService, useValue: mockHttpService },
         { provide: 'REFRESH_JWT_SERVICE', useValue: mockJwtService }, // Important: Mock the refresh token service too!
       ],
     }).compile();
