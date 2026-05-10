@@ -4,6 +4,8 @@ import {
   NotFoundException,
   UnauthorizedException,
   Inject,
+  ForbiddenException,
+  Logger,
 } from '@nestjs/common';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
@@ -19,13 +21,18 @@ import { isString } from 'util';
 import { ExceptionsHandler } from '@nestjs/core/exceptions/exceptions-handler';
 
 import { Role } from './enums/roles.enum';
+import { HttpService } from '@nestjs/axios';
+import { catchError, firstValueFrom, of } from 'rxjs';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     @InjectRepository(User) private UserRepository: Repository<User>,
     private readonly UserService: UsersService,
     private readonly jwtService: JwtService,
+    private readonly httpService: HttpService,
     @Inject('REFRESH_JWT_SERVICE') private readonly refreshJwtService: any, // ✅ Inject custom refresh JWT service
   ) {}
 
@@ -80,8 +87,12 @@ export class AuthService {
 
     // Compare plain text password with hashed password
     if (!user.password) {
-      console.warn(`❌ [AUTH-SERVICE] User has no local password (social account?): ${email}`);
-      throw new UnauthorizedException('This account uses social login. Please sign in with Google.');
+      console.warn(
+        `❌ [AUTH-SERVICE] User has no local password (social account?): ${email}`,
+      );
+      throw new UnauthorizedException(
+        'This account uses social login. Please sign in with Google.',
+      );
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -116,20 +127,51 @@ export class AuthService {
     return user;
   }
 
-  // Simplified login that generates tokens without re-validating password
-  // Useful when the user is already validated by a guard (LocalAuthGuard)
+  /**
+   * Advanced login function
+   * Handles token generation, security checks, and activity tracking.
+   * Used when user is already validated (Local/Google Guard).
+   */
   async login(user: any) {
+    // 1. Security Check: Allow inactive users to log in so frontend can show "Account Not Active" screen
+    if (user.isActive === false) {
+      this.logger.warn(
+        `⚠️ [AUTH-SERVICE] Inactive user logged in (session allowed for frontend UI): ${user.email}`,
+      );
+      // We no longer throw ForbiddenException here.
+      // Frontend ProtectedRoute will block access to specific pages.
+    }
+
+    // 2. Generate secure Access and Refresh tokens
     const { accessToken, refreshToken } = await this.generateAccessToken(
       user.id,
       String(user.role),
     );
 
-    await this.UserRepository.update(user.id, { refreshToken });
+    // 3. Update session data and activity timestamp in database
+    await this.UserRepository.update(user.id, {
+      refreshToken,
+      lastLogin: new Date(),
+    });
 
+    this.logger.log(
+      `✅ [AUTH-SERVICE] Login successful: ${user.email} (${user.role})`,
+    );
+
+    // 4. Return rich user context for frontend state management
     return {
       accessToken,
       refreshToken,
-      user: { id: user.id, email: user.email, role: user.role },
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        avatar: user.avatar,
+        isActive: user.isActive,
+        lastLogin: new Date(),
+      },
     };
   }
 
@@ -182,6 +224,49 @@ export class AuthService {
     return {
       user,
     };
+  }
+
+  /**
+   * Permanently deletes a user from the Auth service and their corresponding
+   * record in the LMS service.
+   */
+  async hardDeleteUser(id: number) {
+    const user = await this.UserRepository.findOne({ where: { id } });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+
+    if (user.role === Role.ADMIN) {
+      throw new ForbiddenException('Admin accounts cannot be deleted.');
+    }
+
+    // Determine LMS endpoint based on role
+    const lmsEndpoint = user.role === Role.TEACHER ? 'teacher' : 'student';
+    
+    this.logger.log(`🗑️ [AUTH-SERVICE] Deleting user ${id} (${user.role}) across services...`);
+
+    // 1. Delete from LMS Service
+    try {
+      await firstValueFrom(
+        this.httpService.delete(`${process.env.LMS_SERVICE_URL}/${lmsEndpoint}/${id}`).pipe(
+          catchError((error) => {
+            const errorMsg = error.response?.data?.message || error.message;
+            this.logger.error(`Failed to delete user from LMS Service: ${errorMsg}`);
+            // We continue even if LMS fails, but log it
+            return of(null);
+          }),
+        ),
+      );
+      this.logger.log(`✅ [AUTH-SERVICE] Removed user ${id} from LMS Service`);
+    } catch (err) {
+      this.logger.error(`Error during LMS Service deletion: ${err}`);
+    }
+
+    // 2. Delete from Auth Service Database
+    await this.UserRepository.delete(id);
+    this.logger.log(`✅ [AUTH-SERVICE] Permanently deleted user ${id} from Auth database`);
+
+    return { message: 'User permanently deleted from all services.' };
   }
 
   async refreshToken(id: number) {

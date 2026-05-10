@@ -3,6 +3,9 @@
 import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Home } from "lucide-react";
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
     const { user, isLoading, isError } = useAuth(); // Fetches /auth/profile
@@ -38,7 +41,7 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
     }
 
     // Block access if the user is authenticated but not active
-    if (user.isActive === false) {
+    if (!user.isActive) {
         return (
             <div className="flex h-[calc(100vh-64px)] w-full items-center justify-center bg-gray-50 dark:bg-black">
                 <div className="flex flex-col items-center gap-4 text-center max-w-md px-6">
@@ -51,6 +54,12 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
                     <p className="text-gray-500 dark:text-gray-400 font-medium">
                         Your teacher account is currently pending approval or has been deactivated. Please contact an administrator to restore access.
                     </p>
+                    <Link href="/">
+                        <Button className="mt-2 rounded-xl font-bold gap-2">
+                            <Home className="w-4 h-4" />
+                            Back to Home
+                        </Button>
+                    </Link>
                 </div>
             </div>
         );

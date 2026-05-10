@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { Navigation } from "@/components/baseComponets/navBar";
+import ProtectedRoute from "@/hooks/ProtectedRoute";
 
 
 import { useCourses } from "@/hooks/useCourses";
@@ -59,7 +60,7 @@ export default function YourCoursesPage() {
         (courses.filter((c) => (c.rating || 0) > 0).length || 1);
 
     return (
-
+        // <ProtectedRoute>
         <div className="min-h-screen bg-gray-50 dark:bg-black font-sans">
             <Navigation />
 
@@ -237,6 +238,6 @@ export default function YourCoursesPage() {
                 )}
             </main>
         </div>
-
+        // </ProtectedRoute>
     );
 }
