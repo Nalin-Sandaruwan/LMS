@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '../../ui/button';
-import { JoinDialog } from '../vibe-components/JoinDialog';
+import Link from 'next/link';
 
 export function HeroContent() {
     return (
@@ -47,11 +47,11 @@ export function HeroContent() {
                 transition={{ duration: 0.6, ease: "easeOut" }}
                 className="flex flex-col md:flex-row items-start md:items-center mt-12 gap-6 md:gap-10"
             >
-                <JoinDialog>
+                <Link href="/all-courses">
                     <Button className="bg-[#4F46E5] hover:bg-[#4338CA] text-white h-14 px-8 rounded-xl font-semibold text-lg flex items-center shadow-lg shadow-indigo-500/25">
-                        Join With Us <span className="text-2xl ml-2 font-light">↗</span>
+                        Explore All Courses <span className="text-2xl ml-2 font-light">↗</span>
                     </Button>
-                </JoinDialog>
+                </Link>
                 <div className="flex items-center gap-6">
                     {/* Thin right arrow */}
                     <svg className="w-16 h-4 text-gray-500 dark:text-gray-400 shrink-0 transition-colors duration-300" viewBox="0 0 64 16" fill="none" xmlns="http://www.w3.org/2000/svg">

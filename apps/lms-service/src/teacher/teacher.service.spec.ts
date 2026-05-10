@@ -11,7 +11,7 @@ describe('TeacherService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         TeacherService,
-        { provide: getRepositoryToken(Teacher), useValue: {} }
+        { provide: getRepositoryToken(Teacher), useValue: {} },
       ],
     }).compile();
 

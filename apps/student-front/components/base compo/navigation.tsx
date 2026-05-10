@@ -12,7 +12,7 @@ import { MobileMenu } from './nav-components/MobileMenu';
 
 const navItems = [
     { name: "Home", href: "/" },
-    { name: "All Courses", href: "/all-cource" },
+    { name: "All Courses", href: "/all-courses" },
     { name: "Pricing", href: "/plans" },
     { name: "About us", href: "/about_us" },
 ];
@@ -22,9 +22,18 @@ export function Navigation() {
     const [isOpen, setIsOpen] = React.useState(false);
     const [isHidden, setIsHidden] = React.useState(false);
     const [isAtTop, setIsAtTop] = React.useState(true);
+    const [isHiddenByEvent, setIsHiddenByEvent] = React.useState(false);
     const { scrollY } = useScroll();
 
     const isAuthPage = pathname === '/login' || pathname === '/sign-up';
+
+    React.useEffect(() => {
+        const handleToggle = (e: any) => {
+            setIsHiddenByEvent(e.detail === 'hide');
+        };
+        window.addEventListener('idensphere-toggle-navbar', handleToggle);
+        return () => window.removeEventListener('idensphere-toggle-navbar', handleToggle);
+    }, []);
 
     useMotionValueEvent(scrollY, "change", (latest) => {
         // Check if we are at the very top of the page
@@ -32,8 +41,8 @@ export function Navigation() {
 
         const previous = scrollY.getPrevious() ?? 0;
 
-        // Don't hide the navbar if the mobile menu is open
-        if (isOpen) {
+        // Don't hide the navbar if the mobile menu is open or hidden by event
+        if (isOpen || isHiddenByEvent) {
             setIsHidden(false);
             return;
         }
@@ -51,15 +60,16 @@ export function Navigation() {
 
     return (
         <div className='fixed top-0 left-0 w-full z-50 page-margin pointer-events-none'>
-            <motion.div
+            <motion.nav
                 variants={{
                     visible: { y: 0, opacity: 1 },
                     hidden: { y: "-150%", opacity: 0 }
                 }}
                 initial="visible"
-                animate={isHidden ? "hidden" : "visible"}
+                animate={(isHidden || isHiddenByEvent) ? "hidden" : "visible"}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
-                className={`flex w-full h-16 container mx-auto items-center rounded-full justify-between px-6 md:px-10 mt-5 relative z-50 pointer-events-auto transition-all duration-300 ${isAtTop
+                role="navigation"
+                className={`flex w-full h-16 container mx-auto items-center rounded-full justify-between px-6 md:px-10 mt-5 relative z-50 pointer-events-auto transition-all duration-300 ${isHiddenByEvent ? 'lg:flex hidden' : 'flex'} ${isAtTop
                     ? 'bg-transparent border-transparent shadow-none'
                     : 'border border-gray-200 dark:border-gray-800 backdrop-blur-xl bg-white/40 dark:bg-gray-950/40 shadow-sm'
                     }`}
@@ -98,7 +108,7 @@ export function Navigation() {
                         </svg>
                     </button>
                 </div>
-            </motion.div>
+            </motion.nav>
 
             {/* Mobile Navigation Overlay */}
             <MobileMenu

@@ -17,17 +17,22 @@ import { APP_GUARD } from '@nestjs/core';
     }),
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development',
+      envFilePath:
+        process.env.NODE_ENV === 'production'
+          ? '.env.production'
+          : '.env.development',
     }),
     // Rate Limiting: 10 requests per 60 seconds
-    ThrottlerModule.forRoot([{
-      ttl: 60000,
-      limit: 10,
-    }]),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 10,
+      },
+    ]),
   ],
   controllers: [ProxyController],
   providers: [
-    ProxyService, 
+    ProxyService,
     JwtMiddleware,
     {
       provide: APP_GUARD,

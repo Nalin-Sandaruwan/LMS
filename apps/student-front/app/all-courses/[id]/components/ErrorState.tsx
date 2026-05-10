@@ -18,7 +18,7 @@ export function ErrorState() {
                         We couldn't find the course you're looking for. It might have been removed or the link is incorrect.
                     </p>
                     <Button asChild className="w-full">
-                        <Link href="/all-cource">Browse All Courses</Link>
+                        <Link href="/all-courses">Browse All Courses</Link>
                     </Button>
                 </div>
             </main>

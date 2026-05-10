@@ -7,9 +7,6 @@ import {
   ForbiddenException,
   Logger,
 } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
-import { MessagePattern, Payload } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
@@ -17,8 +14,6 @@ import { UsersService } from 'src/users/users.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { isString } from 'util';
-import { ExceptionsHandler } from '@nestjs/core/exceptions/exceptions-handler';
 
 import { Role } from './enums/roles.enum';
 import { HttpService } from '@nestjs/axios';
@@ -122,7 +117,7 @@ export class AuthService {
       ...createUserDto,
       password: hashedPassword,
     };
-    const user = await this.UserRepository.create(hashedUser);
+    const user = this.UserRepository.create(hashedUser);
     await this.UserRepository.save(user);
     return user;
   }
@@ -196,7 +191,7 @@ export class AuthService {
       throw new NotFoundException('User not found');
     }
 
-    if (user.role !== 'teacher') {
+    if (user.role !== Role.TEACHER) {
       throw new UnauthorizedException('Access restricted to teachers only');
     }
 
@@ -217,7 +212,7 @@ export class AuthService {
       throw new NotFoundException('User not found');
     }
 
-    if (user.role !== 'user') {
+    if (user.role !== Role.USER) {
       throw new UnauthorizedException('Access restricted to user only');
     }
 
@@ -242,20 +237,26 @@ export class AuthService {
 
     // Determine LMS endpoint based on role
     const lmsEndpoint = user.role === Role.TEACHER ? 'teacher' : 'student';
-    
-    this.logger.log(`🗑️ [AUTH-SERVICE] Deleting user ${id} (${user.role}) across services...`);
+
+    this.logger.log(
+      `🗑️ [AUTH-SERVICE] Deleting user ${id} (${user.role}) across services...`,
+    );
 
     // 1. Delete from LMS Service
     try {
       await firstValueFrom(
-        this.httpService.delete(`${process.env.LMS_SERVICE_URL}/${lmsEndpoint}/${id}`).pipe(
-          catchError((error) => {
-            const errorMsg = error.response?.data?.message || error.message;
-            this.logger.error(`Failed to delete user from LMS Service: ${errorMsg}`);
-            // We continue even if LMS fails, but log it
-            return of(null);
-          }),
-        ),
+        this.httpService
+          .delete(`${process.env.LMS_SERVICE_URL}/${lmsEndpoint}/${id}`)
+          .pipe(
+            catchError((error) => {
+              const errorMsg = error.response?.data?.message || error.message;
+              this.logger.error(
+                `Failed to delete user from LMS Service: ${errorMsg}`,
+              );
+              // We continue even if LMS fails, but log it
+              return of(null);
+            }),
+          ),
       );
       this.logger.log(`✅ [AUTH-SERVICE] Removed user ${id} from LMS Service`);
     } catch (err) {
@@ -264,7 +265,9 @@ export class AuthService {
 
     // 2. Delete from Auth Service Database
     await this.UserRepository.delete(id);
-    this.logger.log(`✅ [AUTH-SERVICE] Permanently deleted user ${id} from Auth database`);
+    this.logger.log(
+      `✅ [AUTH-SERVICE] Permanently deleted user ${id} from Auth database`,
+    );
 
     return { message: 'User permanently deleted from all services.' };
   }

@@ -1,6 +1,11 @@
-import { IsString, IsNotEmpty, IsNumber, IsOptional, Min } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  Min,
+} from 'class-validator';
 export class CreateCourseDto {
-
   @IsString()
   @IsNotEmpty()
   title!: string;
@@ -22,4 +27,3 @@ export class CreateCourseDto {
   @Min(0)
   lessonCount: number = 0;
 }
-

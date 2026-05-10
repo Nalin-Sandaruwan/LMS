@@ -15,7 +15,10 @@ import ormConfig from './config/orm.config';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true, // makes it available everywhere
-      envFilePath: process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development',
+      envFilePath:
+        process.env.NODE_ENV === 'production'
+          ? '.env.production'
+          : '.env.development',
     }),
     TypeOrmModule.forRoot(ormConfig()),
     TeacherModule,
@@ -23,9 +26,9 @@ import ormConfig from './config/orm.config';
     CourseModule,
     SectionModule,
     LessonsModule,
-    EnrollmentModule
+    EnrollmentModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

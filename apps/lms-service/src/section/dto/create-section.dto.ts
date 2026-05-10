@@ -1,20 +1,26 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
 
 export class CreateSectionDto {
-    @IsNotEmpty()
-    @IsNumber()
-    courseId: number;
+  @IsNotEmpty()
+  @IsNumber()
+  courseId: number;
 
-    @IsNotEmpty()
-    @IsString()
-    title: string;
+  @IsNotEmpty()
+  @IsString()
+  title: string;
 
-    @IsNotEmpty()
-    @IsString()
-    description: string;
+  @IsNotEmpty()
+  @IsString()
+  description: string;
 
-    @IsOptional()
-    @IsNumber()
-    @Min(0)
-    duration: number;
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  duration: number;
 }

@@ -21,7 +21,6 @@ export class EnrollmentController {
   create(
     @Body() createEnrollmentDto: CreateEnrollmentDto,
     @Headers('x-user-id') userId: string,
-    @Headers('x-user-role') userRole: string,
   ) {
     if (!userId || isNaN(Number(userId))) {
       throw new BadRequestException('Invalid or missing x-user-id header');

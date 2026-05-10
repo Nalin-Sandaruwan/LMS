@@ -1,4 +1,10 @@
-import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  UnauthorizedException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Role } from '../enums/roles.enum';
 import { ROLES_KEY } from '../decorators/roles.decorator';
@@ -29,9 +35,11 @@ export class RolesGuard implements CanActivate {
 
     // Check if the role from headers matches any required role
     const hasRole = requiredRoles.some((role) => userRole === role);
-    
+
     if (!hasRole) {
-      throw new ForbiddenException('You do not have the required role to access this resource');
+      throw new ForbiddenException(
+        'You do not have the required role to access this resource',
+      );
     }
 
     return true;

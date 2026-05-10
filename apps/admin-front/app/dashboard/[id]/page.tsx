@@ -22,6 +22,16 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../components/ui/card";
 
+interface Course {
+  id: string | number;
+  title: string;
+  thumbnail?: string;
+  description?: string;
+  enrollmentCount?: number;
+  rating?: number;
+  isActive?: boolean;
+}
+
 export default function TeacherProfilePage() {
   const params = useParams();
   const router = useRouter();
@@ -47,7 +57,7 @@ export default function TeacherProfilePage() {
         </div>
         <div>
           <h2 className="text-3xl font-black text-foreground mb-2">Teacher Not Found</h2>
-          <p className="text-muted-foreground max-w-md">We couldn't find the educator you're looking for. They may have been removed or the ID is incorrect.</p>
+          <p className="text-muted-foreground max-w-md">We couldn&apos;t find the educator you&apos;re looking for. They may have been removed or the ID is incorrect.</p>
         </div>
         <Button onClick={() => router.back()} className="rounded-xl px-8 font-bold">
           Go Back
@@ -123,7 +133,7 @@ export default function TeacherProfilePage() {
                   <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground mb-3 px-1">Professional Bio</h3>
                   <div className="p-5 rounded-2xl bg-muted/30 border border-border/50">
                     <p className="text-sm leading-relaxed text-muted-foreground italic">
-                      "{profile.shortBio || "This teacher hasn't added a biography yet."}"
+                      &quot;{profile.shortBio || "This teacher hasn&apos;t added a biography yet."}&quot;
                     </p>
                   </div>
                 </div>
@@ -161,7 +171,7 @@ export default function TeacherProfilePage() {
               </div>
             ) : Array.isArray(courses) && courses.length > 0 ? (
               <div className="grid grid-cols-1 gap-6">
-                {courses.map((course: any) => (
+                {courses.map((course: Course) => (
                   <Card key={course.id} className="group overflow-hidden border-border/40 hover:border-primary/30 hover:shadow-2xl hover:shadow-primary/5 transition-all duration-300 rounded-3xl">
                     <div className="flex flex-col md:flex-row h-full">
                       <div className="w-full md:w-56 h-40 md:h-auto overflow-hidden relative">
@@ -221,7 +231,7 @@ export default function TeacherProfilePage() {
                   </div>
                   <h3 className="text-xl font-black text-foreground mb-2">No Courses Yet</h3>
                   <p className="text-muted-foreground max-w-xs">
-                    This educator hasn't published any courses to the platform at this time.
+                    This educator hasn&apos;t published any courses to the platform at this time.
                   </p>
                 </CardContent>
               </Card>
@@ -233,7 +243,7 @@ export default function TeacherProfilePage() {
   );
 }
 
-function StatSmall({ icon: Icon, label, value }: { icon: any, label: string, value: any }) {
+function StatSmall({ icon: Icon, label, value }: { icon: React.ElementType, label: string, value: string | number }) {
   return (
     <Card className="border-none shadow-sm bg-card/50 rounded-2xl">
       <CardContent className="p-4 flex items-center gap-4">

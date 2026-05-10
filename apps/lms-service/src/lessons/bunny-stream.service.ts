@@ -225,7 +225,9 @@ export class BunnyStreamService {
 
   getUploadSignature(videoId: string) {
     if (!this.libraryId || !this.apiKey) {
-      this.logger.error('BUNNY_STREAM_LIBRARY_ID or BUNNY_STREAM_API_KEY is missing in environment variables!');
+      this.logger.error(
+        'BUNNY_STREAM_LIBRARY_ID or BUNNY_STREAM_API_KEY is missing in environment variables!',
+      );
     }
 
     // Expiration: 1 hour from now
@@ -234,9 +236,11 @@ export class BunnyStreamService {
     // Bunny Signature Pattern: sha256(library_id + api_key + expiration_time + video_id)
     const signatureContent =
       this.libraryId + this.apiKey + expirationTime + videoId;
-    
-    this.logger.log(`Generating signature for Video: ${videoId}, Library: ${this.libraryId}`);
-    
+
+    this.logger.log(
+      `Generating signature for Video: ${videoId}, Library: ${this.libraryId}`,
+    );
+
     const signature = crypto
       .createHash('sha256')
       .update(signatureContent)

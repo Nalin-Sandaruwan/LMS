@@ -1,4 +1,5 @@
 "use client"
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { MessageSquare } from 'lucide-react';
 
@@ -30,13 +31,15 @@ export function VibeNetwork() {
 }
 
 function Avatar({ pos, src, delay }: { pos: string, src: string, delay: number }) {
+    const [randomDuration] = useState(() => 3 + Math.random() * 2);
+
     return (
         <motion.div
             animate={{
                 y: [0, -10, 0],
             }}
             transition={{
-                duration: 3 + Math.random() * 2,
+                duration: randomDuration,
                 repeat: Infinity,
                 ease: "easeInOut",
                 delay: delay

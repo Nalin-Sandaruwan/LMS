@@ -16,7 +16,7 @@ export function VideoArea({ activeLesson }: VideoAreaProps) {
             {activeLesson.type === 'video' ? (
                 activeLesson.status === 'published' && activeLesson.fileUrl ? (
                     <iframe
-                        src={`${activeLesson.fileUrl}${activeLesson.fileUrl.includes('?') ? '&' : '?'}autoplay=true&loop=false&muted=false&preload=true&responsive=true`}
+                        src={`${activeLesson.fileUrl}${activeLesson.fileUrl.includes('?') ? '&' : '?'}autoplay=true&loop=false&muted=false&preload=true&responsive=true&api=true`}
                         loading="lazy"
                         style={{ border: 0, position: 'absolute', top: 0, height: '100%', width: '100%' }}
                         allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;"

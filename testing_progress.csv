@@ -1,0 +1,11 @@
+ID,Feature,Status,Expected Result,Notes
+TS01,SEO & Meta,Pass,Idensphere LMS - Empowering Your Learning Journey,Fixed title during testing.
+TS02,Navigation,Pass,Redirects to /all-cource,Verified spelling and routing.
+TS03,Course List,Pass,Courses loaded from backend,Two courses verified in catalog.
+TS04,Course Detail,Pass,Navigates to detail page,URL structure confirmed.
+TS05,Login UI,Pass,Login form displayed,Email/Password fields verified.
+TS06,Enrollment,Pass,Successful enrollment,New user registration and enrollment flow confirmed.
+TS07,Player Redirect,Pass,Navigates to course player,Redirection to /profile/my-courses/[id] verified.
+TS08,Sidebar Toggle,Pass,Smooth expansion,Desktop sidebar interaction confirmed.
+TS09,Mobile UI,Pass,Navbar hides and backdrop shows,Verified 375px responsiveness and z-index layering.
+TS10,Sitemap,Pass,Sitemap XML accessible,Dynamic generation verified.

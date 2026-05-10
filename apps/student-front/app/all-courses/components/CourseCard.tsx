@@ -80,7 +80,7 @@ export function CourseCard({ course, gradient }: CourseCardProps) {
 
                 <div className="mt-auto border-t border-gray-100 dark:border-gray-800 pt-4 flex items-center justify-end">
                     <Button variant="default" asChild>
-                        <Link href={`/all-cource/${course.id}`}>View Course</Link>
+                        <Link href={`/all-courses/${course.id}`}>View Course</Link>
                     </Button>
                 </div>
             </div>

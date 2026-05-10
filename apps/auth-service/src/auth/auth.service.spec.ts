@@ -15,7 +15,6 @@ jest.mock('bcrypt');
 describe('AuthService', () => {
   let service: AuthService;
   let usersService: UsersService;
-  let userRepository: any;
 
   // 2. Setup reusable mock objects
   const mockUserRepository = {
@@ -53,7 +52,6 @@ describe('AuthService', () => {
 
     service = module.get<AuthService>(AuthService);
     usersService = module.get<UsersService>(UsersService);
-    userRepository = module.get(getRepositoryToken(User));
 
     // Reset all mocks between tests so they don't leak data
     jest.clearAllMocks();

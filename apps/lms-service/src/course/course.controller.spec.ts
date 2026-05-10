@@ -41,7 +41,11 @@ describe('CourseController', () => {
 
   describe('create', () => {
     it('should call courseService.create and return the result', async () => {
-      const dto = { title: 'Docker 101', description: 'Learn Docker', img: '' } as unknown as CreateCourseDto;
+      const dto = {
+        title: 'Docker 101',
+        description: 'Learn Docker',
+        img: '',
+      } as unknown as CreateCourseDto;
       const expectedCourse = { id: 1, teacherId: 1, ...dto };
 
       mockCourseService.create.mockResolvedValue(expectedCourse);
@@ -60,7 +64,9 @@ describe('CourseController', () => {
   describe('findAll', () => {
     it('should return an array of courses', async () => {
       const expectedCourses = [{ id: 1, title: 'Course 1' }];
-      mockCourseService.findAllWithoutLessons.mockResolvedValue(expectedCourses);
+      mockCourseService.findAllWithoutLessons.mockResolvedValue(
+        expectedCourses,
+      );
 
       const result = await controller.findAll();
 

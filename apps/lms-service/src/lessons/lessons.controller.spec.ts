@@ -11,7 +11,7 @@ describe('LessonsController', () => {
       controllers: [LessonsController],
       providers: [
         { provide: LessonsService, useValue: {} },
-        { provide: BunnyStreamService, useValue: {} }
+        { provide: BunnyStreamService, useValue: {} },
       ],
     }).compile();
 

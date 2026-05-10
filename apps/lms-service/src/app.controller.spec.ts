@@ -4,7 +4,6 @@ import { AppService } from './app.service';
 
 describe('AppController', () => {
   let appController: AppController;
-  let appService: AppService;
 
   const mockAppService = {
     getHello: jest.fn(),
@@ -22,7 +21,6 @@ describe('AppController', () => {
     }).compile();
 
     appController = app.get<AppController>(AppController);
-    appService = app.get<AppService>(AppService);
   });
 
   afterEach(() => {
@@ -43,12 +41,21 @@ describe('AppController', () => {
   describe('getLms', () => {
     it('should log headers and return a success message', () => {
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-      
+
       const result = appController.getLms('123', 'ADMIN') as any;
 
-      expect(consoleSpy).toHaveBeenCalledWith('✅ [LMS] Request from user:', '123', 'Role:', 'ADMIN');
-      expect(result).toEqual({ message: 'Hello from LMS', userId: '123', userRole: 'ADMIN' });
-      
+      expect(consoleSpy).toHaveBeenCalledWith(
+        '✅ [LMS] Request from user:',
+        '123',
+        'Role:',
+        'ADMIN',
+      );
+      expect(result).toEqual({
+        message: 'Hello from LMS',
+        userId: '123',
+        userRole: 'ADMIN',
+      });
+
       consoleSpy.mockRestore();
     });
   });

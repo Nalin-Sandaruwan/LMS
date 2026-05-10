@@ -1,4 +1,13 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+  OneToMany,
+} from 'typeorm';
 import { Course } from '../../course/entities/course.entity';
 import { Lesson } from '../../lessons/entities/lesson.entity';
 
@@ -32,4 +41,3 @@ export class Section {
   @UpdateDateColumn()
   updatedAt: Date;
 }
-
