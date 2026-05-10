@@ -101,21 +101,21 @@ export class AuthController {
     const isProduction = process.env.NODE_ENV === 'production';
     const domain = isProduction ? '.idensphere.com' : undefined;
 
-    response.cookie('accessToken', result.accessToken, {
+    const commonOptions = {
       httpOnly: true,
       secure: isProduction,
-      sameSite: 'lax',
+      sameSite: 'lax' as const,
       path: '/',
       domain: domain,
+    };
+
+    response.cookie('accessToken', result.accessToken, {
+      ...commonOptions,
       maxAge: 15 * 60 * 1000,
     });
 
     response.cookie('refreshToken', result.refreshToken, {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: 'lax',
-      path: '/',
-      domain: domain,
+      ...commonOptions,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
   }
@@ -171,55 +171,27 @@ export class AuthController {
   }
 
   //login user
-  // @UseGuards(LocalAuthGuard)
-  // @Post('login/student')
-  // async loginStudent(
-  //   @Body() loginDto: loginDto,
-  //   @Res({ passthrough: true }) response: Response,
-  // ) {
-  //   console.log('🔑 [AUTH-LOGIN] Logging in user:', loginDto.email);
+  @UseGuards(LocalAuthGuard)
+  @Post('login/student')
+  async loginStudent(
+    @Req() req,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const user = req.user;
+    console.log('🔑 [AUTH-LOGIN] Logging in student:', user.email);
 
-  //   const result = await this.authService.login(
-  //     loginDto.email,
-  //     loginDto.password,
-  //   );
+    const result = await this.authService.login(user);
 
-  //   // ✅ Clear any old cookies first
-  //   response.clearCookie('accessToken');
-  //   response.clearCookie('refreshToken');
-  //   response.clearCookie('refresh_token'); // Clear duplicate
-  //   response.clearCookie('accessToken');
+    // ✅ Clear any old cookies first
+    response.clearCookie('accessToken');
+    response.clearCookie('refreshToken');
 
-  //   // ✅ Set FRESH cookies with consistent names
-  //   response.cookie('accessToken', result.accessToken, {
-  //     httpOnly: true,
-  //     secure: false,
-  //     sameSite: 'lax',
-  //     path: '/',
-  //     maxAge: 60 * 1000, // 60 seconds
-  //   });
+    // ✅ Use the consistent helper to set cookies
+    this.setAuthCookies(response, result);
 
-  //   response.cookie('refreshToken', result.refreshToken, {
-  //     httpOnly: true,
-  //     secure: false,
-  //     sameSite: 'lax',
-  //     path: '/',
-  //     maxAge: 7 * 24 * 60 * 60 * 1000,
-  //   });
-
-  //   console.log('✅ [AUTH-LOGIN] Cookies set for user:', result.user.email);
-  //   console.log(
-  //     '✅ [AUTH-LOGIN] accessToken set:',
-  //     result.accessToken.substring(0, 30) + '...',
-  //   );
-  //   console.log(
-  //     '✅ [AUTH-LOGIN] refreshToken set:',
-  //     result.refreshToken.substring(0, 30) + '...',
-  //   );
-
-  //   // Now standard 'return' works again!
-  //   return result;
-  // }
+    console.log('✅ [AUTH-LOGIN] Cookies set for student:', result.user.email);
+    return result;
+  }
 
   //I need to make the user delete endpoint
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -278,13 +250,27 @@ export class AuthController {
   @Post('logout')
   async logout(@Req() req, @Res() res: Response) {
     const userId = req.user.id;
-    await this.authService.validateRefreshToken(
-      userId,
-      req.cookies.refreshToken,
-    ); // Invalidate refresh token
-    res.clearCookie('accessToken', { path: '/' });
-    res.clearCookie('refreshToken', { path: '/' });
-    res.status(200).json({ message: 'Logout successful' });
+
+    // ✅ 1. Clear Refresh Token in Database
+    await this.authService.clearRefreshToken(userId);
+
+    // ✅ 2. Clear Cookies with exact same options as when they were set
+    const isProduction = process.env.NODE_ENV === 'production';
+    const domain = isProduction ? '.idensphere.com' : undefined;
+
+    const cookieOptions = {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: 'lax' as const,
+      path: '/',
+      domain: domain,
+    };
+
+    res.clearCookie('accessToken', cookieOptions);
+    res.clearCookie('refreshToken', cookieOptions);
+
+    console.log(`✅ [AUTH-LOGOUT] User ${userId} logged out successfully`);
+    return res.status(200).json({ message: 'Logout successful' });
   }
 
   //I need testing route for the acess Token remove on cookiees

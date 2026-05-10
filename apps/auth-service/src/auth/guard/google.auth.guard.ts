@@ -12,6 +12,7 @@ export class GoogleAuthGuard extends AuthGuard('google') {
     
     return {
       state: role,
+      prompt: 'select_account',
     };
   }
 }
